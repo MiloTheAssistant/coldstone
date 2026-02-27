@@ -18,13 +18,14 @@ export default {
           600: '#1A2F5A',
           500: '#1E3A6E',
         },
+        // warm clay/terracotta — softer than blood-red, still rich on dark
         crimson: {
-          900: '#5A0A0A',
-          800: '#7B1111',
-          700: '#8B1515',
-          600: '#991818',
-          500: '#B52020',
-          400: '#CC2929',
+          900: '#4A1E14',
+          800: '#7A3828',
+          700: '#9A4E38',
+          600: '#A85840',
+          500: '#BF6A52',
+          400: '#D07A64',
         },
         gold: {
           900: '#3D2B00',
