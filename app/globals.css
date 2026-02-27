@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --stone-50: #F4F1EA;
+  --stone-800: #1E1E1E;
+  --stone-900: #0F0F0F;
+  --forest-500: #1F3A2E;
+}
+
+body {
+  background-color: var(--stone-50);
+  color: var(--stone-800);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.font-serif {
+  font-family: 'Cinzel', Georgia, serif;
+}
