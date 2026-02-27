@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -11,6 +11,10 @@
   --forest-500: #1F3A2E;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--stone-50);
   color: var(--stone-800);
@@ -20,3 +24,54 @@ body {
 .font-serif {
   font-family: 'Cinzel', Georgia, serif;
 }
+
+/* ── Marquee ── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ── Scroll Reveal ── */
+.sr-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.sr-fade {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.sr-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* ── Hero scroll indicator ── */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0)   translateX(-50%); }
+  50%       { transform: translateY(8px) translateX(-50%); }
+}
+
+.scroll-indicator {
+  animation: scrollBounce 2.2s ease-in-out infinite;
+  /* override the translate-x from Tailwind so the animation doesn't conflict */
+  transform-origin: center bottom;
+  left: 50%;
+}
+
+/* ── Thin custom scrollbar ── */
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: var(--stone-50); }
+::-webkit-scrollbar-thumb  { background: #C6B8A3; border-radius: 2px; }
