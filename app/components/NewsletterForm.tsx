@@ -13,8 +13,8 @@ export default function NewsletterForm() {
 
   if (submitted) {
     return (
-      <p className="text-stone-300 tracking-[0.2em] text-xs">
-        You're on the list. We'll be in touch.
+      <p className="text-gold-500 tracking-[0.2em] text-xs">
+        You&apos;re on the list. We&apos;ll be in touch.
       </p>
     );
   }
@@ -30,11 +30,11 @@ export default function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="YOUR EMAIL ADDRESS"
         required
-        className="flex-1 bg-transparent border border-stone-700 text-stone-50 placeholder:text-stone-600 px-5 py-3.5 text-[11px] tracking-[0.15em] focus:outline-none focus:border-stone-400 transition-colors"
+        className="flex-1 bg-transparent border border-gold-500/30 text-parchment-100 placeholder:text-parchment-500 px-5 py-3.5 text-[11px] tracking-[0.15em] focus:outline-none focus:border-gold-500 transition-colors"
       />
       <button
         type="submit"
-        className="bg-stone-50 text-stone-900 px-8 py-3.5 text-[11px] tracking-[0.25em] hover:bg-stone-200 transition-colors"
+        className="bg-crimson-600 text-parchment-100 px-8 py-3.5 text-[11px] tracking-[0.25em] hover:bg-crimson-500 transition-colors"
       >
         JOIN
       </button>

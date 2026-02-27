@@ -70,7 +70,7 @@ const processSteps = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-midnight">
       <Header />
 
       {/* ── Hero ── */}
@@ -83,26 +83,37 @@ export default function Home() {
             className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-900/65 via-stone-900/50 to-stone-900/80" />
+          {/* Deep dark overlay for midnight feel */}
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight/85 via-midnight/70 to-midnight/95" />
+          {/* Subtle grain texture */}
+          <div
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
+            }}
+          />
         </div>
 
-        <div className="relative z-10 text-center text-stone-50 px-6 max-w-5xl mx-auto">
-          <p className="font-sans text-[10px] tracking-[0.6em] text-stone-300 mb-8 uppercase">
+        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+          <p className="font-sans text-[10px] tracking-[0.6em] text-gold-500 mb-8 uppercase">
             Veteran Owned &nbsp;·&nbsp; Small Batch &nbsp;·&nbsp; USA Made
           </p>
-          <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.08] mb-10 tracking-wide">
+          <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.08] mb-8 tracking-wide text-parchment-100">
             Pure.<br />American.<br />Uncompromising.
           </h2>
+          {/* Gold rule divider */}
+          <div className="w-16 h-px bg-gold-500 mx-auto mb-10 opacity-70" />
           <a
             href="#shop"
-            className="inline-block border border-stone-50/80 text-stone-50 px-14 py-4 text-[11px] tracking-[0.3em] hover:bg-stone-50 hover:text-stone-900 transition-all duration-300"
+            className="inline-block border border-crimson-600 text-parchment-100 px-14 py-4 text-[11px] tracking-[0.3em] hover:bg-crimson-600 transition-all duration-300"
           >
             SHOP THE COLLECTION
           </a>
         </div>
 
         {/* Scroll cue */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 text-stone-400 scroll-indicator">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 scroll-indicator" style={{ color: 'rgba(212,160,23,0.55)' }}>
           <span className="text-[9px] tracking-[0.45em]">SCROLL</span>
           <svg width="16" height="26" viewBox="0 0 16 26" fill="none" stroke="currentColor" strokeWidth="1.2">
             <rect x="1" y="1" width="14" height="24" rx="7" />
@@ -112,44 +123,45 @@ export default function Home() {
       </section>
 
       {/* ── Marquee ── */}
-      <div className="bg-stone-800 py-4 overflow-hidden">
+      <div className="bg-navy-900 py-4 overflow-hidden border-y border-gold-500/20">
         <div className="marquee-track">
           {[...Array(4)].map((_, i) => (
             <span
               key={i}
-              className="flex items-center gap-10 pr-10 text-stone-50 text-[10px] tracking-[0.45em] whitespace-nowrap"
+              className="flex items-center gap-10 pr-10 text-parchment-200 text-[10px] tracking-[0.45em] whitespace-nowrap"
             >
               <span>VETERAN OWNED</span>
-              <span className="text-stone-600">✦</span>
+              <span className="text-gold-500/70">✦</span>
               <span>COLD PROCESS</span>
-              <span className="text-stone-600">✦</span>
+              <span className="text-gold-500/70">✦</span>
               <span>SMALL BATCH</span>
-              <span className="text-stone-600">✦</span>
+              <span className="text-gold-500/70">✦</span>
               <span>USA MADE</span>
-              <span className="text-stone-600">✦</span>
+              <span className="text-gold-500/70">✦</span>
               <span>NATURAL INGREDIENTS</span>
-              <span className="text-stone-600">✦</span>
+              <span className="text-gold-500/70">✦</span>
               <span>CURED 4–6 WEEKS</span>
-              <span className="text-stone-600">✦</span>
+              <span className="text-gold-500/70">✦</span>
             </span>
           ))}
         </div>
       </div>
 
       {/* ── Products ── */}
-      <section id="shop" className="py-24 md:py-32 px-6 bg-stone-100">
+      <section id="shop" className="py-24 md:py-32 px-6 bg-navy-800 grain-overlay stars-bg">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-20">
-            <p className="text-[10px] tracking-[0.5em] text-stone-400 mb-3">THE COLLECTION</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-stone-800">
+            <p className="text-[10px] tracking-[0.5em] text-gold-500 mb-3">THE COLLECTION</p>
+            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100">
               Crafted with Intention
             </h3>
+            <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
           </ScrollReveal>
 
           <div className="grid md:grid-cols-2 gap-10 lg:gap-14">
             {products.map((product, i) => (
               <ScrollReveal key={product.name} delay={i * 120} className="group">
-                <div className="bg-stone-50 overflow-hidden">
+                <div className="bg-navy-900 border border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition-colors duration-500">
                   <div className="aspect-[4/3] relative overflow-hidden">
                     <Image
                       src={product.image}
@@ -157,29 +169,30 @@ export default function Home() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 right-4 bg-stone-900 text-stone-50 px-3.5 py-1.5 text-xs tracking-wider font-medium">
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/50 to-transparent" />
+                    <div className="absolute top-4 right-4 bg-crimson-600 text-parchment-100 px-3.5 py-1.5 text-xs tracking-wider font-medium">
                       {product.price}
                     </div>
                   </div>
 
                   <div className="p-8">
-                    <p className="text-[9px] tracking-[0.5em] text-stone-400 mb-2">{product.notes}</p>
-                    <h4 className="font-serif text-2xl text-stone-800 mb-1">{product.name}</h4>
-                    <p className="text-xs tracking-[0.2em] text-stone-400 mb-5 italic">{product.tagline}</p>
-                    <p className="text-stone-500 text-sm leading-relaxed mb-7">{product.description}</p>
+                    <p className="text-[9px] tracking-[0.5em] text-gold-500/70 mb-2">{product.notes}</p>
+                    <h4 className="font-serif text-2xl text-parchment-100 mb-1">{product.name}</h4>
+                    <p className="text-xs tracking-[0.2em] text-parchment-400 mb-5 italic">{product.tagline}</p>
+                    <p className="text-parchment-400 text-sm leading-relaxed mb-7">{product.description}</p>
 
                     <div className="flex flex-wrap gap-2 mb-8">
                       {product.ingredients.map((ing) => (
                         <span
                           key={ing}
-                          className="text-[9px] tracking-wider border border-stone-200 text-stone-400 px-3 py-1"
+                          className="text-[9px] tracking-wider border border-gold-500/20 text-parchment-500 px-3 py-1"
                         >
                           {ing.toUpperCase()}
                         </span>
                       ))}
                     </div>
 
-                    <button className="w-full border border-stone-800 text-stone-800 py-3.5 text-[11px] tracking-[0.25em] hover:bg-stone-800 hover:text-stone-50 transition-colors duration-300">
+                    <button className="w-full border border-gold-500 text-gold-500 py-3.5 text-[11px] tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-colors duration-300">
                       ADD TO CART
                     </button>
                   </div>
@@ -191,24 +204,25 @@ export default function Home() {
       </section>
 
       {/* ── Process ── */}
-      <section id="process" className="py-24 md:py-32 px-6">
+      <section id="process" className="py-24 md:py-32 px-6 bg-midnight grain-overlay">
         <div className="max-w-5xl mx-auto">
           <ScrollReveal className="text-center mb-20">
-            <p className="text-[10px] tracking-[0.5em] text-stone-400 mb-3">HOW IT'S MADE</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-stone-800">Our Process</h3>
+            <p className="text-[10px] tracking-[0.5em] text-gold-500 mb-3">HOW IT'S MADE</p>
+            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100">Our Process</h3>
+            <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
           </ScrollReveal>
 
           <div className="grid md:grid-cols-3 gap-14 md:gap-8 relative">
             {/* Connecting line — desktop only */}
-            <div className="hidden md:block absolute top-8 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-stone-200" />
+            <div className="hidden md:block absolute top-8 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-gold-500/20" />
 
             {processSteps.map((step, i) => (
               <ScrollReveal key={step.step} delay={i * 150} className="text-center">
-                <div className="w-16 h-16 border border-stone-200 rounded-full mx-auto mb-7 flex items-center justify-center bg-stone-50 relative z-10">
-                  <span className="font-serif text-base text-stone-600">{step.step}</span>
+                <div className="w-16 h-16 border border-gold-500/40 rounded-full mx-auto mb-7 flex items-center justify-center bg-navy-800 relative z-10">
+                  <span className="font-serif text-base text-gold-500">{step.step}</span>
                 </div>
-                <h4 className="font-serif text-lg text-stone-800 mb-4">{step.title}</h4>
-                <p className="text-sm text-stone-500 leading-relaxed">{step.detail}</p>
+                <h4 className="font-serif text-lg text-parchment-100 mb-4">{step.title}</h4>
+                <p className="text-sm text-parchment-400 leading-relaxed">{step.detail}</p>
               </ScrollReveal>
             ))}
           </div>
@@ -216,29 +230,30 @@ export default function Home() {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-24 px-6 bg-stone-800">
+      <section className="py-24 px-6 bg-navy-900 grain-overlay stars-bg">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-16">
-            <p className="text-[10px] tracking-[0.5em] text-stone-500 mb-3">REVIEWS</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-stone-50">
+            <p className="text-[10px] tracking-[0.5em] text-gold-500 mb-3">REVIEWS</p>
+            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100">
               What Men Are Saying
             </h3>
+            <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
           </ScrollReveal>
 
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
               <ScrollReveal key={i} delay={i * 100}>
-                <div className="border border-stone-700 p-8 h-full flex flex-col">
-                  <p className="font-serif text-stone-600 text-3xl leading-none mb-4">"</p>
-                  <p className="text-stone-300 text-sm leading-relaxed flex-1 mb-8">{t.quote}</p>
+                <div className="border border-gold-500/20 bg-midnight/60 p-8 h-full flex flex-col hover:border-gold-500/40 transition-colors duration-300">
+                  <p className="font-serif text-gold-500/80 text-3xl leading-none mb-4">&ldquo;</p>
+                  <p className="text-parchment-300 text-sm leading-relaxed flex-1 mb-8">{t.quote}</p>
                   <div>
                     <div className="flex items-center gap-0.5 mb-3">
                       {[...Array(5)].map((_, j) => (
-                        <span key={j} className="text-stone-400 text-xs">★</span>
+                        <span key={j} className="text-crimson-500 text-xs">★</span>
                       ))}
                     </div>
-                    <p className="text-stone-50 text-xs tracking-wider">{t.author}</p>
-                    <p className="text-stone-500 text-xs mt-1">{t.location}</p>
+                    <p className="text-parchment-100 text-xs tracking-wider">{t.author}</p>
+                    <p className="text-parchment-500 text-xs mt-1">{t.location}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -248,39 +263,40 @@ export default function Home() {
       </section>
 
       {/* ── About ── */}
-      <section id="about" className="py-24 md:py-32 px-6">
+      <section id="about" className="py-24 md:py-32 px-6 bg-midnight grain-overlay">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <ScrollReveal>
-            <div className="aspect-square relative overflow-hidden">
+            <div className="aspect-square relative overflow-hidden border-l-2 border-gold-500/40">
               <Image
                 src="/black-granite.jpg"
                 alt="Black Granite soap bar"
                 fill
                 className="object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-br from-midnight/10 to-midnight/40" />
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={120}>
-            <p className="text-[10px] tracking-[0.5em] text-stone-400 mb-5">OUR STORY</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-stone-800 mb-8 leading-snug">
+            <p className="text-[10px] tracking-[0.5em] text-gold-500 mb-5">OUR STORY</p>
+            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100 mb-8 leading-snug">
               Built on Discipline
             </h3>
-            <p className="text-stone-500 leading-relaxed mb-5 text-sm">
+            <p className="text-parchment-400 leading-relaxed mb-5 text-sm">
               Coldstone Soap Co. was founded on the belief that everyday essentials should be built
               with intention. As a veteran-owned small business, we apply the discipline and
               precision learned in service to the craft of soapmaking.
             </p>
-            <p className="text-stone-500 leading-relaxed mb-10 text-sm">
+            <p className="text-parchment-400 leading-relaxed mb-10 text-sm">
               Each batch is produced using the traditional cold process method and slow-cured to
               ensure durability, skin compatibility, and real performance. No fillers. No shortcuts.
               No compromise.
             </p>
-            <div className="flex flex-wrap gap-6 text-[10px] tracking-[0.35em] text-stone-400 border-t border-stone-200 pt-8">
+            <div className="flex flex-wrap gap-6 text-[10px] tracking-[0.35em] text-gold-500/70 border-t border-gold-500/20 pt-8">
               <span>VETERAN OWNED</span>
-              <span>·</span>
+              <span className="text-gold-500/30">·</span>
               <span>SMALL BATCH</span>
-              <span>·</span>
+              <span className="text-gold-500/30">·</span>
               <span>USA MADE</span>
             </div>
           </ScrollReveal>
@@ -288,14 +304,15 @@ export default function Home() {
       </section>
 
       {/* ── Newsletter ── */}
-      <section className="py-20 px-6 bg-stone-900">
+      <section className="py-20 px-6 bg-navy-800 grain-overlay stars-bg">
         <div className="max-w-2xl mx-auto text-center">
           <ScrollReveal>
-            <p className="text-[10px] tracking-[0.5em] text-stone-600 mb-4">STAY CONNECTED</p>
-            <h3 className="font-serif text-2xl md:text-3xl text-stone-50 mb-4">
+            <p className="text-[10px] tracking-[0.5em] text-gold-500 mb-4">STAY CONNECTED</p>
+            <h3 className="font-serif text-2xl md:text-3xl text-parchment-100 mb-4">
               Join the Inner Circle
             </h3>
-            <p className="text-stone-400 text-sm mb-10">
+            <div className="w-10 h-px bg-gold-500/50 mx-auto mb-6" />
+            <p className="text-parchment-400 text-sm mb-10">
               New batches. Limited runs. Early access. No spam — ever.
             </p>
             <NewsletterForm />
@@ -304,38 +321,38 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="py-14 px-6 border-t border-stone-200 bg-stone-50">
+      <footer className="py-14 px-6 border-t border-gold-500/20 bg-midnight">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start gap-12 mb-12">
             <div>
-              <h5 className="font-serif text-xl tracking-[0.25em] text-stone-800">COLDSTONE</h5>
-              <p className="text-[9px] tracking-[0.4em] text-stone-400 mt-1">SOAP CO.</p>
-              <p className="text-stone-400 text-xs mt-5 max-w-xs leading-relaxed">
+              <h5 className="font-serif text-xl tracking-[0.25em] text-gold-500">COLDSTONE</h5>
+              <p className="text-[9px] tracking-[0.4em] text-parchment-400 mt-1">SOAP CO.</p>
+              <p className="text-parchment-500 text-xs mt-5 max-w-xs leading-relaxed">
                 Handcrafted cold process soap. Veteran owned. Made in the USA.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-12 text-xs tracking-[0.15em] text-stone-400">
+            <div className="grid grid-cols-2 gap-12 text-xs tracking-[0.15em] text-parchment-500">
               <div className="flex flex-col gap-3">
-                <p className="text-stone-600 text-[10px] tracking-[0.25em] mb-1">NAVIGATE</p>
-                <a href="#shop" className="hover:text-stone-800 transition-colors">Shop</a>
-                <a href="#process" className="hover:text-stone-800 transition-colors">Our Process</a>
-                <a href="#about" className="hover:text-stone-800 transition-colors">About</a>
+                <p className="text-gold-500/70 text-[10px] tracking-[0.25em] mb-1">NAVIGATE</p>
+                <a href="#shop" className="hover:text-parchment-100 transition-colors">Shop</a>
+                <a href="#process" className="hover:text-parchment-100 transition-colors">Our Process</a>
+                <a href="#about" className="hover:text-parchment-100 transition-colors">About</a>
               </div>
               <div className="flex flex-col gap-3">
-                <p className="text-stone-600 text-[10px] tracking-[0.25em] mb-1">INFO</p>
-                <a href="#" className="hover:text-stone-800 transition-colors">Shipping</a>
-                <a href="#" className="hover:text-stone-800 transition-colors">Returns</a>
-                <a href="#" className="hover:text-stone-800 transition-colors">FAQ</a>
+                <p className="text-gold-500/70 text-[10px] tracking-[0.25em] mb-1">INFO</p>
+                <a href="#" className="hover:text-parchment-100 transition-colors">Shipping</a>
+                <a href="#" className="hover:text-parchment-100 transition-colors">Returns</a>
+                <a href="#" className="hover:text-parchment-100 transition-colors">FAQ</a>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-stone-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[11px] text-stone-400">
+          <div className="border-t border-gold-500/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-[11px] text-parchment-500">
               © 2026 Coldstone Soap Co. All rights reserved.
             </p>
-            <p className="text-[10px] text-stone-400 tracking-[0.3em]">
+            <p className="text-[10px] text-gold-500/60 tracking-[0.3em]">
               VETERAN OWNED &nbsp;·&nbsp; USA MADE
             </p>
           </div>
