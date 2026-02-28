@@ -80,6 +80,16 @@ export default function Header() {
             </a>
           ))}
           <a
+            href="/soap-calculator"
+            className={`text-[11px] tracking-[0.2em] transition-colors duration-300 ${
+              scrolled
+                ? 'text-gold-400 hover:text-gold-300'
+                : 'text-gold-300 hover:text-gold-200'
+            }`}
+          >
+            SOAP CALC
+          </a>
+          <a
             href="#shop"
             className={`text-[11px] tracking-[0.2em] px-6 py-2.5 transition-all duration-300 ${
               scrolled
@@ -112,6 +122,13 @@ export default function Header() {
               {item}
             </a>
           ))}
+          <a
+            href="/soap-calculator"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm tracking-[0.25em] text-gold-400 hover:text-gold-300 transition-colors"
+          >
+            SOAP CALC
+          </a>
           <a
             href="#shop"
             onClick={() => setMenuOpen(false)}
