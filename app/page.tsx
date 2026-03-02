@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Header from "./components/Header";
 import ScrollReveal from "./components/ScrollReveal";
 import NewsletterForm from "./components/NewsletterForm";
@@ -74,7 +75,7 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ── */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="/stone-forge.jpg"
@@ -83,7 +84,7 @@ export default function Home() {
             className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-midnight/85 via-midnight/70 to-midnight/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight/80 via-midnight/60 to-midnight" />
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none"
             style={{
@@ -93,27 +94,33 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto">
-          {/* Eyebrow — tighter tracking on small screens to prevent overflow */}
-          <p className="font-sans text-[10px] tracking-[0.25em] sm:tracking-[0.5em] text-gold-500 mb-6 sm:mb-8 uppercase">
+        <div className="relative z-10 text-center px-6 sm:px-8 max-w-5xl mx-auto pt-20">
+          <p className="font-sans text-[10px] sm:text-[11px] tracking-[0.25em] sm:tracking-[0.5em] text-gold-500 mb-6 sm:mb-8 uppercase">
             Veteran Owned &nbsp;·&nbsp; Small Batch &nbsp;·&nbsp; USA Made
           </p>
-          {/* Heading — smaller base size so "Uncompromising." fits on narrow phones */}
-          <h2 className="font-serif text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1] mb-6 sm:mb-8 tracking-tight sm:tracking-wide text-parchment-100">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.08] mb-6 sm:mb-8 tracking-tight sm:tracking-wide text-parchment-100">
             Pure.<br />Natural.<br />Uncompromising.
-          </h2>
+          </h1>
           <div className="w-14 h-px bg-gold-500 mx-auto mb-8 opacity-70" />
-          <a
-            href="#shop"
-            className="inline-block border border-crimson-600 text-parchment-100 px-8 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-crimson-600 transition-all duration-300"
-          >
-            SHOP THE COLLECTION
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="#shop"
+              className="w-full sm:w-auto inline-block text-center border border-crimson-600 text-parchment-100 px-10 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-crimson-600 transition-all duration-300"
+            >
+              SHOP THE COLLECTION
+            </a>
+            <Link
+              href="/soap-calculator"
+              className="w-full sm:w-auto inline-block text-center border border-gold-500/40 text-gold-400 px-10 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-gold-500/10 transition-all duration-300"
+            >
+              SOAP CALCULATOR
+            </Link>
+          </div>
         </div>
 
         {/* Scroll cue */}
         <div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 scroll-indicator"
+          className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 scroll-indicator"
           style={{ color: 'rgba(212,160,23,0.55)' }}
         >
           <span className="text-[9px] tracking-[0.45em]">SCROLL</span>
@@ -133,68 +140,69 @@ export default function Home() {
               className="flex items-center gap-7 sm:gap-10 pr-7 sm:pr-10 text-parchment-200 text-[10px] tracking-[0.35em] sm:tracking-[0.45em] whitespace-nowrap"
             >
               <span>VETERAN OWNED</span>
-              <span className="text-gold-500/70">✦</span>
+              <span className="text-gold-500/70">&#10022;</span>
               <span>COLD PROCESS</span>
-              <span className="text-gold-500/70">✦</span>
+              <span className="text-gold-500/70">&#10022;</span>
               <span>SMALL BATCH</span>
-              <span className="text-gold-500/70">✦</span>
+              <span className="text-gold-500/70">&#10022;</span>
               <span>USA MADE</span>
-              <span className="text-gold-500/70">✦</span>
+              <span className="text-gold-500/70">&#10022;</span>
               <span>NATURAL INGREDIENTS</span>
-              <span className="text-gold-500/70">✦</span>
+              <span className="text-gold-500/70">&#10022;</span>
               <span>CURED 4–6 WEEKS</span>
-              <span className="text-gold-500/70">✦</span>
+              <span className="text-gold-500/70">&#10022;</span>
             </span>
           ))}
         </div>
       </div>
 
       {/* ── Products ── */}
-      <section id="shop" className="py-16 md:py-28 px-4 sm:px-6 bg-navy-800 grain-overlay stars-bg">
+      <section id="shop" className="py-16 md:py-28 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-12 md:mb-20">
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">THE COLLECTION</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100">
+            <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">
               Crafted with Intention
-            </h3>
+            </h2>
             <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-14">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-14">
             {products.map((product, i) => (
               <ScrollReveal key={product.name} delay={i * 120} className="group">
-                <div className="bg-navy-900 border border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition-colors duration-500">
-                  <div className="aspect-[4/3] relative overflow-hidden">
+                <div className="bg-navy-900 border border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition-colors duration-500 rounded-sm">
+                  {/* Image — taller on mobile for impact */}
+                  <div className="aspect-[3/2] sm:aspect-[4/3] relative overflow-hidden">
                     <Image
                       src={product.image}
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/50 to-transparent" />
-                    <div className="absolute top-4 right-4 bg-crimson-600 text-parchment-100 px-3 py-1.5 text-xs tracking-wider font-medium">
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent" />
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-crimson-600 text-parchment-100 px-3 py-1.5 text-xs tracking-wider font-medium">
                       {product.price}
                     </div>
                   </div>
 
                   <div className="p-5 sm:p-8">
                     <p className="text-[9px] tracking-[0.5em] text-gold-500/70 mb-2">{product.notes}</p>
-                    <h4 className="font-serif text-xl sm:text-2xl text-parchment-100 mb-1">{product.name}</h4>
+                    <h3 className="font-serif text-xl sm:text-2xl text-parchment-100 mb-1">{product.name}</h3>
                     <p className="text-xs tracking-[0.15em] sm:tracking-[0.2em] text-parchment-400 mb-4 italic">{product.tagline}</p>
                     <p className="text-parchment-400 text-sm leading-relaxed mb-6">{product.description}</p>
 
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-6">
                       {product.ingredients.map((ing) => (
                         <span
                           key={ing}
-                          className="text-[9px] tracking-wider border border-gold-500/20 text-parchment-500 px-2.5 py-1"
+                          className="text-[8px] sm:text-[9px] tracking-wider border border-gold-500/20 text-parchment-500 px-2 sm:px-2.5 py-1"
                         >
                           {ing.toUpperCase()}
                         </span>
                       ))}
                     </div>
 
-                    <button className="w-full border border-gold-500 text-gold-500 py-3.5 text-[11px] tracking-[0.2em] sm:tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-colors duration-300">
+                    <button className="w-full border border-gold-500 text-gold-500 py-3.5 text-[11px] tracking-[0.2em] sm:tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-colors duration-300 active:scale-[0.98]">
                       ADD TO CART
                     </button>
                   </div>
@@ -206,11 +214,11 @@ export default function Home() {
       </section>
 
       {/* ── Process ── */}
-      <section id="process" className="py-16 md:py-28 px-4 sm:px-6 bg-midnight grain-overlay">
+      <section id="process" className="py-16 md:py-28 px-5 sm:px-6 bg-midnight grain-overlay">
         <div className="max-w-5xl mx-auto">
           <ScrollReveal className="text-center mb-12 md:mb-20">
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">HOW IT&apos;S MADE</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100">Our Process</h3>
+            <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">Our Process</h2>
             <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
           </ScrollReveal>
 
@@ -223,7 +231,7 @@ export default function Home() {
                 <div className="w-16 h-16 border border-gold-500/40 rounded-full mx-auto mb-6 flex items-center justify-center bg-navy-800 relative z-10">
                   <span className="font-serif text-base text-gold-500">{step.step}</span>
                 </div>
-                <h4 className="font-serif text-lg text-parchment-100 mb-3">{step.title}</h4>
+                <h3 className="font-serif text-lg text-parchment-100 mb-3">{step.title}</h3>
                 <p className="text-sm text-parchment-400 leading-relaxed">{step.detail}</p>
               </ScrollReveal>
             ))}
@@ -232,26 +240,27 @@ export default function Home() {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-16 md:py-24 px-4 sm:px-6 bg-navy-900 grain-overlay stars-bg">
+      <section className="py-16 md:py-24 px-5 sm:px-6 bg-navy-900 grain-overlay stars-bg">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-10 md:mb-16">
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">REVIEWS</p>
-            <h3 className="font-serif text-3xl md:text-4xl text-parchment-100">
+            <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">
               What Our Customers Are Saying
-            </h3>
+            </h2>
             <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-3 gap-5 md:gap-6">
+          {/* Horizontal scroll on mobile, grid on desktop */}
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-5 px-5 md:mx-0 md:px-0 pb-4 md:pb-0 scrollbar-hide">
             {testimonials.map((t, i) => (
-              <ScrollReveal key={i} delay={i * 100}>
+              <ScrollReveal key={i} delay={i * 100} className="min-w-[85vw] sm:min-w-[70vw] md:min-w-0 snap-center">
                 <div className="border border-gold-500/20 bg-midnight/60 p-5 sm:p-8 h-full flex flex-col hover:border-gold-500/40 transition-colors duration-300">
                   <p className="font-serif text-gold-500/80 text-3xl leading-none mb-4">&ldquo;</p>
                   <p className="text-parchment-300 text-sm leading-relaxed flex-1 mb-6">{t.quote}</p>
                   <div>
                     <div className="flex items-center gap-0.5 mb-3">
                       {[...Array(5)].map((_, j) => (
-                        <span key={j} className="text-crimson-500 text-xs">★</span>
+                        <span key={j} className="text-crimson-500 text-xs">&#9733;</span>
                       ))}
                     </div>
                     <p className="text-parchment-100 text-xs tracking-wider">{t.author}</p>
@@ -264,11 +273,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Soap Calculator CTA ── */}
+      <section className="py-14 md:py-20 px-5 sm:px-6 bg-midnight grain-overlay border-y border-gold-500/10">
+        <div className="max-w-4xl mx-auto text-center">
+          <ScrollReveal>
+            <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-4">FREE TOOL</p>
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-4">
+              Soap Calculator
+            </h2>
+            <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
+            <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
+              Design your own cold process recipes. Calculate lye and water amounts, explore our oils database, generate recipes by goal, and save your creations.
+            </p>
+            <Link
+              href="/soap-calculator"
+              className="inline-block border border-gold-500 text-gold-500 px-10 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-gold-500 hover:text-midnight transition-all duration-300 active:scale-[0.98]"
+            >
+              OPEN SOAP CALCULATOR
+            </Link>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ── About ── */}
-      <section id="about" className="py-16 md:py-28 px-4 sm:px-6 bg-midnight grain-overlay">
+      <section id="about" className="py-16 md:py-28 px-5 sm:px-6 bg-midnight grain-overlay">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <ScrollReveal>
-            {/* 4/3 ratio on mobile keeps image from dominating the screen */}
             <div className="aspect-[4/3] md:aspect-square relative overflow-hidden border-l-2 border-gold-500/40">
               <Image
                 src="/black-granite.jpg"
@@ -282,9 +312,9 @@ export default function Home() {
 
           <ScrollReveal delay={120}>
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-5">OUR STORY</p>
-            <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-6 sm:mb-8 leading-snug">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-6 sm:mb-8 leading-snug">
               Built with Purpose
-            </h3>
+            </h2>
             <p className="text-parchment-400 leading-relaxed mb-5 text-sm">
               Coldstone Soap Co. was founded on the belief that everyday essentials should be built
               with intention. As a veteran-owned small business, we bring the care and precision
@@ -297,9 +327,9 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-[10px] tracking-[0.25em] sm:tracking-[0.35em] text-gold-500/70 border-t border-gold-500/20 pt-6 sm:pt-8">
               <span>VETERAN OWNED</span>
-              <span className="text-gold-500/30">·</span>
+              <span className="text-gold-500/30">&middot;</span>
               <span>SMALL BATCH</span>
-              <span className="text-gold-500/30">·</span>
+              <span className="text-gold-500/30">&middot;</span>
               <span>USA MADE</span>
             </div>
           </ScrollReveal>
@@ -307,13 +337,13 @@ export default function Home() {
       </section>
 
       {/* ── Newsletter ── */}
-      <section className="py-14 md:py-20 px-4 sm:px-6 bg-navy-800 grain-overlay stars-bg">
+      <section className="py-14 md:py-20 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
         <div className="max-w-2xl mx-auto text-center">
           <ScrollReveal>
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-4">STAY CONNECTED</p>
-            <h3 className="font-serif text-2xl md:text-3xl text-parchment-100 mb-4">
+            <h2 className="font-serif text-2xl md:text-3xl text-parchment-100 mb-4">
               Join the Inner Circle
-            </h3>
+            </h2>
             <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10">
               New batches. Limited runs. Early access. No spam — ever.
@@ -324,7 +354,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="py-10 md:py-14 px-4 sm:px-6 border-t border-gold-500/20 bg-midnight">
+      <footer className="py-10 md:py-14 px-5 sm:px-6 border-t border-gold-500/20 bg-midnight">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-12 mb-8 md:mb-12">
             <div>
@@ -341,7 +371,7 @@ export default function Home() {
                 <a href="#shop" className="hover:text-parchment-100 transition-colors">Shop</a>
                 <a href="#process" className="hover:text-parchment-100 transition-colors">Our Process</a>
                 <a href="#about" className="hover:text-parchment-100 transition-colors">About</a>
-                <a href="/soap-calculator" className="text-gold-400 hover:text-gold-300 transition-colors">Soap Calculator</a>
+                <Link href="/soap-calculator" className="text-gold-400 hover:text-gold-300 transition-colors">Soap Calculator</Link>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-gold-500/70 text-[10px] tracking-[0.25em] mb-1">INFO</p>
@@ -354,10 +384,10 @@ export default function Home() {
 
           <div className="border-t border-gold-500/20 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-[11px] text-parchment-500">
-              © 2026 Coldstone Soap Co. All rights reserved.
+              &copy; 2026 Coldstone Soap Co. All rights reserved.
             </p>
             <p className="text-[10px] text-gold-500/60 tracking-[0.25em] sm:tracking-[0.3em]">
-              VETERAN OWNED &nbsp;·&nbsp; USA MADE
+              VETERAN OWNED &nbsp;&middot;&nbsp; USA MADE
             </p>
           </div>
         </div>
