@@ -17,6 +17,9 @@ import PropertyBar from './components/PropertyBar';
 import OilSelector from './components/OilSelector';
 import RecipeCard from './components/RecipeCard';
 import OilInfo from './components/OilInfo';
+import PrintableRecipe from './components/PrintableRecipe';
+import SavedRecipesList from './components/SavedRecipesList';
+import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -25,7 +28,7 @@ interface RecipeOilEntry {
   percent: number;
 }
 
-type Tab = 'calculator' | 'generator' | 'oils-db';
+type Tab = 'calculator' | 'generator' | 'oils-db' | 'my-recipes';
 
 // ─── Page Component ──────────────────────────────────────────────────────────
 
@@ -59,6 +62,12 @@ export default function SoapCalculatorPage() {
   const [dbSearch, setDbSearch] = useState('');
   const [dbCategory, setDbCategory] = useState<OilData['category'] | 'all'>('all');
   const [selectedOilInfo, setSelectedOilInfo] = useState<OilData | null>(null);
+
+  // ── Persistent storage state ──
+  const [loadedRecipeId, setLoadedRecipeId] = useState<string | null>(null);
+  const [savedRecipesRefreshKey, setSavedRecipesRefreshKey] = useState(0);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
+  const [recipeNotes, setRecipeNotes] = useState('');
 
   // ── Derived calculations ──
   const totalPercent = recipeOils.reduce((s, o) => s + o.percent, 0);
@@ -129,6 +138,77 @@ export default function SoapCalculatorPage() {
     );
   }, []);
 
+  // ── Save / Load / Print handlers ──
+
+  const showToast = useCallback((msg: string) => {
+    setSaveToast(msg);
+    setTimeout(() => setSaveToast(null), 3000);
+  }, []);
+
+  const handleSaveRecipe = useCallback(() => {
+    if (loadedRecipeId) {
+      updateRecipe(loadedRecipeId, {
+        name: recipeName,
+        oils: recipeOils,
+        totalOilWeight,
+        unit,
+        lyeType,
+        superfat,
+        waterRatio,
+        notes: recipeNotes,
+      });
+      showToast('Recipe updated!');
+    } else {
+      const saved = saveRecipe({
+        name: recipeName,
+        oils: recipeOils,
+        totalOilWeight,
+        unit,
+        lyeType,
+        superfat,
+        waterRatio,
+        notes: recipeNotes,
+      });
+      setLoadedRecipeId(saved.id);
+      showToast('Recipe saved!');
+    }
+    setSavedRecipesRefreshKey(k => k + 1);
+  }, [recipeName, recipeOils, totalOilWeight, unit, lyeType, superfat, waterRatio, recipeNotes, loadedRecipeId, showToast]);
+
+  const handleSaveAsNew = useCallback(() => {
+    const saved = saveRecipe({
+      name: recipeName + ' (copy)',
+      oils: recipeOils,
+      totalOilWeight,
+      unit,
+      lyeType,
+      superfat,
+      waterRatio,
+      notes: recipeNotes,
+    });
+    setLoadedRecipeId(saved.id);
+    setRecipeName(saved.name);
+    setSavedRecipesRefreshKey(k => k + 1);
+    showToast('Saved as new recipe!');
+  }, [recipeName, recipeOils, totalOilWeight, unit, lyeType, superfat, waterRatio, recipeNotes, showToast]);
+
+  const handleLoadSavedRecipe = useCallback((recipe: SavedRecipe) => {
+    setRecipeOils(recipe.oils.map(o => ({ oilId: o.oilId, percent: o.percent })));
+    setTotalOilWeight(recipe.totalOilWeight);
+    setUnit(recipe.unit);
+    setLyeType(recipe.lyeType);
+    setSuperfat(recipe.superfat);
+    setWaterRatio(recipe.waterRatio);
+    setRecipeName(recipe.name);
+    setRecipeNotes(recipe.notes);
+    setLoadedRecipeId(recipe.id);
+    setActiveTab('calculator');
+  }, []);
+
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+
   // ── Render ──
 
   return (
@@ -155,6 +235,7 @@ export default function SoapCalculatorPage() {
             { id: 'calculator', label: 'Lye Calculator' },
             { id: 'generator', label: 'Recipe Generator' },
             { id: 'oils-db', label: 'Oils Database' },
+            { id: 'my-recipes', label: 'My Recipes' },
           ] as { id: Tab; label: string }[]).map(tab => (
             <button
               key={tab.id}
@@ -181,13 +262,39 @@ export default function SoapCalculatorPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Recipe Name & Settings */}
               <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
-                <input
-                  type="text"
-                  value={recipeName}
-                  onChange={e => setRecipeName(e.target.value)}
-                  className="bg-transparent text-gold-300 font-serif text-xl border-none outline-none w-full mb-4 placeholder-parchment-600"
-                  placeholder="Recipe Name..."
-                />
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <input
+                    type="text"
+                    value={recipeName}
+                    onChange={e => setRecipeName(e.target.value)}
+                    className="bg-transparent text-gold-300 font-serif text-xl border-none outline-none flex-1 placeholder-parchment-600"
+                    placeholder="Recipe Name..."
+                  />
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={handleSaveRecipe}
+                      className="px-4 py-1.5 rounded-lg text-xs font-medium bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 transition-colors border border-gold-500/20"
+                    >
+                      {loadedRecipeId ? 'Update' : 'Save'}
+                    </button>
+                    {loadedRecipeId && (
+                      <button
+                        onClick={handleSaveAsNew}
+                        className="px-4 py-1.5 rounded-lg text-xs font-medium bg-navy-800 text-parchment-400 hover:bg-navy-700 transition-colors border border-navy-600/30"
+                      >
+                        Save as New
+                      </button>
+                    )}
+                    {recipeResult && totalPercent === 100 && (
+                      <button
+                        onClick={handlePrint}
+                        className="px-4 py-1.5 rounded-lg text-xs font-medium bg-navy-800 text-parchment-400 hover:bg-navy-700 transition-colors border border-navy-600/30 print:hidden"
+                      >
+                        Print
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {/* Total Oil Weight */}
@@ -267,6 +374,20 @@ export default function SoapCalculatorPage() {
                     <span>2:1 (Standard)</span>
                     <span>3:1 (High water)</span>
                   </div>
+                </div>
+
+                {/* Recipe Notes */}
+                <div className="mt-4">
+                  <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-1">
+                    Notes (optional)
+                  </label>
+                  <textarea
+                    value={recipeNotes}
+                    onChange={e => setRecipeNotes(e.target.value)}
+                    placeholder="Fragrance, color, additives, special instructions..."
+                    rows={2}
+                    className="w-full bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-parchment-600 focus:outline-none focus:border-gold-500/60 resize-none"
+                  />
                 </div>
               </div>
 
@@ -689,7 +810,37 @@ export default function SoapCalculatorPage() {
             </div>
           </div>
         )}
+
+        {/* ═══════════════════════════════════════ */}
+        {/* MY RECIPES TAB                          */}
+        {/* ═══════════════════════════════════════ */}
+        {activeTab === 'my-recipes' && (
+          <SavedRecipesList
+            onLoadRecipe={handleLoadSavedRecipe}
+            refreshKey={savedRecipesRefreshKey}
+          />
+        )}
       </main>
+
+      {/* Printable Recipe (hidden on screen, shown when printing) */}
+      {recipeResult && totalPercent === 100 && (
+        <PrintableRecipe
+          recipeName={recipeName}
+          recipeResult={recipeResult}
+          lyeType={lyeType}
+          superfat={superfat}
+          waterRatio={waterRatio}
+          unit={unit}
+          notes={recipeNotes}
+        />
+      )}
+
+      {/* Save toast notification */}
+      {saveToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-green-900/90 text-green-300 px-5 py-3 rounded-xl border border-green-600/30 text-sm font-medium shadow-lg animate-fade-in print:hidden">
+          {saveToast}
+        </div>
+      )}
 
       {/* Oil Info Modal */}
       {selectedOilInfo && (
