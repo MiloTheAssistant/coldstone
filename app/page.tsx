@@ -341,6 +341,7 @@ export default function Home() {
                 <a href="#shop" className="hover:text-parchment-100 transition-colors">Shop</a>
                 <a href="#process" className="hover:text-parchment-100 transition-colors">Our Process</a>
                 <a href="#about" className="hover:text-parchment-100 transition-colors">About</a>
+                <a href="/soap-calculator" className="text-gold-400 hover:text-gold-300 transition-colors">Soap Calculator</a>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-gold-500/70 text-[10px] tracking-[0.25em] mb-1">INFO</p>
