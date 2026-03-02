@@ -21,6 +21,7 @@ import PrintableRecipe from './components/PrintableRecipe';
 import SavedRecipesList from './components/SavedRecipesList';
 import CostPanel from './components/CostPanel';
 import FragrancePanel from './components/FragrancePanel';
+import AIRecipeGenerator from './components/AIRecipeGenerator';
 import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -117,6 +118,14 @@ export default function SoapCalculatorPage() {
     setRecipeOils(template.oils.map(o => ({ oilId: o.oilId, percent: o.percent })));
     setSuperfat(template.superfat);
     setRecipeName(template.name);
+    setActiveTab('calculator');
+  }, []);
+
+  const handleLoadAIRecipe = useCallback((recipe: { name: string; oils: { oilId: string; percent: number }[]; superfat: number }) => {
+    setRecipeOils(recipe.oils.map(o => ({ oilId: o.oilId, percent: o.percent })));
+    setSuperfat(recipe.superfat);
+    setRecipeName(recipe.name);
+    setLoadedRecipeId(null);
     setActiveTab('calculator');
   }, []);
 
@@ -654,6 +663,13 @@ export default function SoapCalculatorPage() {
                 Generate Recipes
               </button>
             </div>
+
+            {/* AI Recipe Generator */}
+            <AIRecipeGenerator
+              selectedGoals={selectedGoals}
+              excludedOils={excludedOils}
+              onLoadRecipe={handleLoadAIRecipe}
+            />
 
             {/* Generated Results */}
             {generatedResults.length > 0 && (
