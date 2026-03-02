@@ -19,6 +19,8 @@ import RecipeCard from './components/RecipeCard';
 import OilInfo from './components/OilInfo';
 import PrintableRecipe from './components/PrintableRecipe';
 import SavedRecipesList from './components/SavedRecipesList';
+import CostPanel from './components/CostPanel';
+import FragrancePanel from './components/FragrancePanel';
 import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -554,6 +556,23 @@ export default function SoapCalculatorPage() {
                 selectedOilIds={recipeOils.map(o => o.oilId)}
                 onAddOil={handleAddOil}
               />
+
+              {/* Fragrance Calculator */}
+              <FragrancePanel
+                totalOilWeight={totalOilWeight}
+                unit={unit}
+              />
+
+              {/* Cost Calculator */}
+              {recipeResult && totalPercent === 100 && (
+                <CostPanel
+                  recipeOils={recipeOils}
+                  totalOilWeight={totalOilWeight}
+                  unit={unit}
+                  lyeWeight={recipeResult.lye.lyeWeight}
+                  totalBatchWeight={recipeResult.totalBatchWeight}
+                />
+              )}
             </div>
           </div>
         )}
