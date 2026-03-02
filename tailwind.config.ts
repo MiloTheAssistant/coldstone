@@ -9,8 +9,47 @@ export default {
   theme: {
     extend: {
       colors: {
+        midnight: '#121212',
+        navy: {
+          950: '#050A14',
+          900: '#080D1A',
+          800: '#0F1E3C',
+          700: '#162B54',
+          600: '#1A2F5A',
+          500: '#1E3A6E',
+        },
+        // warm clay/terracotta — softer than blood-red, still rich on dark
+        crimson: {
+          900: '#4A1E14',
+          800: '#7A3828',
+          700: '#9A4E38',
+          600: '#A85840',
+          500: '#BF6A52',
+          400: '#D07A64',
+        },
+        gold: {
+          900: '#3D2B00',
+          800: '#6B4A00',
+          700: '#96690A',
+          600: '#B87D0A',
+          500: '#D4A017',
+          400: '#E8B520',
+          300: '#F0C93A',
+          200: '#F5D978',
+          100: '#FBF0C4',
+        },
+        parchment: {
+          50:  '#FAFAF5',
+          100: '#F5F0E8',
+          200: '#E8E0D0',
+          300: '#D4C8B8',
+          400: '#B8A898',
+          500: '#9C8878',
+          600: '#7A6A5C',
+        },
+        // kept for any residual references
         stone: {
-          50: '#F4F1EA',
+          50:  '#F4F1EA',
           100: '#E8E4DB',
           200: '#C6B8A3',
           300: '#A49582',
@@ -21,14 +60,10 @@ export default {
           800: '#1E1E1E',
           900: '#0F0F0F',
         },
-        forest: {
-          500: '#1F3A2E',
-          600: '#162D23',
-        },
       },
       fontFamily: {
         serif: ['Cinzel', 'Georgia', 'serif'],
-        sans: ['Montserrat', 'system-ui', 'sans-serif'],
+        sans:  ['Montserrat', 'system-ui', 'sans-serif'],
       },
     },
   },
