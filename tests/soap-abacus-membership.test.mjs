@@ -145,6 +145,8 @@ test('signed-out visitors see a read-only Studio preview instead of a hard paywa
   assert.match(calculatorSource, /Log In \/ Sign Up/);
   assert.match(calculatorSource, /ReadOnlyPreviewBanner/);
   assert.match(calculatorSource, /<ReadOnlyPreviewShell/);
+  assert.match(calculatorSource, /<PreviewAuthActions \/>/);
+  assert.equal((calculatorSource.match(/<PreviewAuthActions \/>/g) || []).length, 1);
   assert.doesNotMatch(calculatorSource, /<SignInButton mode="modal">\s*<button[^>]*>\s*Log In\s*<\/button>\s*<\/SignInButton>\s*<SignUpButton mode="modal">/);
   assert.doesNotMatch(calculatorSource, /Membership Required/);
 });

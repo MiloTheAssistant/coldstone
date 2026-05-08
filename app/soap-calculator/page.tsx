@@ -1280,7 +1280,7 @@ function SoapStudioGate() {
 function ReadOnlyPreviewBanner() {
   return (
     <section className="border-b border-gold-500/20 bg-navy-950/95">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-4">
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Studio Preview</p>
           <h2 className="mt-1 font-serif text-2xl text-gold-300">Create a Free Account to Unlock Soap Abacus</h2>
@@ -1289,7 +1289,6 @@ function ReadOnlyPreviewBanner() {
             Create a free account to start editing recipes and saving to Recipe Cache.
           </p>
         </div>
-        <PreviewAuthActions />
       </div>
     </section>
   );
