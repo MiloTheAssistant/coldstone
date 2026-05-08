@@ -4,12 +4,14 @@ import test from 'node:test';
 
 import {
   FEATURE_KEYS,
+  SOAP_ABACUS_PRICING,
   buildCheckoutSessionOptions,
   canSaveRecipe,
   getEffectiveMembership,
   getFeatureListForTier,
   hasFeature,
   membershipFromStripeSubscription,
+  normalizeBillingInterval,
 } from '../app/soap-calculator/studio/membership-model.js';
 
 const calculatorSource = readFileSync(new URL('../app/soap-calculator/page.tsx', import.meta.url), 'utf8');
@@ -81,6 +83,7 @@ test('Pro card trial checkout uses Stripe subscription mode and a 7 day trial', 
     priceId: 'price_pro',
     origin: 'https://www.soapabacus.com',
     trial: 'card',
+    billingInterval: 'monthly',
   });
 
   assert.equal(options.mode, 'subscription');
@@ -89,6 +92,32 @@ test('Pro card trial checkout uses Stripe subscription mode and a 7 day trial', 
   assert.equal(options.subscription_data.trial_period_days, 7);
   assert.equal(options.metadata.project, 'soap-abacus');
   assert.equal(options.metadata.soap_abacus_tier, 'pro');
+  assert.equal(options.metadata.soap_abacus_billing_interval, 'monthly');
+});
+
+test('Soap Abacus annual pricing gives one month free', () => {
+  assert.equal(SOAP_ABACUS_PRICING.plus.monthly.amount, 799);
+  assert.equal(SOAP_ABACUS_PRICING.plus.annual.amount, 8789);
+  assert.equal(SOAP_ABACUS_PRICING.pro.monthly.amount, 1799);
+  assert.equal(SOAP_ABACUS_PRICING.pro.annual.amount, 19789);
+  assert.equal(normalizeBillingInterval('annual'), 'annual');
+  assert.equal(normalizeBillingInterval('unexpected'), 'monthly');
+});
+
+test('annual checkout records annual billing interval metadata', () => {
+  const options = buildCheckoutSessionOptions({
+    tier: 'plus',
+    userId: 'user_123',
+    customerId: 'cus_123',
+    priceId: 'price_plus_annual',
+    origin: 'https://www.soapabacus.com/',
+    billingInterval: 'annual',
+  });
+
+  assert.equal(options.line_items[0].price, 'price_plus_annual');
+  assert.equal(options.success_url, 'https://www.soapabacus.com/soap-calculator/account?checkout=success');
+  assert.equal(options.metadata.soap_abacus_billing_interval, 'annual');
+  assert.equal(options.subscription_data.metadata.soap_abacus_billing_interval, 'annual');
 });
 
 test('Soap Abacus UI and environment declare Studio tier concepts', () => {
@@ -102,7 +131,9 @@ test('Soap Abacus UI and environment declare Studio tier concepts', () => {
   assert.match(calculatorSource, /Recipe Workbench/);
   assert.match(calculatorSource, /Cost Tier/);
 
-  assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PLUS=/);
-  assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PRO=/);
+  assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PLUS_MONTHLY=/);
+  assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PLUS_ANNUAL=/);
+  assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PRO_MONTHLY=/);
+  assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PRO_ANNUAL=/);
   assert.match(webhookSource, /soap-abacus/);
 });

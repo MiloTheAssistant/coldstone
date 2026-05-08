@@ -4,7 +4,7 @@ import {
   defaultFreeMembership,
   getCurrentSoapAbacusMembership,
 } from '@/app/lib/soap-abacus-membership';
-import { getFeatureListForTier } from '@/app/soap-calculator/studio/membership-model';
+import { SOAP_ABACUS_PRICING, getFeatureListForTier } from '@/app/soap-calculator/studio/membership-model';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,6 +56,16 @@ export default async function SoapAbacusAccountPage() {
           {(['free', 'plus', 'pro'] as const).map(tier => (
             <div key={tier} className="rounded-xl border border-navy-600/30 bg-navy-900/60 p-5">
               <h2 className="font-serif text-xl text-gold-400">{tier.toUpperCase()}</h2>
+              {tier === 'free' ? (
+                <p className="mt-2 text-2xl font-semibold text-parchment-100">$0</p>
+              ) : (
+                <>
+                  <p className="mt-2 text-2xl font-semibold text-parchment-100">{SOAP_ABACUS_PRICING[tier].monthly.label}</p>
+                  <p className="mt-1 text-xs text-parchment-500">
+                    {SOAP_ABACUS_PRICING[tier].annual.label} annual · {SOAP_ABACUS_PRICING[tier].annual.savings}
+                  </p>
+                </>
+              )}
               <ul className="mt-4 space-y-2 text-sm text-parchment-400">
                 {getFeatureListForTier(tier).map((feature: string) => (
                   <li key={feature}>{feature}</li>

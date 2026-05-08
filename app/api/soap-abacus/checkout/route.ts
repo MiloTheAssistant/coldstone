@@ -6,14 +6,27 @@ import {
   getCurrentSoapAbacusMembership,
   persistSoapAbacusMembership,
 } from '@/app/lib/soap-abacus-membership';
-import { buildCheckoutSessionOptions, normalizeTier } from '@/app/soap-calculator/studio/membership-model';
+import { buildCheckoutSessionOptions, normalizeBillingInterval, normalizeTier } from '@/app/soap-calculator/studio/membership-model';
 
 export const runtime = 'nodejs';
 
 type CheckoutBody = {
   tier?: 'plus' | 'pro';
   trial?: 'card' | 'none';
+  billingInterval?: 'monthly' | 'annual';
 };
+
+function getSoapAbacusPriceId(tier: 'plus' | 'pro', billingInterval: 'monthly' | 'annual') {
+  if (tier === 'plus') {
+    return billingInterval === 'annual'
+      ? process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS_ANNUAL
+      : process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS_MONTHLY || process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS;
+  }
+
+  return billingInterval === 'annual'
+    ? process.env.STRIPE_PRICE_SOAP_ABACUS_PRO_ANNUAL
+    : process.env.STRIPE_PRICE_SOAP_ABACUS_PRO_MONTHLY || process.env.STRIPE_PRICE_SOAP_ABACUS_PRO;
+}
 
 export async function POST(request: NextRequest) {
   const setup = await getCurrentSoapAbacusMembership();
@@ -30,12 +43,11 @@ export async function POST(request: NextRequest) {
   if (tier === 'free') {
     return NextResponse.json({ error: 'Choose Plus or Pro to start Stripe Checkout.' }, { status: 400 });
   }
+  const billingInterval = normalizeBillingInterval(body.billingInterval) as 'monthly' | 'annual';
 
-  const priceId = tier === 'plus'
-    ? process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS
-    : process.env.STRIPE_PRICE_SOAP_ABACUS_PRO;
+  const priceId = getSoapAbacusPriceId(tier, billingInterval);
   if (!priceId) {
-    return NextResponse.json({ error: `Missing Stripe price id for Soap Abacus ${tier}.` }, { status: 503 });
+    return NextResponse.json({ error: `Missing Stripe ${billingInterval} price id for Soap Abacus ${tier}.` }, { status: 503 });
   }
 
   let stripe;
@@ -78,6 +90,7 @@ export async function POST(request: NextRequest) {
       priceId,
       origin,
       trial: body.trial === 'card' ? 'card' : 'none',
+      billingInterval,
     }) as Stripe.Checkout.SessionCreateParams;
     const session = await stripe.checkout.sessions.create(checkoutOptions);
 

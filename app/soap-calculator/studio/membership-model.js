@@ -1,5 +1,20 @@
 const TRIAL_DAYS = 7;
 const FREE_RECIPE_LIMIT = 5;
+const BILLING_INTERVALS = {
+  monthly: 'monthly',
+  annual: 'annual',
+};
+
+const SOAP_ABACUS_PRICING = {
+  plus: {
+    monthly: { amount: 799, label: '$7.99/mo' },
+    annual: { amount: 8789, label: '$87.89/yr', savings: '1 month free' },
+  },
+  pro: {
+    monthly: { amount: 1799, label: '$17.99/mo' },
+    annual: { amount: 19789, label: '$197.89/yr', savings: '1 month free' },
+  },
+};
 
 const TIERS = {
   free: 'free',
@@ -108,6 +123,10 @@ function normalizeTier(tier) {
   return tier === TIERS.plus || tier === TIERS.pro ? tier : TIERS.free;
 }
 
+function normalizeBillingInterval(interval) {
+  return interval === BILLING_INTERVALS.annual ? BILLING_INTERVALS.annual : BILLING_INTERVALS.monthly;
+}
+
 function normalizeStatus(status, tier) {
   if (tier === TIERS.free) return status === 'expired_trial' ? 'expired_trial' : 'free';
   if (['active', 'trialing', 'past_due', 'canceled', 'incomplete'].includes(status)) return status;
@@ -184,8 +203,9 @@ function canSaveRecipe(membership = {}, currentRecipeCount = 0) {
   };
 }
 
-function buildCheckoutSessionOptions({ tier, userId, customerId, priceId, origin, trial }) {
+function buildCheckoutSessionOptions({ tier, userId, customerId, priceId, origin, trial, billingInterval }) {
   const normalizedTier = normalizeTier(tier);
+  const normalizedInterval = normalizeBillingInterval(billingInterval);
   if (normalizedTier === TIERS.free) {
     throw new Error('Free does not require Stripe Checkout.');
   }
@@ -205,12 +225,14 @@ function buildCheckoutSessionOptions({ tier, userId, customerId, priceId, origin
       project: 'soap-abacus',
       clerk_user_id: userId,
       soap_abacus_tier: normalizedTier,
+      soap_abacus_billing_interval: normalizedInterval,
     },
     subscription_data: {
       metadata: {
         project: 'soap-abacus',
         clerk_user_id: userId,
         soap_abacus_tier: normalizedTier,
+        soap_abacus_billing_interval: normalizedInterval,
       },
     },
   };
@@ -227,10 +249,22 @@ function membershipFromStripeSubscription(subscription, priceConfig = {}) {
   const priceId = firstItem?.price?.id || subscription?.plan?.id || null;
   const metadataTier = subscription?.metadata?.soap_abacus_tier;
   let tier = normalizeTier(metadataTier);
+  const proPriceIds = [
+    priceConfig.proPriceId,
+    priceConfig.proMonthlyPriceId,
+    priceConfig.proAnnualPriceId,
+    ...(priceConfig.proPriceIds || []),
+  ].filter(Boolean);
+  const plusPriceIds = [
+    priceConfig.plusPriceId,
+    priceConfig.plusMonthlyPriceId,
+    priceConfig.plusAnnualPriceId,
+    ...(priceConfig.plusPriceIds || []),
+  ].filter(Boolean);
 
   if (tier === TIERS.free && priceId) {
-    if (priceId === priceConfig.proPriceId) tier = TIERS.pro;
-    if (priceId === priceConfig.plusPriceId) tier = TIERS.plus;
+    if (proPriceIds.includes(priceId)) tier = TIERS.pro;
+    if (plusPriceIds.includes(priceId)) tier = TIERS.plus;
   }
 
   const status = subscription?.status === 'trialing'
@@ -273,7 +307,9 @@ function createNoCardTrialMembership(userId, now = new Date()) {
 
 module.exports = {
   FEATURE_KEYS,
+  BILLING_INTERVALS,
   FREE_RECIPE_LIMIT,
+  SOAP_ABACUS_PRICING,
   TIERS,
   TRIAL_DAYS,
   buildCheckoutSessionOptions,
@@ -284,5 +320,6 @@ module.exports = {
   getRecipeLimit,
   hasFeature,
   membershipFromStripeSubscription,
+  normalizeBillingInterval,
   normalizeTier,
 };

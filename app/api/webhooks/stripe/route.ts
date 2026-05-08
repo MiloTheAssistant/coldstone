@@ -65,6 +65,10 @@ async function syncSoapAbacusSubscription(subscription: Stripe.Subscription) {
   const membership = membershipFromStripeSubscription(subscription, {
     plusPriceId: process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS,
     proPriceId: process.env.STRIPE_PRICE_SOAP_ABACUS_PRO,
+    plusMonthlyPriceId: process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS_MONTHLY,
+    plusAnnualPriceId: process.env.STRIPE_PRICE_SOAP_ABACUS_PLUS_ANNUAL,
+    proMonthlyPriceId: process.env.STRIPE_PRICE_SOAP_ABACUS_PRO_MONTHLY,
+    proAnnualPriceId: process.env.STRIPE_PRICE_SOAP_ABACUS_PRO_ANNUAL,
   });
 
   let userId = membership.userId;

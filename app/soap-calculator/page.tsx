@@ -30,6 +30,7 @@ import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
 import { loadCostEntries, pricePerOz, type OilCostEntry } from './lib/costData';
 import {
   FEATURE_KEYS,
+  SOAP_ABACUS_PRICING,
   getFeatureListForTier,
   hasFeature,
 } from './studio/membership-model';
@@ -1253,9 +1254,9 @@ function SoapStudioGate() {
 
 function SignedOutStudioLanding() {
   const tiers = [
-    { tier: 'free' as const, title: 'Free', cta: 'Create Free Account' },
-    { tier: 'plus' as const, title: 'Plus', cta: 'Sign Up For Plus' },
-    { tier: 'pro' as const, title: 'Pro', cta: 'Start 7 Day Pro Trial' },
+    { tier: 'free' as const, title: 'Free', price: '$0', cta: 'Create Free Account' },
+    { tier: 'plus' as const, title: 'Plus', price: SOAP_ABACUS_PRICING.plus.monthly.label, annual: SOAP_ABACUS_PRICING.plus.annual.label, cta: 'Sign Up For Plus' },
+    { tier: 'pro' as const, title: 'Pro', price: SOAP_ABACUS_PRICING.pro.monthly.label, annual: SOAP_ABACUS_PRICING.pro.annual.label, cta: 'Start 7 Day Pro Trial' },
   ];
 
   return (
@@ -1284,6 +1285,10 @@ function SignedOutStudioLanding() {
           {tiers.map(tier => (
             <div key={tier.tier} className="rounded-xl border border-navy-600/30 bg-navy-900/70 p-5">
               <h3 className="font-serif text-xl text-gold-400">{tier.title}</h3>
+              <p className="mt-2 text-2xl font-semibold text-parchment-100">{tier.price}</p>
+              {tier.annual && (
+                <p className="mt-1 text-xs text-parchment-500">{tier.annual} annual · 1 month free</p>
+              )}
               <ul className="mt-4 space-y-2 text-sm text-parchment-400">
                 {(getFeatureListForTier(tier.tier) as string[]).slice(0, 5).map((feature: string) => (
                   <li key={feature}>{feature}</li>
@@ -1328,13 +1333,17 @@ function MembershipBanner({
     }
   };
 
-  const startCheckout = async (tier: 'plus' | 'pro', trial: 'card' | 'none' = 'none') => {
-    setBusy(`${tier}-${trial}`);
+  const startCheckout = async (
+    tier: 'plus' | 'pro',
+    trial: 'card' | 'none' = 'none',
+    billingInterval: 'monthly' | 'annual' = 'monthly',
+  ) => {
+    setBusy(`${tier}-${billingInterval}-${trial}`);
     try {
       const response = await fetch('/api/soap-abacus/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier, trial }),
+        body: JSON.stringify({ tier, trial, billingInterval }),
       });
       const data = await response.json();
       if (data.url) window.location.href = data.url;
@@ -1374,18 +1383,32 @@ function MembershipBanner({
               {busy === 'trial' ? 'Starting...' : 'Start No-Card Pro Trial'}
             </button>
             <button
-              onClick={() => startCheckout('plus')}
+              onClick={() => startCheckout('plus', 'none', 'monthly')}
               disabled={busy !== null}
               className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
             >
-              Plus
+              Plus $7.99/mo
             </button>
             <button
-              onClick={() => startCheckout('pro', 'card')}
+              onClick={() => startCheckout('plus', 'none', 'annual')}
               disabled={busy !== null}
               className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
             >
-              Pro Card Trial
+              Plus $87.89/yr
+            </button>
+            <button
+              onClick={() => startCheckout('pro', 'card', 'monthly')}
+              disabled={busy !== null}
+              className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
+            >
+              Pro $17.99/mo Trial
+            </button>
+            <button
+              onClick={() => startCheckout('pro', 'card', 'annual')}
+              disabled={busy !== null}
+              className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
+            >
+              Pro $197.89/yr Trial
             </button>
           </>
         )}
