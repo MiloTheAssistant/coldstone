@@ -30,8 +30,6 @@ import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
 import { loadCostEntries, pricePerOz, type OilCostEntry } from './lib/costData';
 import {
   FEATURE_KEYS,
-  SOAP_ABACUS_PRICING,
-  getFeatureListForTier,
   hasFeature,
 } from './studio/membership-model';
 
@@ -61,14 +59,23 @@ const DEFAULT_MEMBERSHIP: MembershipState = {
   features: [],
 };
 
+const PREVIEW_MEMBERSHIP: MembershipState = {
+  tier: 'pro',
+  effectiveTier: 'pro',
+  status: 'preview',
+  features: [],
+};
+
 // ─── Page Component ──────────────────────────────────────────────────────────
 
 function SoapCalculatorExperience({
   membership,
   refreshMembership,
+  isReadOnlyPreview = false,
 }: {
   membership: MembershipState;
   refreshMembership: () => Promise<void>;
+  isReadOnlyPreview?: boolean;
 }) {
   // ── Active tab ──
   const [activeTab, setActiveTab] = useState<Tab>('calculator');
@@ -393,14 +400,37 @@ function SoapCalculatorExperience({
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/soap-calculator/account" className="text-parchment-500 hover:text-gold-300 text-xs hidden md:block">
-              {membership.effectiveTier.toUpperCase()} Account
-            </Link>
-            <AuthActions />
+            {isReadOnlyPreview ? (
+              <>
+                <SignInButton mode="modal">
+                  <button className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700">
+                    Log In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="rounded-lg bg-gold-500/20 px-3 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </>
+            ) : (
+              <>
+                <Link href="/soap-calculator/account" className="text-parchment-500 hover:text-gold-300 text-xs hidden md:block">
+                  {membership.effectiveTier.toUpperCase()} Account
+                </Link>
+                <AuthActions />
+              </>
+            )}
           </div>
         </div>
       </header>
 
+      {isReadOnlyPreview && <ReadOnlyPreviewBanner />}
+
+      <div
+        className={isReadOnlyPreview ? 'pointer-events-none select-none opacity-90' : undefined}
+        inert={isReadOnlyPreview ? true : undefined}
+      >
       {/* Tab Navigation */}
       <nav className="border-b border-navy-600/20 bg-navy-900/40">
         <div className="max-w-7xl mx-auto px-4 flex gap-1">
@@ -426,7 +456,7 @@ function SoapCalculatorExperience({
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <MembershipBanner membership={membership} refreshMembership={refreshMembership} />
+        {!isReadOnlyPreview && <MembershipBanner membership={membership} refreshMembership={refreshMembership} />}
 
         {/* ═══════════════════════════════════════ */}
         {/* CALCULATOR TAB                          */}
@@ -1189,6 +1219,7 @@ function SoapCalculatorExperience({
           Superfat your recipes for safety.
         </p>
       </footer>
+      </div>
     </div>
   );
 }
@@ -1247,63 +1278,45 @@ function SoapStudioGate() {
     );
   }
 
-  if (!isSignedIn) return <SignedOutStudioLanding />;
+  if (!isSignedIn) {
+    return (
+      <SoapCalculatorExperience
+        membership={PREVIEW_MEMBERSHIP}
+        refreshMembership={async () => undefined}
+        isReadOnlyPreview
+      />
+    );
+  }
 
   return <SoapCalculatorExperience membership={membership} refreshMembership={refreshMembership} />;
 }
 
-function SignedOutStudioLanding() {
-  const tiers = [
-    { tier: 'free' as const, title: 'Free', price: '$0', cta: 'Create Free Account' },
-    { tier: 'plus' as const, title: 'Plus', price: SOAP_ABACUS_PRICING.plus.monthly.label, annual: SOAP_ABACUS_PRICING.plus.annual.label, cta: 'Sign Up For Plus' },
-    { tier: 'pro' as const, title: 'Pro', price: SOAP_ABACUS_PRICING.pro.monthly.label, annual: SOAP_ABACUS_PRICING.pro.annual.label, cta: 'Start 7 Day Pro Trial' },
-  ];
-
+function ReadOnlyPreviewBanner() {
   return (
-    <div className="min-h-screen bg-midnight text-parchment-200">
-      <header className="border-b border-navy-600/30 bg-navy-950/80">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="https://www.coldstonesoap.com" className="text-gold-400 hover:text-gold-300 text-sm">
-            &larr; Home
-          </a>
-          <h1 className="text-gold-400 font-serif text-xl md:text-2xl">Soap Abacus Studio</h1>
+    <section className="border-b border-gold-500/20 bg-navy-950/95">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Studio Preview</p>
+          <h2 className="mt-1 font-serif text-2xl text-gold-300">Previewing the calculator in read-only mode</h2>
+          <p className="mt-1 max-w-3xl text-sm text-parchment-400">
+            Explore the Recipe Designer layout, lye and water outputs, property scoring, Ingredients DB, and pricing tiers.
+            Create a free account to start editing recipes and saving to Recipe Cache.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <SignUpButton mode="modal">
+            <button className="rounded-lg bg-gold-500/20 px-4 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30">
+              Create Free Account
+            </button>
+          </SignUpButton>
           <SignInButton mode="modal">
-            <button className="text-xs text-parchment-400 hover:text-gold-300">LOG IN</button>
+            <button className="rounded-lg bg-navy-800 px-4 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700">
+              Log In
+            </button>
           </SignInButton>
         </div>
-      </header>
-      <main className="max-w-6xl mx-auto px-4 py-10">
-        <section className="max-w-3xl">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-gold-500/70">Membership Required</p>
-          <h2 className="mt-3 font-serif text-4xl text-gold-300">Recipe Designer, Recipe Blender, Ingredients DB, and Recipe Cache.</h2>
-          <p className="mt-4 text-parchment-400">
-            Create a Clerk account to use the Soap Abacus Studio. Free accounts can start designing recipes immediately;
-            Plus and Pro unlock cost tracking, sharing, AI blending, and exports.
-          </p>
-        </section>
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {tiers.map(tier => (
-            <div key={tier.tier} className="rounded-xl border border-navy-600/30 bg-navy-900/70 p-5">
-              <h3 className="font-serif text-xl text-gold-400">{tier.title}</h3>
-              <p className="mt-2 text-2xl font-semibold text-parchment-100">{tier.price}</p>
-              {tier.annual && (
-                <p className="mt-1 text-xs text-parchment-500">{tier.annual} annual · 1 month free</p>
-              )}
-              <ul className="mt-4 space-y-2 text-sm text-parchment-400">
-                {(getFeatureListForTier(tier.tier) as string[]).slice(0, 5).map((feature: string) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-              <SignUpButton mode="modal">
-                <button className="mt-5 w-full rounded-lg bg-gold-500/20 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/30">
-                  {tier.cta}
-                </button>
-              </SignUpButton>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
+      </div>
+    </section>
   );
 }
 

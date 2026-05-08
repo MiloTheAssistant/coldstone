@@ -137,3 +137,11 @@ test('Soap Abacus UI and environment declare Studio tier concepts', () => {
   assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PRO_ANNUAL=/);
   assert.match(webhookSource, /soap-abacus/);
 });
+
+test('signed-out visitors see a read-only Studio preview instead of a hard paywall', () => {
+  assert.match(calculatorSource, /isReadOnlyPreview/);
+  assert.match(calculatorSource, /Studio Preview/);
+  assert.match(calculatorSource, /Previewing the calculator/);
+  assert.match(calculatorSource, /ReadOnlyPreviewBanner/);
+  assert.doesNotMatch(calculatorSource, /Membership Required/);
+});
