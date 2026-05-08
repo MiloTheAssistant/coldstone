@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import AuthShell from "./components/AuthShell";
+import { CartProvider } from "./cart/CartProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://coldstonesoapco.com"),
+  metadataBase: new URL("https://www.coldstonesoap.com"),
   title: "Coldstone Soap Co. | Pure. American. Uncompromising.",
   description:
     "Handcrafted cold process soap. Veteran owned. Small batch. Minimal ingredients. Made in the USA.",
@@ -28,7 +30,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <AuthShell>
+          <CartProvider>{children}</CartProvider>
+        </AuthShell>
+      </body>
     </html>
   );
 }

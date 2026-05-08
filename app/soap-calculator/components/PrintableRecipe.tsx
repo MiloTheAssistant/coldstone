@@ -1,6 +1,5 @@
 'use client';
 
-import { OILS_DATABASE } from '../data/oils';
 import type { FullRecipeResult, LyeType, WeightUnit } from '../data/calculator';
 
 interface PrintableRecipeProps {
@@ -156,7 +155,7 @@ export default function PrintableRecipe({
 
       {/* Footer */}
       <div className="border-t-2 border-black pt-3 flex justify-between text-[9pt] text-gray-500">
-        <span>Coldstone Soap Co. — Soap Calculator</span>
+        <span>Coldstone Soap Co. — Soap Abacus Studio</span>
         <span>SAP values are approximations. Always verify with your supplier. Superfat for safety.</span>
       </div>
     </div>

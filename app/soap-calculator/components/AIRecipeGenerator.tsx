@@ -70,9 +70,9 @@ export default function AIRecipeGenerator({ selectedGoals, excludedOils, onLoadR
   return (
     <div className="bg-navy-900/60 border border-gold-500/20 rounded-xl p-5">
       <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-gold-400 font-serif text-lg">AI Recipe Generator</h3>
+        <h3 className="text-gold-400 font-serif text-lg">AI Recipe Blender</h3>
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold-500/20 text-gold-400 font-medium">
-          Powered by Claude
+          Powered by NVIDIA NIM
         </span>
       </div>
       <p className="text-parchment-500 text-sm mb-4">

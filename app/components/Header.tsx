@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCart } from '../cart/CartProvider';
+import { mainNavLinks } from '../data/site';
+import AuthActions from './AuthActions';
+import Logo from './Logo';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -19,12 +24,6 @@ export default function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  const navLinks = [
-    { label: 'Shop', href: '#shop' },
-    { label: 'Process', href: '#process' },
-    { label: 'About', href: '#about' },
-  ];
-
   return (
     <>
       <header
@@ -34,7 +33,7 @@ export default function Header() {
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-4 lg:gap-8">
           {/* Hamburger — larger touch target on mobile */}
           <button
             className="md:hidden relative z-[60] flex flex-col justify-center items-center w-10 h-10 -ml-2 shrink-0"
@@ -65,61 +64,53 @@ export default function Header() {
             />
           </button>
 
-          {/* Logo — centered */}
-          <div className="absolute left-1/2 -translate-x-1/2 text-center">
-            <Link href="/" className="inline-block">
-              <span
-                className={`font-serif text-xl sm:text-2xl font-bold tracking-[0.25em] transition-colors duration-500 ${
-                  scrolled ? 'text-gold-500' : 'text-parchment-100'
-                }`}
-              >
-                COLDSTONE
-              </span>
-              <p
-                className={`font-sans text-[8px] sm:text-[9px] tracking-[0.45em] mt-0.5 transition-colors duration-500 ${
-                  scrolled ? 'text-gold-500/60' : 'text-parchment-300'
-                }`}
-              >
-                SOAP CO.
-              </p>
-            </Link>
+          <div className="hidden md:flex min-w-[248px] lg:min-w-[280px]">
+            <Logo variant="header" scrolled={scrolled} />
+          </div>
+
+          <div className="md:hidden absolute left-1/2 -translate-x-1/2">
+            <Logo variant="mobile" scrolled={scrolled} />
           </div>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8 lg:gap-10 ml-auto">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className={`text-[11px] tracking-[0.2em] transition-colors duration-300 uppercase ${
-                  scrolled
-                    ? 'text-parchment-400 hover:text-parchment-100'
-                    : 'text-parchment-200 hover:text-parchment-100'
-                }`}
-              >
-                {link.label}
-              </a>
-            ))}
+          <nav className="hidden md:flex items-center justify-end gap-4 lg:gap-6 xl:gap-7 ml-auto min-w-0">
+            {mainNavLinks.map((link) => {
+              const className = `text-[10px] lg:text-[11px] tracking-[0.16em] lg:tracking-[0.2em] transition-colors duration-300 uppercase whitespace-nowrap ${
+                scrolled
+                  ? 'text-parchment-400 hover:text-parchment-100'
+                  : 'text-parchment-200 hover:text-parchment-100'
+              }`;
+              return link.target ? (
+                <a key={link.label} href={link.href} target={link.target} rel={link.rel} className={className}>
+                  {link.label}
+                </a>
+              ) : (
+                <Link key={link.label} href={link.href} className={className}>
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
-              href="/soap-calculator"
-              className={`text-[11px] tracking-[0.2em] transition-colors duration-300 ${
+              href="/cart"
+              className={`text-[10px] lg:text-[11px] tracking-[0.16em] lg:tracking-[0.2em] transition-colors duration-300 whitespace-nowrap ${
                 scrolled
                   ? 'text-gold-400 hover:text-gold-300'
                   : 'text-gold-300 hover:text-gold-200'
               }`}
             >
-              SOAP CALC
+              CART{itemCount > 0 ? ` (${itemCount})` : ''}
             </Link>
-            <a
-              href="#shop"
-              className={`text-[11px] tracking-[0.2em] px-6 py-2.5 transition-all duration-300 ${
+            <AuthActions scrolled={scrolled} />
+            <Link
+              href="/shop"
+              className={`text-[10px] lg:text-[11px] tracking-[0.16em] lg:tracking-[0.2em] px-4 lg:px-6 py-2.5 transition-all duration-300 whitespace-nowrap ${
                 scrolled
                   ? 'bg-crimson-600 text-parchment-100 hover:bg-crimson-500'
                   : 'border border-crimson-600 text-parchment-100 hover:bg-crimson-600'
               }`}
             >
               SHOP NOW
-            </a>
+            </Link>
           </nav>
 
           {/* Spacer — balances hamburger on mobile */}
@@ -142,24 +133,53 @@ export default function Header() {
         />
 
         {/* Menu content — centered vertically */}
-        <nav className="relative h-full flex flex-col items-center justify-center gap-1 px-8">
-          {navLinks.map((link, i) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className={`block py-4 text-center transition-all duration-500 ${
-                menuOpen
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: menuOpen ? `${i * 80 + 100}ms` : '0ms' }}
-            >
+        <nav className="relative h-full flex flex-col items-center justify-center gap-1 px-8 pt-10">
+          <div
+            className={`mb-8 transition-all duration-500 ${
+              menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ transitionDelay: menuOpen ? '70ms' : '0ms' }}
+          >
+            <Logo variant="mobile" />
+          </div>
+
+          {mainNavLinks.map((link, i) => {
+            const className = `block py-4 text-center transition-all duration-500 ${
+              menuOpen
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-4'
+            }`;
+            const style = { transitionDelay: menuOpen ? `${i * 80 + 100}ms` : '0ms' };
+            const children = (
               <span className="font-serif text-3xl tracking-[0.15em] text-parchment-100 hover:text-gold-400 transition-colors">
                 {link.label.toUpperCase()}
               </span>
-            </a>
-          ))}
+            );
+
+            return link.target ? (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.target}
+                rel={link.rel}
+                onClick={() => setMenuOpen(false)}
+                className={className}
+                style={style}
+              >
+                {children}
+              </a>
+            ) : (
+              <Link
+                key={link.label}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className={className}
+                style={style}
+              >
+                {children}
+              </Link>
+            );
+          })}
 
           {/* Divider */}
           <div
@@ -170,7 +190,7 @@ export default function Header() {
           />
 
           <Link
-            href="/soap-calculator"
+            href="/cart"
             onClick={() => setMenuOpen(false)}
             className={`block py-4 text-center transition-all duration-500 ${
               menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -178,12 +198,25 @@ export default function Header() {
             style={{ transitionDelay: menuOpen ? '400ms' : '0ms' }}
           >
             <span className="font-serif text-2xl tracking-[0.15em] text-gold-400 hover:text-gold-300 transition-colors">
-              SOAP CALC
+              CART{itemCount > 0 ? ` (${itemCount})` : ''}
             </span>
           </Link>
 
-          <a
-            href="#shop"
+          <Link
+            href="/sign-in"
+            onClick={() => setMenuOpen(false)}
+            className={`block py-4 text-center transition-all duration-500 ${
+              menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ transitionDelay: menuOpen ? '440ms' : '0ms' }}
+          >
+            <span className="font-serif text-2xl tracking-[0.15em] text-parchment-200 hover:text-gold-300 transition-colors">
+              ACCOUNT
+            </span>
+          </Link>
+
+          <Link
+            href="/shop"
             onClick={() => setMenuOpen(false)}
             className={`mt-6 px-12 py-4 bg-crimson-600 text-parchment-100 text-sm tracking-[0.25em] hover:bg-crimson-500 transition-all duration-500 ${
               menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -191,7 +224,7 @@ export default function Header() {
             style={{ transitionDelay: menuOpen ? '480ms' : '0ms' }}
           >
             SHOP NOW
-          </a>
+          </Link>
 
           {/* Bottom branding */}
           <div

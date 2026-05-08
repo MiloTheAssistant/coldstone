@@ -1,4 +1,5 @@
 import type { LyeType, WeightUnit } from '../data/calculator';
+import type { WaterMethod } from '../data/calculator';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,13 @@ export interface SavedRecipe {
   lyeType: LyeType;
   superfat: number;
   waterRatio: number;
+  waterMethod?: WaterMethod;
+  waterValue?: number;
+  kohPurityPercent?: number;
   notes: string;
+  mode?: 'easy' | 'intermediate' | 'expert';
+  cloudRecipeId?: string | null;
+  visibility?: 'private' | 'public';
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -120,7 +127,13 @@ export function importRecipesJSON(json: string): { imported: number; errors: num
         lyeType: item.lyeType || 'NaOH',
         superfat: item.superfat ?? 5,
         waterRatio: item.waterRatio ?? 2,
+        waterMethod: item.waterMethod || 'water-lye-ratio',
+        waterValue: item.waterValue ?? item.waterRatio ?? 2,
+        kohPurityPercent: item.kohPurityPercent ?? 100,
         notes: item.notes || '',
+        mode: item.mode || 'intermediate',
+        cloudRecipeId: item.cloudRecipeId || null,
+        visibility: item.visibility || 'private',
       });
       imported++;
     }

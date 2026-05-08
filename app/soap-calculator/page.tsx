@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { OILS_DATABASE, OilData, PROPERTY_RANGES, RECIPE_TEMPLATES, RecipeTemplate, ADDITIVES, CATEGORY_LABELS } from './data/oils';
+import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs';
+import { OILS_DATABASE, OilData, RECIPE_TEMPLATES, RecipeTemplate, ADDITIVES, CATEGORY_LABELS } from './data/oils';
 import {
   calculateProperties,
   calculateFullRecipe,
@@ -10,9 +11,11 @@ import {
   evaluateRecipe,
   type LyeType,
   type WeightUnit,
+  type WaterMethod,
   type RecipeGoal,
   type FullRecipeResult,
 } from './data/calculator';
+import { getModeProcess } from './studio/recipe-studio-model';
 import PropertyBar from './components/PropertyBar';
 import OilSelector from './components/OilSelector';
 import RecipeCard from './components/RecipeCard';
@@ -22,7 +25,14 @@ import SavedRecipesList from './components/SavedRecipesList';
 import CostPanel from './components/CostPanel';
 import FragrancePanel from './components/FragrancePanel';
 import AIRecipeGenerator from './components/AIRecipeGenerator';
+import AuthActions from '../components/AuthActions';
 import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
+import { loadCostEntries, pricePerOz, type OilCostEntry } from './lib/costData';
+import {
+  FEATURE_KEYS,
+  getFeatureListForTier,
+  hasFeature,
+} from './studio/membership-model';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -32,10 +42,33 @@ interface RecipeOilEntry {
 }
 
 type Tab = 'calculator' | 'generator' | 'oils-db' | 'my-recipes';
+type CalculatorMode = 'easy' | 'intermediate' | 'expert';
+type SoapAbacusTier = 'free' | 'plus' | 'pro';
+type MembershipState = {
+  tier: SoapAbacusTier;
+  effectiveTier: SoapAbacusTier;
+  status: string;
+  features?: string[];
+  trialEndsAt?: string | null;
+  stripeCustomerId?: string | null;
+};
+
+const DEFAULT_MEMBERSHIP: MembershipState = {
+  tier: 'free',
+  effectiveTier: 'free',
+  status: 'free',
+  features: [],
+};
 
 // ─── Page Component ──────────────────────────────────────────────────────────
 
-export default function SoapCalculatorPage() {
+function SoapCalculatorExperience({
+  membership,
+  refreshMembership,
+}: {
+  membership: MembershipState;
+  refreshMembership: () => Promise<void>;
+}) {
   // ── Active tab ──
   const [activeTab, setActiveTab] = useState<Tab>('calculator');
 
@@ -51,8 +84,12 @@ export default function SoapCalculatorPage() {
   const [superfat, setSuperfat] = useState(5);
   const [lyeType, setLyeType] = useState<LyeType>('NaOH');
   const [waterRatio, setWaterRatio] = useState(2);
+  const [waterMethod, setWaterMethod] = useState<WaterMethod>('water-lye-ratio');
+  const [waterValue, setWaterValue] = useState(2);
+  const [kohPurityPercent, setKohPurityPercent] = useState(100);
   const [unit, setUnit] = useState<WeightUnit>('oz');
-  const [recipeName, setRecipeName] = useState('My Soap Recipe');
+  const [recipeName, setRecipeName] = useState('Recipe Console');
+  const [calculatorMode, setCalculatorMode] = useState<CalculatorMode>('easy');
 
   // ── Generator state ──
   const [selectedGoals, setSelectedGoals] = useState<RecipeGoal[]>(['all-purpose']);
@@ -70,7 +107,9 @@ export default function SoapCalculatorPage() {
   const [loadedRecipeId, setLoadedRecipeId] = useState<string | null>(null);
   const [savedRecipesRefreshKey, setSavedRecipesRefreshKey] = useState(0);
   const [saveToast, setSaveToast] = useState<string | null>(null);
+  const saveToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [recipeNotes, setRecipeNotes] = useState('');
+  const [costEntries, setCostEntries] = useState<OilCostEntry[]>([]);
 
   // ── Derived calculations ──
   const totalPercent = recipeOils.reduce((s, o) => s + o.percent, 0);
@@ -86,11 +125,30 @@ export default function SoapCalculatorPage() {
 
   const recipeResult: FullRecipeResult | null = useMemo(() => {
     if (oilEntries.length === 0 || totalPercent === 0) return null;
-    return calculateFullRecipe(oilEntries, totalOilWeight, superfat, lyeType, waterRatio, unit);
-  }, [oilEntries, totalOilWeight, superfat, lyeType, waterRatio, unit, totalPercent]);
+    return calculateFullRecipe(
+      oilEntries,
+      totalOilWeight,
+      superfat,
+      lyeType,
+      { method: waterMethod, value: waterValue },
+      unit,
+      kohPurityPercent,
+    );
+  }, [oilEntries, totalOilWeight, superfat, lyeType, waterMethod, waterValue, unit, kohPurityPercent, totalPercent]);
 
   const properties = useMemo(() => calculateProperties(oilEntries), [oilEntries]);
   const evaluation = useMemo(() => evaluateRecipe(properties), [properties]);
+  const processSteps = useMemo(() => getModeProcess(calculatorMode), [calculatorMode]);
+  const canUseIntermediate = hasFeature(membership, FEATURE_KEYS.RECIPE_DESIGNER_INTERMEDIATE);
+  const canUseExpert = hasFeature(membership, FEATURE_KEYS.RECIPE_DESIGNER_EXPERT);
+  const canUseIngredientCosts = hasFeature(membership, FEATURE_KEYS.INGREDIENT_COSTS);
+  const canUseRecipeBlenderAI = hasFeature(membership, FEATURE_KEYS.AI_RECIPE_BLENDER);
+  const canUseAdvancedLye = hasFeature(membership, FEATURE_KEYS.ADVANCED_LYE);
+  const costMap = useMemo(() => new Map(costEntries.map(entry => [entry.oilId, entry])), [costEntries]);
+
+  useEffect(() => {
+    setCostEntries(loadCostEntries());
+  }, []);
 
   // ── Oil DB filtered list ──
   const filteredDbOils = useMemo(() => {
@@ -152,13 +210,92 @@ export default function SoapCalculatorPage() {
   // ── Save / Load / Print handlers ──
 
   const showToast = useCallback((msg: string) => {
+    if (saveToastTimer.current) clearTimeout(saveToastTimer.current);
     setSaveToast(msg);
-    setTimeout(() => setSaveToast(null), 3000);
+    saveToastTimer.current = setTimeout(() => setSaveToast(null), 3000);
   }, []);
 
+  const handleModeChange = useCallback((mode: CalculatorMode) => {
+    if (mode === 'intermediate' && !canUseIntermediate) {
+      showToast('Upgrade to Plus to use Intermediate mode.');
+      return;
+    }
+    if (mode === 'expert' && !canUseExpert) {
+      showToast('Upgrade to Pro to use Expert mode.');
+      return;
+    }
+    setCalculatorMode(mode);
+  }, [canUseExpert, canUseIntermediate, showToast]);
+
+  const syncRecipeToVault = useCallback(async (localRecipe: SavedRecipe) => {
+    try {
+      const response = await fetch('/api/recipes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: localRecipe.cloudRecipeId || localRecipe.id,
+          name: recipeName,
+          description: recipeNotes,
+          mode: calculatorMode,
+          oils: recipeResult?.oils.map(o => ({
+            oilId: o.oil.id,
+            name: o.oil.name,
+            percent: o.percent,
+            weight: o.weight,
+            unit,
+          })) || recipeOils,
+          liquids: recipeResult ? [{
+            liquidId: 'water',
+            name: 'Water',
+            weight: recipeResult.lye.waterWeight,
+            unit,
+            method: recipeResult.lye.waterMethod,
+            value: recipeResult.lye.waterValue,
+          }] : [],
+          fragrances: [],
+          additives: [],
+          costs: canUseIngredientCosts ? costEntries.map(entry => ({
+            ingredientId: entry.oilId,
+            supplier: entry.supplier,
+            pricePerUnit: entry.pricePerUnit,
+            unitSize: entry.unitSize,
+            unit: entry.unit,
+          })) : [],
+          pricing: null,
+          notes: recipeNotes,
+        }),
+      });
+
+      if (!response.ok) {
+        let message = 'Saved locally. Vault sync is not available right now.';
+        try {
+          const data = await response.json();
+          if (response.status === 401) {
+            message = 'Saved locally. Sign in to save this recipe to your vault.';
+          } else if (data.error) {
+            message = `Saved locally. ${data.error}`;
+          }
+        } catch {
+          // Keep the default local-save message.
+        }
+        showToast(message);
+        return;
+      }
+      const data = await response.json();
+      if (data.recipe?.id) {
+        updateRecipe(localRecipe.id, { cloudRecipeId: data.recipe.id });
+        setSavedRecipesRefreshKey(k => k + 1);
+        showToast('Recipe saved to your vault.');
+      }
+    } catch {
+      showToast('Saved locally. Vault sync is offline right now.');
+    }
+  }, [calculatorMode, canUseIngredientCosts, costEntries, recipeName, recipeNotes, recipeOils, recipeResult, showToast, unit]);
+
   const handleSaveRecipe = useCallback(() => {
+    let localRecipe: SavedRecipe | null = null;
     if (loadedRecipeId) {
-      updateRecipe(loadedRecipeId, {
+      localRecipe = updateRecipe(loadedRecipeId, {
         name: recipeName,
         oils: recipeOils,
         totalOilWeight,
@@ -166,7 +303,11 @@ export default function SoapCalculatorPage() {
         lyeType,
         superfat,
         waterRatio,
+        waterMethod,
+        waterValue,
+        kohPurityPercent,
         notes: recipeNotes,
+        mode: calculatorMode,
       });
       showToast('Recipe updated!');
     } else {
@@ -178,13 +319,19 @@ export default function SoapCalculatorPage() {
         lyeType,
         superfat,
         waterRatio,
+        waterMethod,
+        waterValue,
+        kohPurityPercent,
         notes: recipeNotes,
+        mode: calculatorMode,
       });
+      localRecipe = saved;
       setLoadedRecipeId(saved.id);
       showToast('Recipe saved!');
     }
     setSavedRecipesRefreshKey(k => k + 1);
-  }, [recipeName, recipeOils, totalOilWeight, unit, lyeType, superfat, waterRatio, recipeNotes, loadedRecipeId, showToast]);
+    if (localRecipe) void syncRecipeToVault(localRecipe);
+  }, [recipeName, recipeOils, totalOilWeight, unit, lyeType, superfat, waterRatio, waterMethod, waterValue, kohPurityPercent, recipeNotes, calculatorMode, loadedRecipeId, showToast, syncRecipeToVault]);
 
   const handleSaveAsNew = useCallback(() => {
     const saved = saveRecipe({
@@ -195,13 +342,18 @@ export default function SoapCalculatorPage() {
       lyeType,
       superfat,
       waterRatio,
+      waterMethod,
+      waterValue,
+      kohPurityPercent,
       notes: recipeNotes,
+      mode: calculatorMode,
     });
     setLoadedRecipeId(saved.id);
     setRecipeName(saved.name);
     setSavedRecipesRefreshKey(k => k + 1);
     showToast('Saved as new recipe!');
-  }, [recipeName, recipeOils, totalOilWeight, unit, lyeType, superfat, waterRatio, recipeNotes, showToast]);
+    void syncRecipeToVault(saved);
+  }, [recipeName, recipeOils, totalOilWeight, unit, lyeType, superfat, waterRatio, waterMethod, waterValue, kohPurityPercent, recipeNotes, calculatorMode, showToast, syncRecipeToVault]);
 
   const handleLoadSavedRecipe = useCallback((recipe: SavedRecipe) => {
     setRecipeOils(recipe.oils.map(o => ({ oilId: o.oilId, percent: o.percent })));
@@ -210,8 +362,12 @@ export default function SoapCalculatorPage() {
     setLyeType(recipe.lyeType);
     setSuperfat(recipe.superfat);
     setWaterRatio(recipe.waterRatio);
+    setWaterMethod(recipe.waterMethod || 'water-lye-ratio');
+    setWaterValue(recipe.waterValue ?? recipe.waterRatio ?? 2);
+    setKohPurityPercent(recipe.kohPurityPercent ?? 100);
     setRecipeName(recipe.name);
     setRecipeNotes(recipe.notes);
+    setCalculatorMode(recipe.mode || 'intermediate');
     setLoadedRecipeId(recipe.id);
     setActiveTab('calculator');
   }, []);
@@ -228,14 +384,19 @@ export default function SoapCalculatorPage() {
       <header className="border-b border-navy-600/30 bg-navy-950/80 backdrop-blur-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-gold-400 hover:text-gold-300 transition-colors text-sm">
+            <a href="https://www.coldstonesoap.com" className="text-gold-400 hover:text-gold-300 transition-colors text-sm">
               &larr; Home
-            </Link>
+            </a>
             <h1 className="text-gold-400 font-serif text-xl md:text-2xl tracking-wide">
-              Soap Calculator
+              Soap Abacus Studio
             </h1>
           </div>
-          <span className="text-parchment-500 text-xs hidden md:block">Coldstone Soap Co.</span>
+          <div className="flex items-center gap-4">
+            <Link href="/soap-calculator/account" className="text-parchment-500 hover:text-gold-300 text-xs hidden md:block">
+              {membership.effectiveTier.toUpperCase()} Account
+            </Link>
+            <AuthActions />
+          </div>
         </div>
       </header>
 
@@ -243,10 +404,10 @@ export default function SoapCalculatorPage() {
       <nav className="border-b border-navy-600/20 bg-navy-900/40">
         <div className="max-w-7xl mx-auto px-4 flex gap-1">
           {([
-            { id: 'calculator', label: 'Lye Calculator' },
-            { id: 'generator', label: 'Recipe Generator' },
-            { id: 'oils-db', label: 'Oils Database' },
-            { id: 'my-recipes', label: 'My Recipes' },
+            { id: 'calculator', label: 'Recipe Designer' },
+            { id: 'generator', label: 'Recipe Blender' },
+            { id: 'oils-db', label: 'Ingredients DB' },
+            { id: 'my-recipes', label: 'Recipe Cache' },
           ] as { id: Tab; label: string }[]).map(tab => (
             <button
               key={tab.id}
@@ -264,6 +425,8 @@ export default function SoapCalculatorPage() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
+        <MembershipBanner membership={membership} refreshMembership={refreshMembership} />
+
         {/* ═══════════════════════════════════════ */}
         {/* CALCULATOR TAB                          */}
         {/* ═══════════════════════════════════════ */}
@@ -273,13 +436,16 @@ export default function SoapCalculatorPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Recipe Name & Settings */}
               <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
+                <div className="mb-3">
+                  <h2 className="text-gold-400 font-serif text-lg">Soap Designer</h2>
+                </div>
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <input
                     type="text"
                     value={recipeName}
                     onChange={e => setRecipeName(e.target.value)}
                     className="bg-transparent text-gold-300 font-serif text-xl border-none outline-none flex-1 placeholder-parchment-600"
-                    placeholder="Recipe Name..."
+                    placeholder="Recipe Console..."
                   />
                   <div className="flex gap-2 flex-shrink-0">
                     <button
@@ -304,6 +470,35 @@ export default function SoapCalculatorPage() {
                         Print
                       </button>
                     )}
+                  </div>
+                </div>
+
+                {/* Calculator Mode */}
+                <div className="mb-5">
+                  <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-2">
+                    Calculator Mode
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { id: 'easy', label: 'Easy', hint: 'Guided', locked: false },
+                      { id: 'intermediate', label: 'Intermediate', hint: 'Plus', locked: !canUseIntermediate },
+                      { id: 'expert', label: 'Expert', hint: 'Pro', locked: !canUseExpert },
+                    ] as { id: CalculatorMode; label: string; hint: string; locked: boolean }[]).map(mode => (
+                      <button
+                        key={mode.id}
+                        onClick={() => handleModeChange(mode.id)}
+                        className={`rounded-lg border px-3 py-2 text-left transition-colors ${
+                          calculatorMode === mode.id
+                            ? 'border-gold-500/50 bg-gold-500/15 text-gold-300'
+                            : mode.locked
+                              ? 'border-navy-700/30 bg-navy-900/40 text-parchment-600'
+                              : 'border-navy-600/30 bg-navy-800/40 text-parchment-400 hover:border-navy-500/60'
+                        }`}
+                      >
+                        <span className="block text-sm font-medium">{mode.label}{mode.locked ? ' Locked' : ''}</span>
+                        <span className="block text-[10px] text-parchment-500">{mode.hint}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -341,13 +536,36 @@ export default function SoapCalculatorPage() {
                     <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-1">Lye Type</label>
                     <select
                       value={lyeType}
-                      onChange={e => setLyeType(e.target.value as LyeType)}
+                      onChange={e => {
+                        const next = e.target.value as LyeType;
+                        if (next === 'KOH' && !canUseAdvancedLye) {
+                          showToast('Upgrade to Pro to use advanced KOH controls.');
+                          return;
+                        }
+                        setLyeType(next);
+                      }}
                       className="w-full bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 focus:outline-none focus:border-gold-500/60"
                     >
                       <option value="NaOH">NaOH (Bar Soap)</option>
                       <option value="KOH">KOH (Liquid Soap)</option>
                     </select>
                   </div>
+
+                  {lyeType === 'KOH' && (
+                    <div>
+                      <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-1">
+                        KOH Purity
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={kohPurityPercent}
+                        onChange={e => setKohPurityPercent(Math.max(1, Math.min(100, parseFloat(e.target.value) || 90)))}
+                        className="w-full bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 focus:outline-none focus:border-gold-500/60"
+                      />
+                    </div>
+                  )}
 
                   {/* Superfat */}
                   <div>
@@ -366,24 +584,54 @@ export default function SoapCalculatorPage() {
                   </div>
                 </div>
 
-                {/* Water:Lye Ratio */}
+                {/* Water Method */}
                 <div className="mt-4">
                   <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-1">
-                    Water : Lye Ratio — {waterRatio}:1
+                    Water Method
                   </label>
-                  <input
-                    type="range"
-                    min={1}
-                    max={3}
-                    step={0.1}
-                    value={waterRatio}
-                    onChange={e => setWaterRatio(parseFloat(e.target.value))}
-                    className="w-full accent-gold-500"
-                  />
-                  <div className="flex justify-between text-[10px] text-parchment-500">
-                    <span>1:1 (Low water)</span>
-                    <span>2:1 (Standard)</span>
-                    <span>3:1 (High water)</span>
+                  <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_120px] gap-3">
+                    <select
+                      value={waterMethod}
+                      onChange={e => {
+                        const method = e.target.value as WaterMethod;
+                        if (method !== 'water-lye-ratio' && !canUseIntermediate) {
+                          showToast('Upgrade to Plus to use full water methods.');
+                          return;
+                        }
+                        setWaterMethod(method);
+                        const nextValue = method === 'lye-concentration' ? 33 : method === 'water-as-percent-of-oils' ? 38 : 2;
+                        setWaterValue(nextValue);
+                        if (method === 'water-lye-ratio') setWaterRatio(nextValue);
+                      }}
+                      className="w-full bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 focus:outline-none focus:border-gold-500/60"
+                    >
+                      <option value="water-lye-ratio">Water : Lye Ratio</option>
+                      <option value="lye-concentration" disabled={!canUseIntermediate}>Lye Concentration (Plus)</option>
+                      <option value="water-as-percent-of-oils" disabled={!canUseIntermediate}>Water as % of Oils (Plus)</option>
+                    </select>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={waterMethod === 'lye-concentration' ? 1 : 0.5}
+                        max={waterMethod === 'lye-concentration' ? 99 : 100}
+                        step={waterMethod === 'water-lye-ratio' ? 0.1 : 1}
+                        value={waterValue}
+                        onChange={e => {
+                          const value = parseFloat(e.target.value) || 0;
+                          setWaterValue(value);
+                          if (waterMethod === 'water-lye-ratio') setWaterRatio(value);
+                        }}
+                        className="w-full bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 focus:outline-none focus:border-gold-500/60"
+                      />
+                      <span className="text-xs text-parchment-500 whitespace-nowrap">
+                        {waterMethod === 'water-lye-ratio' ? ':1' : '%'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-[10px] text-parchment-500">
+                    {waterMethod === 'water-lye-ratio' && 'Easy default: 2:1. Lower water traces faster; higher water gives more working time.'}
+                    {waterMethod === 'lye-concentration' && 'Intermediate/expert control: common cold process range is roughly 30-35%.'}
+                    {waterMethod === 'water-as-percent-of-oils' && 'SoapCalc-style beginner default: 38% water as a percentage of oil weight.'}
                   </div>
                 </div>
 
@@ -399,6 +647,38 @@ export default function SoapCalculatorPage() {
                     rows={2}
                     className="w-full bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-parchment-600 focus:outline-none focus:border-gold-500/60 resize-none"
                   />
+                </div>
+              </div>
+
+              {/* Guided Process Flow */}
+              <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h3 className="text-gold-400 font-serif text-lg">Recipe Workbench</h3>
+                    <p className="text-parchment-500 text-xs mt-1">
+                      {calculatorMode === 'easy'
+                        ? 'A guided path from idea to ready-to-save soap recipe.'
+                        : calculatorMode === 'intermediate'
+                          ? 'A hybrid workflow with stronger controls at each step.'
+                          : 'Full-control audit path for experienced formulators.'}
+                    </p>
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-gold-500/70 border border-gold-500/20 rounded-full px-3 py-1">
+                    {calculatorMode}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {processSteps.map((step: { id: string; label: string; description: string }, index: number) => (
+                    <div key={step.id} className="flex gap-3 rounded-lg bg-navy-800/40 border border-navy-700/30 p-3">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold-500/15 text-gold-400 text-xs font-bold">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <div className="text-sm text-parchment-200 font-medium">{step.label}</div>
+                        <p className="text-xs text-parchment-500 mt-0.5">{step.description}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -478,7 +758,7 @@ export default function SoapCalculatorPage() {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <ResultBox label="Superfat" value={`${superfat}%`} />
-                    <ResultBox label="Water:Lye" value={`${waterRatio}:1`} />
+                    <ResultBox label="Water:Lye" value={`${recipeResult.lye.waterRatio}:1`} />
                     <ResultBox label="Lye Type" value={lyeType} />
                     <ResultBox label="Lye Purity" value="97%" />
                   </div>
@@ -580,6 +860,8 @@ export default function SoapCalculatorPage() {
                   unit={unit}
                   lyeWeight={recipeResult.lye.lyeWeight}
                   totalBatchWeight={recipeResult.totalBatchWeight}
+                  canUseIngredientCosts={canUseIngredientCosts}
+                  onCostEntriesChange={setCostEntries}
                 />
               )}
             </div>
@@ -664,12 +946,19 @@ export default function SoapCalculatorPage() {
               </button>
             </div>
 
-            {/* AI Recipe Generator */}
-            <AIRecipeGenerator
-              selectedGoals={selectedGoals}
-              excludedOils={excludedOils}
-              onLoadRecipe={handleLoadAIRecipe}
-            />
+            {/* AI Recipe Blender */}
+            {canUseRecipeBlenderAI ? (
+              <AIRecipeGenerator
+                selectedGoals={selectedGoals}
+                excludedOils={excludedOils}
+                onLoadRecipe={handleLoadAIRecipe}
+              />
+            ) : (
+              <LockedFeature
+                title="AI Recipe Blender"
+                copy="Upgrade to Pro to generate calculator-ready recipes with AI."
+              />
+            )}
 
             {/* Generated Results */}
             {generatedResults.length > 0 && (
@@ -725,7 +1014,7 @@ export default function SoapCalculatorPage() {
             {/* Search & Filter */}
             <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
               <h3 className="text-gold-400 font-serif text-lg mb-3">
-                Oils, Butters, Fats & Waxes Database ({OILS_DATABASE.length} ingredients)
+                Ingredients DB: Oils, Butters, Fats & Waxes ({OILS_DATABASE.length} ingredients)
               </h3>
 
               <div className="flex flex-col md:flex-row gap-3 mb-4">
@@ -770,7 +1059,8 @@ export default function SoapCalculatorPage() {
                       <th className="text-right py-3 px-2">KOH SAP</th>
                       <th className="text-right py-3 px-2">Iodine</th>
                       <th className="text-right py-3 px-2">INS</th>
-                      <th className="text-center py-3 px-2">Cost</th>
+                      <th className="text-center py-3 px-2">Cost Tier</th>
+                      <th className="text-right py-3 px-2">Cost</th>
                       <th className="text-right py-3 px-4">Max %</th>
                     </tr>
                   </thead>
@@ -806,6 +1096,11 @@ export default function SoapCalculatorPage() {
                           }`}>
                             {oil.costTier}
                           </span>
+                        </td>
+                        <td className="py-2.5 px-2 text-right text-xs text-parchment-400">
+                          {canUseIngredientCosts
+                            ? formatIngredientCost(costMap.get(oil.id))
+                            : 'Plus'}
                         </td>
                         <td className="py-2.5 px-4 text-right text-parchment-400">{oil.maxPercent}%</td>
                       </tr>
@@ -853,6 +1148,9 @@ export default function SoapCalculatorPage() {
           <SavedRecipesList
             onLoadRecipe={handleLoadSavedRecipe}
             refreshKey={savedRecipesRefreshKey}
+            canShare={hasFeature(membership, FEATURE_KEYS.SHARE_LINKS)}
+            canPdfExport={hasFeature(membership, FEATURE_KEYS.PDF_EXPORT)}
+            canImportExport={hasFeature(membership, FEATURE_KEYS.JSON_IMPORT_EXPORT)}
           />
         )}
       </main>
@@ -864,7 +1162,7 @@ export default function SoapCalculatorPage() {
           recipeResult={recipeResult}
           lyeType={lyeType}
           superfat={superfat}
-          waterRatio={waterRatio}
+          waterRatio={recipeResult.lye.waterRatio}
           unit={unit}
           notes={recipeNotes}
         />
@@ -884,7 +1182,7 @@ export default function SoapCalculatorPage() {
 
       {/* Footer */}
       <footer className="border-t border-navy-600/20 mt-12 py-6 text-center text-parchment-500 text-xs">
-        <p>Coldstone Soap Co. &mdash; Soap Calculator</p>
+        <p>Coldstone Soap Co. &mdash; Soap Abacus Studio</p>
         <p className="mt-1">
           SAP values are approximations. Always verify with your oil supplier.
           Superfat your recipes for safety.
@@ -895,6 +1193,232 @@ export default function SoapCalculatorPage() {
 }
 
 // ─── Helper Components ───────────────────────────────────────────────────────
+
+export default function SoapCalculatorPage() {
+  const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+
+  if (!clerkEnabled) {
+    return (
+      <div className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center px-4">
+        <div className="max-w-lg rounded-xl border border-navy-600/30 bg-navy-900/70 p-8 text-center">
+          <h1 className="font-serif text-3xl text-gold-400">Soap Abacus Studio</h1>
+          <p className="mt-3 text-sm text-parchment-400">
+            Clerk is required before the membership paywall can run in this environment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return <SoapStudioGate />;
+}
+
+function SoapStudioGate() {
+  const { isLoaded, isSignedIn } = useUser();
+  const [membership, setMembership] = useState<MembershipState>(DEFAULT_MEMBERSHIP);
+
+  const refreshMembership = useCallback(async () => {
+    try {
+      const response = await fetch('/api/soap-abacus/membership');
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.membership) {
+        setMembership({
+          ...DEFAULT_MEMBERSHIP,
+          ...data.membership,
+          effectiveTier: data.membership.effectiveTier || data.membership.tier || 'free',
+        });
+      }
+    } catch {
+      // Keep local Free fallback.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) void refreshMembership();
+  }, [isLoaded, isSignedIn, refreshMembership]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center">
+        <p className="text-sm text-parchment-500">Loading Soap Abacus Studio...</p>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) return <SignedOutStudioLanding />;
+
+  return <SoapCalculatorExperience membership={membership} refreshMembership={refreshMembership} />;
+}
+
+function SignedOutStudioLanding() {
+  const tiers = [
+    { tier: 'free' as const, title: 'Free', cta: 'Create Free Account' },
+    { tier: 'plus' as const, title: 'Plus', cta: 'Sign Up For Plus' },
+    { tier: 'pro' as const, title: 'Pro', cta: 'Start 7 Day Pro Trial' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-midnight text-parchment-200">
+      <header className="border-b border-navy-600/30 bg-navy-950/80">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <a href="https://www.coldstonesoap.com" className="text-gold-400 hover:text-gold-300 text-sm">
+            &larr; Home
+          </a>
+          <h1 className="text-gold-400 font-serif text-xl md:text-2xl">Soap Abacus Studio</h1>
+          <SignInButton mode="modal">
+            <button className="text-xs text-parchment-400 hover:text-gold-300">LOG IN</button>
+          </SignInButton>
+        </div>
+      </header>
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        <section className="max-w-3xl">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-gold-500/70">Membership Required</p>
+          <h2 className="mt-3 font-serif text-4xl text-gold-300">Recipe Designer, Recipe Blender, Ingredients DB, and Recipe Cache.</h2>
+          <p className="mt-4 text-parchment-400">
+            Create a Clerk account to use the Soap Abacus Studio. Free accounts can start designing recipes immediately;
+            Plus and Pro unlock cost tracking, sharing, AI blending, and exports.
+          </p>
+        </section>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {tiers.map(tier => (
+            <div key={tier.tier} className="rounded-xl border border-navy-600/30 bg-navy-900/70 p-5">
+              <h3 className="font-serif text-xl text-gold-400">{tier.title}</h3>
+              <ul className="mt-4 space-y-2 text-sm text-parchment-400">
+                {(getFeatureListForTier(tier.tier) as string[]).slice(0, 5).map((feature: string) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+              <SignUpButton mode="modal">
+                <button className="mt-5 w-full rounded-lg bg-gold-500/20 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/30">
+                  {tier.cta}
+                </button>
+              </SignUpButton>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function MembershipBanner({
+  membership,
+  refreshMembership,
+}: {
+  membership: MembershipState;
+  refreshMembership: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const trialText = membership.trialEndsAt
+    ? `Trial ends ${new Date(membership.trialEndsAt).toLocaleDateString()}`
+    : null;
+
+  const startNoCardTrial = async () => {
+    setBusy('trial');
+    try {
+      await fetch('/api/soap-abacus/membership', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start_pro_trial' }),
+      });
+      await refreshMembership();
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const startCheckout = async (tier: 'plus' | 'pro', trial: 'card' | 'none' = 'none') => {
+    setBusy(`${tier}-${trial}`);
+    try {
+      const response = await fetch('/api/soap-abacus/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier, trial }),
+      });
+      const data = await response.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const openPortal = async () => {
+    setBusy('portal');
+    try {
+      const response = await fetch('/api/soap-abacus/portal', { method: 'POST' });
+      const data = await response.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="mb-6 rounded-xl border border-navy-600/30 bg-navy-900/60 p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.22em] text-gold-500/70">Soap Abacus Membership</p>
+        <p className="mt-1 text-sm text-parchment-300">
+          {membership.effectiveTier.toUpperCase()} tier · {membership.status}
+          {trialText ? ` · ${trialText}` : ''}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {membership.effectiveTier === 'free' && (
+          <>
+            <button
+              onClick={startNoCardTrial}
+              disabled={busy !== null}
+              className="rounded-lg bg-gold-500/20 px-3 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30 disabled:opacity-50"
+            >
+              {busy === 'trial' ? 'Starting...' : 'Start No-Card Pro Trial'}
+            </button>
+            <button
+              onClick={() => startCheckout('plus')}
+              disabled={busy !== null}
+              className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
+            >
+              Plus
+            </button>
+            <button
+              onClick={() => startCheckout('pro', 'card')}
+              disabled={busy !== null}
+              className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
+            >
+              Pro Card Trial
+            </button>
+          </>
+        )}
+        {membership.stripeCustomerId && (
+          <button
+            onClick={openPortal}
+            disabled={busy !== null}
+            className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700 disabled:opacity-50"
+          >
+            Manage Billing
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LockedFeature({ title, copy }: { title: string; copy: string }) {
+  return (
+    <div className="rounded-xl border border-gold-500/20 bg-navy-900/60 p-5">
+      <h3 className="text-gold-400 font-serif text-lg">{title}</h3>
+      <p className="mt-2 text-sm text-parchment-500">{copy}</p>
+      <Link href="/soap-calculator/account" className="mt-4 inline-block rounded-lg bg-gold-500/20 px-4 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30">
+        View Membership
+      </Link>
+    </div>
+  );
+}
+
+function formatIngredientCost(entry?: OilCostEntry) {
+  if (!entry) return 'Not set';
+  return `$${pricePerOz(entry).toFixed(2)}/oz`;
+}
 
 function ResultBox({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (

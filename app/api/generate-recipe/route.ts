@@ -1,5 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
+import { FEATURE_KEYS, requireSoapAbacusFeature } from '@/app/lib/soap-abacus-membership';
 
 // ─── Rate Limiting (simple in-memory) ────────────────────────────────────────
 
@@ -114,6 +115,10 @@ const TRENDING_CONTEXT = `Trending soapmaking ingredients (2024-2025):
 - Snow mushroom / tremella: As a soap additive for hydration
 - Seasonal suggestions: Peppermint/fir needle in winter, citrus/lemongrass in summer, pumpkin seed in autumn`;
 
+const NVIDIA_NIM_BASE_URL = 'https://integrate.api.nvidia.com/v1';
+const NVIDIA_NIM_MODEL = 'minimaxai/minimax-m2.7';
+const OPENAI_MODEL = 'gpt-5.5';
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface GenerateRequest {
@@ -134,9 +139,157 @@ interface AIRecipeResponse {
   fragranceNotes?: string;
 }
 
+type AIProvider = 'nvidia' | 'openai';
+
+const RECIPE_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    description: { type: 'string' },
+    reasoning: { type: 'string' },
+    oils: {
+      type: 'array',
+      minItems: 3,
+      maxItems: 7,
+      items: {
+        type: 'object',
+        properties: {
+          oilId: { type: 'string', enum: VALID_OIL_IDS },
+          percent: { type: 'number', minimum: 0, maximum: 100 },
+        },
+        required: ['oilId', 'percent'],
+        additionalProperties: false,
+      },
+    },
+    superfat: { type: 'number', minimum: 3, maximum: 8 },
+    suggestedAdditives: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    fragranceNotes: { type: 'string' },
+  },
+  required: [
+    'name',
+    'description',
+    'reasoning',
+    'oils',
+    'superfat',
+    'suggestedAdditives',
+    'fragranceNotes',
+  ],
+  additionalProperties: false,
+} as const;
+
+const SYSTEM_PROMPT = `You are an expert soapmaker and cosmetic chemist. You create balanced cold process soap recipes using precise oil percentages and deep knowledge of fatty acid profiles, SAP values, and soap properties.
+
+${OIL_REFERENCE}
+
+${TRENDING_CONTEXT}
+
+Key soapmaking principles:
+- Hardness comes from saturated fats (lauric, myristic, palmitic, stearic)
+- Cleansing comes from lauric + myristic acids (coconut, babassu, palm kernel)
+- Conditioning comes from oleic, ricinoleic, linoleic, linolenic acids
+- Bubbly lather from lauric, myristic, ricinoleic
+- Creamy lather from palmitic, stearic, ricinoleic
+- Castor oil at 3-7% dramatically boosts lather
+- Too much cleansing (>22) = drying; too little hardness (<29) = soft bar
+- Ideal ranges: Hardness 29-54, Cleansing 12-22, Conditioning 44-69, INS 136-165
+- Waxes (beeswax, etc.) should be kept under 5%
+- Soft oils like grapeseed, hemp should be under 15% to avoid dreaded orange spots (DOS)
+
+Return one practical, calculator-ready recipe. Use empty arrays or empty strings when optional additive or fragrance guidance is not needed.`;
+
+function getAIProvider(): AIProvider | null {
+  const provider = (process.env.AI_PROVIDER || 'nvidia').toLowerCase();
+  if (provider === 'nvidia' || provider === 'openai') return provider;
+  return null;
+}
+
+async function generateWithNvidia(userMessage: string) {
+  const apiKey = process.env.NVIDIA_API_KEY;
+  if (!apiKey) {
+    return {
+      error: 'AI generation is not configured. Please add an NVIDIA_API_KEY to your environment.',
+    };
+  }
+
+  const client = new OpenAI({
+    apiKey,
+    baseURL: process.env.NVIDIA_NIM_BASE_URL || NVIDIA_NIM_BASE_URL,
+  });
+
+  const completion = await client.chat.completions.create({
+    model: process.env.NVIDIA_NIM_MODEL || NVIDIA_NIM_MODEL,
+    max_tokens: 4096,
+    temperature: 0.3,
+    stream: false,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content: `${userMessage}\n\nReturn only a JSON object that matches the provided schema. Do not include markdown or commentary.`,
+      },
+    ],
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'soap_recipe',
+        schema: RECIPE_RESPONSE_SCHEMA,
+        strict: true,
+      },
+    },
+  } as Parameters<typeof client.chat.completions.create>[0] & {
+    response_format: {
+      type: 'json_schema';
+      json_schema: {
+        name: string;
+        schema: typeof RECIPE_RESPONSE_SCHEMA;
+        strict: boolean;
+      };
+    };
+  });
+
+  return { text: 'choices' in completion ? completion.choices[0]?.message?.content || '' : '' };
+}
+
+async function generateWithOpenAI(userMessage: string) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return {
+      error: 'AI generation is not configured. Please add an OPENAI_API_KEY to your environment.',
+    };
+  }
+
+  const client = new OpenAI({ apiKey });
+
+  const response = await client.responses.create({
+    model: OPENAI_MODEL,
+    max_output_tokens: 1024,
+    input: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userMessage },
+    ],
+    text: {
+      verbosity: 'low',
+      format: {
+        type: 'json_schema',
+        name: 'soap_recipe',
+        schema: RECIPE_RESPONSE_SCHEMA,
+        strict: true,
+      },
+    },
+  });
+
+  return { text: response.output_text };
+}
+
 // ─── POST Handler ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  const access = await requireSoapAbacusFeature(FEATURE_KEYS.AI_RECIPE_BLENDER);
+  if (!access.ok) return access.response;
+
   // Rate limit check
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
   if (!checkRateLimit(ip)) {
@@ -146,11 +299,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Check for API key
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  const provider = getAIProvider();
+  if (!provider) {
     return NextResponse.json(
-      { error: 'AI generation is not configured. Please add an ANTHROPIC_API_KEY to your environment.' },
+      { error: 'Unsupported AI_PROVIDER. Use "nvidia" or "openai".' },
       { status: 503 }
     );
   }
@@ -185,65 +337,33 @@ export async function POST(request: NextRequest) {
 "${prompt || goals.join(', ')}"
 ${goalsClause}${excludeClause}${skinTypeClause}${budgetClause}
 
-Respond ONLY with a JSON object (no markdown, no code fences) matching this exact structure:
-{
-  "name": "Creative recipe name",
-  "description": "2-3 sentence description of the soap and its benefits",
-  "reasoning": "2-3 sentences explaining WHY you chose these specific oils and percentages — what properties they bring",
-  "oils": [
-    { "oilId": "valid-oil-id", "percent": 30 }
-  ],
-  "superfat": 5,
-  "suggestedAdditives": ["optional additive suggestions"],
-  "fragranceNotes": "optional fragrance blend suggestion"
-}
-
 Rules:
 - Oil percentages MUST sum to exactly 100
 - Each oil's percent must not exceed its maxPercent
 - Use 3-7 oils for a well-balanced recipe
 - Superfat should be 3-8% (5% is standard)
-- Only use oil IDs from the reference list
+  - Only use oil IDs from the reference list
 - Consider trending ingredients when appropriate`;
 
   try {
-    const client = new Anthropic({ apiKey });
+    const generation = provider === 'nvidia'
+      ? await generateWithNvidia(userMessage)
+      : await generateWithOpenAI(userMessage);
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: `You are an expert soapmaker and cosmetic chemist. You create balanced cold process soap recipes using precise oil percentages and deep knowledge of fatty acid profiles, SAP values, and soap properties.
-
-${OIL_REFERENCE}
-
-${TRENDING_CONTEXT}
-
-Key soapmaking principles:
-- Hardness comes from saturated fats (lauric, myristic, palmitic, stearic)
-- Cleansing comes from lauric + myristic acids (coconut, babassu, palm kernel)
-- Conditioning comes from oleic, ricinoleic, linoleic, linolenic acids
-- Bubbly lather from lauric, myristic, ricinoleic
-- Creamy lather from palmitic, stearic, ricinoleic
-- Castor oil at 3-7% dramatically boosts lather
-- Too much cleansing (>22) = drying; too little hardness (<29) = soft bar
-- Ideal ranges: Hardness 29-54, Cleansing 12-22, Conditioning 44-69, INS 136-165
-- Waxes (beeswax, etc.) should be kept under 5%
-- Soft oils like grapeseed, hemp should be under 15% to avoid dreaded orange spots (DOS)`,
-      messages: [{ role: 'user', content: userMessage }],
-    });
+    if ('error' in generation) {
+      return NextResponse.json({ error: generation.error }, { status: 503 });
+    }
 
     // Extract text response
-    const textBlock = message.content.find(b => b.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
+    const responseText = generation.text;
+    if (!responseText) {
       return NextResponse.json({ error: 'AI returned an unexpected response format.' }, { status: 500 });
     }
 
     // Parse JSON from response
     let recipe: AIRecipeResponse;
     try {
-      // Strip any markdown code fences if present
-      const cleaned = textBlock.text.replace(/```json\s*/, '').replace(/```\s*$/, '').trim();
-      recipe = JSON.parse(cleaned);
+      recipe = JSON.parse(responseText);
     } catch {
       return NextResponse.json(
         { error: 'AI returned invalid JSON. Please try again.' },
