@@ -141,7 +141,10 @@ test('Soap Abacus UI and environment declare Studio tier concepts', () => {
 test('signed-out visitors see a read-only Studio preview instead of a hard paywall', () => {
   assert.match(calculatorSource, /isReadOnlyPreview/);
   assert.match(calculatorSource, /Studio Preview/);
-  assert.match(calculatorSource, /Previewing the calculator/);
+  assert.match(calculatorSource, /Create a Free Account to Unlock Soap Abacus/);
+  assert.match(calculatorSource, /Log In \/ Sign Up/);
   assert.match(calculatorSource, /ReadOnlyPreviewBanner/);
+  assert.match(calculatorSource, /<ReadOnlyPreviewShell/);
+  assert.doesNotMatch(calculatorSource, /<SignInButton mode="modal">\s*<button[^>]*>\s*Log In\s*<\/button>\s*<\/SignInButton>\s*<SignUpButton mode="modal">/);
   assert.doesNotMatch(calculatorSource, /Membership Required/);
 });

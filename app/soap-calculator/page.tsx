@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs';
 import { OILS_DATABASE, OilData, RECIPE_TEMPLATES, RecipeTemplate, ADDITIVES, CATEGORY_LABELS } from './data/oils';
@@ -401,18 +401,7 @@ function SoapCalculatorExperience({
           </div>
           <div className="flex items-center gap-4">
             {isReadOnlyPreview ? (
-              <>
-                <SignInButton mode="modal">
-                  <button className="rounded-lg bg-navy-800 px-3 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700">
-                    Log In
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="rounded-lg bg-gold-500/20 px-3 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30">
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </>
+              <PreviewAuthActions />
             ) : (
               <>
                 <Link href="/soap-calculator/account" className="text-parchment-500 hover:text-gold-300 text-xs hidden md:block">
@@ -427,10 +416,6 @@ function SoapCalculatorExperience({
 
       {isReadOnlyPreview && <ReadOnlyPreviewBanner />}
 
-      <div
-        className={isReadOnlyPreview ? 'pointer-events-none select-none opacity-90' : undefined}
-        inert={isReadOnlyPreview ? true : undefined}
-      >
       {/* Tab Navigation */}
       <nav className="border-b border-navy-600/20 bg-navy-900/40">
         <div className="max-w-7xl mx-auto px-4 flex gap-1">
@@ -455,6 +440,7 @@ function SoapCalculatorExperience({
         </div>
       </nav>
 
+      <ReadOnlyPreviewShell enabled={isReadOnlyPreview}>
       <main className="max-w-7xl mx-auto px-4 py-6">
         {!isReadOnlyPreview && <MembershipBanner membership={membership} refreshMembership={refreshMembership} />}
 
@@ -1219,7 +1205,7 @@ function SoapCalculatorExperience({
           Superfat your recipes for safety.
         </p>
       </footer>
-      </div>
+      </ReadOnlyPreviewShell>
     </div>
   );
 }
@@ -1297,26 +1283,43 @@ function ReadOnlyPreviewBanner() {
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Studio Preview</p>
-          <h2 className="mt-1 font-serif text-2xl text-gold-300">Previewing the calculator in read-only mode</h2>
+          <h2 className="mt-1 font-serif text-2xl text-gold-300">Create a Free Account to Unlock Soap Abacus</h2>
           <p className="mt-1 max-w-3xl text-sm text-parchment-400">
             Explore the Recipe Designer layout, lye and water outputs, property scoring, Ingredients DB, and pricing tiers.
             Create a free account to start editing recipes and saving to Recipe Cache.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <SignUpButton mode="modal">
-            <button className="rounded-lg bg-gold-500/20 px-4 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30">
-              Create Free Account
-            </button>
-          </SignUpButton>
-          <SignInButton mode="modal">
-            <button className="rounded-lg bg-navy-800 px-4 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700">
-              Log In
-            </button>
-          </SignInButton>
-        </div>
+        <PreviewAuthActions />
       </div>
     </section>
+  );
+}
+
+function PreviewAuthActions() {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <SignUpButton mode="modal">
+        <button className="rounded-lg bg-gold-500/20 px-4 py-2 text-xs font-semibold text-gold-300 hover:bg-gold-500/30">
+          Create Free Account
+        </button>
+      </SignUpButton>
+      <SignInButton mode="modal">
+        <button className="rounded-lg bg-navy-800 px-4 py-2 text-xs font-semibold text-parchment-300 hover:bg-navy-700">
+          Log In / Sign Up
+        </button>
+      </SignInButton>
+    </div>
+  );
+}
+
+function ReadOnlyPreviewShell({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  return (
+    <div
+      className={enabled ? 'pointer-events-none select-none opacity-90' : undefined}
+      inert={enabled ? true : undefined}
+    >
+      {children}
+    </div>
   );
 }
 
