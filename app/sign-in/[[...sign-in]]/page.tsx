@@ -5,6 +5,18 @@ import { SignIn } from '@clerk/nextjs';
 export const metadata: Metadata = {
   title: 'Log In | Soap Abacus Studio',
   description: 'Log in to unlock Soap Abacus Studio recipe design, saving, costing, and membership features.',
+  openGraph: {
+    title: 'Log In | Soap Abacus Studio',
+    description: 'Log in to unlock Soap Abacus Studio recipe design, saving, costing, and membership features.',
+    url: 'https://www.soapabacus.com/sign-in',
+    siteName: 'Soap Abacus Studio',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Log In | Soap Abacus Studio',
+    description: 'Log in to unlock Soap Abacus Studio recipe design, saving, costing, and membership features.',
+  },
 };
 
 export default function SignInPage() {
