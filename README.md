@@ -13,6 +13,15 @@ ColdstoneSoap-Website ports:
 | Normal dev | 3004 | `npm.cmd run dev -- -p 3004` |
 | Alternate / preview / debug | 3005 | `npm.cmd run dev -- -p 3005` |
 
+## Production Publishing
+
+Production publishes from the `main` branch through Vercel's Git integration.
+
+Use feature branches and pull requests for normal releases, then merge into `main`.
+Do not publish production from feature branches except for emergency recovery.
+
+See [docs/production-publishing.md](docs/production-publishing.md) for the release flow, smoke checks, and recommended `main` branch protection settings.
+
 ## AI Recipe Generator
 
 The AI Recipe Generator uses NVIDIA NIM by default.
