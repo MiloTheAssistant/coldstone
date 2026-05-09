@@ -417,8 +417,8 @@ function SoapCalculatorExperience({
       {isReadOnlyPreview && <ReadOnlyPreviewBanner />}
 
       {/* Tab Navigation */}
-      <nav className="border-b border-navy-600/20 bg-navy-900/40">
-        <div className="max-w-7xl mx-auto px-4 flex gap-1">
+      <nav className="overflow-x-auto border-b border-navy-600/20 bg-navy-900/40">
+        <div className="mx-auto flex min-w-full w-max max-w-7xl gap-1 px-4">
           {([
             { id: 'calculator', label: 'Recipe Designer' },
             { id: 'generator', label: 'Recipe Blender' },
@@ -428,7 +428,7 @@ function SoapCalculatorExperience({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+              className={`shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 sm:px-5 ${
                 activeTab === tab.id
                   ? 'border-gold-500 text-gold-400'
                   : 'border-transparent text-parchment-500 hover:text-parchment-300'
@@ -456,15 +456,15 @@ function SoapCalculatorExperience({
                 <div className="mb-3">
                   <h2 className="text-gold-400 font-serif text-lg">Soap Designer</h2>
                 </div>
-                <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <input
                     type="text"
                     value={recipeName}
                     onChange={e => setRecipeName(e.target.value)}
-                    className="bg-transparent text-gold-300 font-serif text-xl border-none outline-none flex-1 placeholder-parchment-600"
+                    className="w-full min-w-0 flex-1 bg-transparent font-serif text-xl text-gold-300 placeholder-parchment-600 outline-none"
                     placeholder="Recipe Console..."
                   />
-                  <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex flex-wrap gap-2 sm:flex-shrink-0">
                     <button
                       onClick={handleSaveRecipe}
                       className="px-4 py-1.5 rounded-lg text-xs font-medium bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 transition-colors border border-gold-500/20"
@@ -495,7 +495,7 @@ function SoapCalculatorExperience({
                   <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-2">
                     Calculator Mode
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                     {([
                       { id: 'easy', label: 'Easy', hint: 'Guided', locked: false },
                       { id: 'intermediate', label: 'Intermediate', hint: 'Plus', locked: !canUseIntermediate },
