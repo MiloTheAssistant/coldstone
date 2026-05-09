@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" role="img" aria-labelledby="title desc">
+  <title id="title">Coldstone Soap Company badge logo concept</title>
+  <desc id="desc">A circular badge logo concept for Coldstone Soap Company.</desc>
+  <circle cx="130" cy="130" r="120" fill="#080D1A" stroke="#D4A017" stroke-width="5"/>
+  <circle cx="130" cy="130" r="96" fill="#121212" stroke="#991818" stroke-width="2"/>
+  <text x="130" y="78" text-anchor="middle" fill="#F5F0E8" font-family="Cinzel, Georgia, serif" font-size="25" font-weight="700" letter-spacing="5">COLDSTONE</text>
+  <text x="130" y="180" text-anchor="middle" fill="#B8A898" font-family="Montserrat, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="4">SOAP COMPANY</text>
+  <text x="130" y="145" text-anchor="middle" fill="#D4A017" font-family="Cinzel, Georgia, serif" font-size="64" font-weight="700" letter-spacing="-4">CS</text>
+  <path d="M74 100h112M72 198h116" stroke="#D4A017" stroke-opacity=".45" stroke-width="2"/>
+</svg>

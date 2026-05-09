@@ -2,30 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "./components/Header";
 import ScrollReveal from "./components/ScrollReveal";
-import NewsletterForm from "./components/NewsletterForm";
-
-const products = [
-  {
-    name: "Black Granite",
-    tagline: "Deep. Refreshing. Pure.",
-    description:
-      "Activated charcoal and tea tree essential oil combine to deliver a deep, clarifying cleanse. Crafted using traditional cold process methods and cured for weeks — nothing synthetic, nothing stripped.",
-    ingredients: ["Olive oil", "Coconut oil", "Shea butter", "Activated charcoal", "Tea tree oil"],
-    price: "$12",
-    image: "/black-granite.jpg",
-    notes: "Detox · Clarifying · Fresh",
-  },
-  {
-    name: "Stone Forge",
-    tagline: "Strength in Simplicity.",
-    description:
-      "A blend of cedar and sage essential oils grounded in a triple-butter base. Dense lather, long-lasting bar, earthy finish. For anyone who demands more from every wash.",
-    ingredients: ["Olive oil", "Coconut oil", "Shea butter", "Cocoa butter", "Cedar oil", "Sage oil"],
-    price: "$14",
-    image: "/stone-forge.jpg",
-    notes: "Grounding · Rich lather · Earthy",
-  },
-];
+import ProductCard from "./components/ProductCard";
+import SiteFooter from "./components/SiteFooter";
+import { products } from "./data/products";
+import { SOAP_ABACUS_LINK } from "./data/site";
 
 const testimonials = [
   {
@@ -75,16 +55,26 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ── */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/stone-forge.jpg"
-            alt="Coldstone Soap — Stone Forge"
+            src="/hero/coldstone-hero-desktop.jpg"
+            alt="Coldstone Soap Co. stamped stone soap bar on field-kit materials"
             fill
-            className="object-cover object-center"
+            className="hidden object-cover object-center md:block"
             priority
+            sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-midnight/80 via-midnight/60 to-midnight" />
+          <Image
+            src="/hero/coldstone-hero-mobile.jpg"
+            alt="Close crop of a stamped Coldstone Soap Co. stone soap bar"
+            fill
+            className="object-cover object-center md:hidden"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-midnight/55 via-midnight/12 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight/45 via-transparent to-midnight/80" />
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none"
             style={{
@@ -94,27 +84,37 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 text-center px-6 sm:px-8 max-w-5xl mx-auto pt-20">
-          <p className="font-sans text-[10px] sm:text-[11px] tracking-[0.25em] sm:tracking-[0.5em] text-gold-500 mb-6 sm:mb-8 uppercase">
-            Veteran Owned &nbsp;·&nbsp; Small Batch &nbsp;·&nbsp; USA Made
-          </p>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.08] mb-6 sm:mb-8 tracking-tight sm:tracking-wide text-parchment-100">
-            Pure.<br />Natural.<br />Uncompromising.
-          </h1>
-          <div className="w-14 h-px bg-gold-500 mx-auto mb-8 opacity-70" />
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="#shop"
-              className="w-full sm:w-auto inline-block text-center border border-crimson-600 text-parchment-100 px-10 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-crimson-600 transition-all duration-300"
-            >
-              SHOP THE COLLECTION
-            </a>
-            <Link
-              href="/soap-calculator"
-              className="w-full sm:w-auto inline-block text-center border border-gold-500/40 text-gold-400 px-10 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-gold-500/10 transition-all duration-300"
-            >
-              SOAP CALCULATOR
-            </Link>
+        <div className="relative z-10 flex min-h-screen items-end px-5 pb-24 pt-32 sm:px-8 md:items-center md:pb-0 md:pt-24">
+          <div className="mx-auto w-full max-w-7xl">
+            <div className="max-w-[320px] sm:max-w-xl">
+              <p className="mb-5 font-sans text-[9px] uppercase leading-5 tracking-[0.2em] text-stone-300 sm:text-[11px] sm:tracking-[0.34em]">
+                Veteran Owned <span className="mx-1 text-stone-500">·</span> Field Kit Soap <span className="mx-1 text-stone-500">·</span> USA Made
+              </p>
+              <h1 className="font-serif text-[2.05rem] font-bold leading-[1.04] tracking-wide text-parchment-100 sm:text-6xl md:text-6xl lg:text-7xl">
+                Stone-Stamped Soap.<br />
+                <span className="text-stone-300">Built for Hard Use.</span>
+              </h1>
+              <div className="my-7 h-px w-16 bg-stone-400/80" />
+              <p className="max-w-[320px] text-sm leading-7 text-parchment-300 sm:max-w-xl sm:text-base">
+                Cold process bars with a slow cure, mineral-dark character, and disciplined utility for shower kits, work sinks, and the everyday field kit.
+              </p>
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                <a
+                  href="#shop"
+                  className="w-full border border-crimson-600 bg-crimson-600/20 px-8 py-4 text-center text-[11px] tracking-[0.22em] text-parchment-100 transition-all duration-300 hover:bg-crimson-600 sm:w-auto"
+                >
+                  SHOP THE COLLECTION
+                </a>
+                <a
+                  href={SOAP_ABACUS_LINK.href}
+                  target={SOAP_ABACUS_LINK.target}
+                  rel={SOAP_ABACUS_LINK.rel}
+                  className="w-full border border-gold-500/40 px-8 py-4 text-center text-[11px] tracking-[0.22em] text-gold-400 transition-all duration-300 hover:bg-gold-500/10 sm:w-auto"
+                >
+                  SOAP CALCULATOR
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -170,45 +170,17 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-6 lg:gap-14">
             {products.map((product, i) => (
               <ScrollReveal key={product.name} delay={i * 120} className="group">
-                <div className="bg-navy-900 border border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition-colors duration-500 rounded-sm">
-                  {/* Image — taller on mobile for impact */}
-                  <div className="aspect-[3/2] sm:aspect-[4/3] relative overflow-hidden">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-900/60 to-transparent" />
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-crimson-600 text-parchment-100 px-3 py-1.5 text-xs tracking-wider font-medium">
-                      {product.price}
-                    </div>
-                  </div>
-
-                  <div className="p-5 sm:p-8">
-                    <p className="text-[9px] tracking-[0.5em] text-gold-500/70 mb-2">{product.notes}</p>
-                    <h3 className="font-serif text-xl sm:text-2xl text-parchment-100 mb-1">{product.name}</h3>
-                    <p className="text-xs tracking-[0.15em] sm:tracking-[0.2em] text-parchment-400 mb-4 italic">{product.tagline}</p>
-                    <p className="text-parchment-400 text-sm leading-relaxed mb-6">{product.description}</p>
-
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-6">
-                      {product.ingredients.map((ing) => (
-                        <span
-                          key={ing}
-                          className="text-[8px] sm:text-[9px] tracking-wider border border-gold-500/20 text-parchment-500 px-2 sm:px-2.5 py-1"
-                        >
-                          {ing.toUpperCase()}
-                        </span>
-                      ))}
-                    </div>
-
-                    <button className="w-full border border-gold-500 text-gold-500 py-3.5 text-[11px] tracking-[0.2em] sm:tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-colors duration-300 active:scale-[0.98]">
-                      ADD TO CART
-                    </button>
-                  </div>
-                </div>
+                <ProductCard product={product} priority={i === 0} />
               </ScrollReveal>
             ))}
+          </div>
+          <div className="text-center mt-10 md:mt-14">
+            <Link
+              href="/shop"
+              className="inline-block border border-gold-500/50 text-gold-400 px-10 py-4 text-[11px] tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-all duration-300"
+            >
+              VISIT THE SHOP
+            </Link>
           </div>
         </div>
       </section>
@@ -285,12 +257,14 @@ export default function Home() {
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
               Design your own cold process recipes. Calculate lye and water amounts, explore our oils database, generate recipes by goal, and save your creations.
             </p>
-            <Link
-              href="/soap-calculator"
+            <a
+              href={SOAP_ABACUS_LINK.href}
+              target={SOAP_ABACUS_LINK.target}
+              rel={SOAP_ABACUS_LINK.rel}
               className="inline-block border border-gold-500 text-gold-500 px-10 sm:px-14 py-4 text-[11px] tracking-[0.2em] sm:tracking-[0.3em] hover:bg-gold-500 hover:text-midnight transition-all duration-300 active:scale-[0.98]"
             >
               OPEN SOAP CALCULATOR
-            </Link>
+            </a>
           </ScrollReveal>
         </div>
       </section>
@@ -301,8 +275,8 @@ export default function Home() {
           <ScrollReveal>
             <div className="aspect-[4/3] md:aspect-square relative overflow-hidden border-l-2 border-gold-500/40">
               <Image
-                src="/black-granite.jpg"
-                alt="Black Granite soap bar"
+                src="/stone-forge.jpg"
+                alt="Stone Forge soap bar"
                 fill
                 className="object-cover"
               />
@@ -336,62 +310,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Newsletter ── */}
-      <section className="py-14 md:py-20 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
-        <div className="max-w-2xl mx-auto text-center">
-          <ScrollReveal>
-            <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-4">STAY CONNECTED</p>
-            <h2 className="font-serif text-2xl md:text-3xl text-parchment-100 mb-4">
-              Join the Inner Circle
-            </h2>
-            <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
-            <p className="text-parchment-400 text-sm mb-8 sm:mb-10">
-              New batches. Limited runs. Early access. No spam — ever.
-            </p>
-            <NewsletterForm />
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Footer ── */}
-      <footer className="py-10 md:py-14 px-5 sm:px-6 border-t border-gold-500/20 bg-midnight">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-12 mb-8 md:mb-12">
-            <div>
-              <h5 className="font-serif text-xl tracking-[0.25em] text-gold-500">COLDSTONE</h5>
-              <p className="text-[9px] tracking-[0.4em] text-parchment-400 mt-1">SOAP CO.</p>
-              <p className="text-parchment-500 text-xs mt-4 max-w-xs leading-relaxed">
-                Handcrafted cold process soap. Veteran owned. Made in the USA.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-8 md:gap-12 text-xs tracking-[0.1em] sm:tracking-[0.15em] text-parchment-500">
-              <div className="flex flex-col gap-3">
-                <p className="text-gold-500/70 text-[10px] tracking-[0.25em] mb-1">NAVIGATE</p>
-                <a href="#shop" className="hover:text-parchment-100 transition-colors">Shop</a>
-                <a href="#process" className="hover:text-parchment-100 transition-colors">Our Process</a>
-                <a href="#about" className="hover:text-parchment-100 transition-colors">About</a>
-                <Link href="/soap-calculator" className="text-gold-400 hover:text-gold-300 transition-colors">Soap Calculator</Link>
-              </div>
-              <div className="flex flex-col gap-3">
-                <p className="text-gold-500/70 text-[10px] tracking-[0.25em] mb-1">INFO</p>
-                <a href="#" className="hover:text-parchment-100 transition-colors">Shipping</a>
-                <a href="#" className="hover:text-parchment-100 transition-colors">Returns</a>
-                <a href="#" className="hover:text-parchment-100 transition-colors">FAQ</a>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gold-500/20 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[11px] text-parchment-500">
-              &copy; 2026 Coldstone Soap Co. All rights reserved.
-            </p>
-            <p className="text-[10px] text-gold-500/60 tracking-[0.25em] sm:tracking-[0.3em]">
-              VETERAN OWNED &nbsp;&middot;&nbsp; USA MADE
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

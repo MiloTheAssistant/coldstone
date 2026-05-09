@@ -4,17 +4,28 @@ import { useState, useEffect, useRef } from 'react';
 import { OILS_DATABASE } from '../data/oils';
 import { calculateProperties } from '../data/calculator';
 import type { SavedRecipe } from '../lib/storage';
-import { loadRecipes, deleteRecipe, exportRecipesJSON, importRecipesJSON } from '../lib/storage';
+import { loadRecipes, deleteRecipe, exportRecipesJSON, importRecipesJSON, updateRecipe } from '../lib/storage';
+import { buildRecipeVaultPayloadFromSavedRecipe } from '../studio/recipe-studio-model';
 
 interface SavedRecipesListProps {
   onLoadRecipe: (recipe: SavedRecipe) => void;
   refreshKey: number; // increment to trigger re-load
+  canShare: boolean;
+  canPdfExport: boolean;
+  canImportExport: boolean;
 }
 
-export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedRecipesListProps) {
+export default function SavedRecipesList({
+  onLoadRecipe,
+  refreshKey,
+  canShare,
+  canPdfExport,
+  canImportExport,
+}: SavedRecipesListProps) {
   const [recipes, setRecipes] = useState<SavedRecipe[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
+  const [vaultMsg, setVaultMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -33,7 +44,85 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
     }
   };
 
+  const ensureVaultRecipe = async (recipe: SavedRecipe) => {
+    if (recipe.cloudRecipeId) return recipe;
+
+    setVaultMsg('Saving recipe to your vault...');
+    try {
+      const response = await fetch('/api/recipes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildRecipeVaultPayloadFromSavedRecipe(recipe, { oilCatalog: OILS_DATABASE })),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setVaultMsg(data.error || 'Unable to save this recipe to your vault yet.');
+        setTimeout(() => setVaultMsg(null), 4000);
+        return null;
+      }
+
+      const cloudRecipeId = data.recipe?.id;
+      if (!cloudRecipeId) {
+        setVaultMsg('The recipe saved, but no vault id was returned.');
+        setTimeout(() => setVaultMsg(null), 4000);
+        return null;
+      }
+
+      const syncedRecipe = updateRecipe(recipe.id, {
+        cloudRecipeId,
+        visibility: 'private',
+      }) || { ...recipe, cloudRecipeId, visibility: 'private' as const };
+      setRecipes(loadRecipes());
+      return syncedRecipe;
+    } catch {
+      setVaultMsg('Unable to reach the recipe vault right now.');
+      setTimeout(() => setVaultMsg(null), 4000);
+      return null;
+    }
+  };
+
+  const handleShare = async (recipe: SavedRecipe) => {
+    if (!canShare) {
+      setVaultMsg('Upgrade to Plus to create share links.');
+      setTimeout(() => setVaultMsg(null), 4000);
+      return;
+    }
+    const vaultRecipe = await ensureVaultRecipe(recipe);
+    if (!vaultRecipe?.cloudRecipeId) return;
+    const recipeId = vaultRecipe.cloudRecipeId;
+    try {
+      const response = await fetch(`/api/recipes/${recipeId}/share`, { method: 'POST' });
+      const data = await response.json();
+      if (!response.ok) {
+        setVaultMsg(data.error || 'Unable to create a share link yet.');
+        return;
+      }
+      await navigator.clipboard?.writeText(data.share.url);
+      setVaultMsg('Share link copied.');
+    } catch {
+      setVaultMsg('Unable to create a share link right now.');
+    } finally {
+      setTimeout(() => setVaultMsg(null), 4000);
+    }
+  };
+
+  const handlePdf = async (recipe: SavedRecipe) => {
+    if (!canPdfExport) {
+      setVaultMsg('Upgrade to Pro to export recipe PDFs.');
+      setTimeout(() => setVaultMsg(null), 4000);
+      return;
+    }
+    const vaultRecipe = await ensureVaultRecipe(recipe);
+    if (!vaultRecipe?.cloudRecipeId) return;
+    window.location.href = `/api/recipes/${vaultRecipe.cloudRecipeId}/pdf`;
+  };
+
   const handleExport = () => {
+    if (!canImportExport) {
+      setVaultMsg('Upgrade to Plus to import and export Recipe Cache JSON.');
+      setTimeout(() => setVaultMsg(null), 4000);
+      return;
+    }
     const json = exportRecipesJSON();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -45,6 +134,12 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!canImportExport) {
+      setVaultMsg('Upgrade to Plus to import and export Recipe Cache JSON.');
+      setTimeout(() => setVaultMsg(null), 4000);
+      e.target.value = '';
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -65,7 +160,7 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
       <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 className="text-gold-400 font-serif text-lg">My Saved Recipes</h3>
+            <h3 className="text-gold-400 font-serif text-lg">Recipe Cache</h3>
             <p className="text-parchment-500 text-sm mt-1">
               {recipes.length === 0 ? 'No saved recipes yet.' : `${recipes.length} recipe(s) saved`}
             </p>
@@ -73,16 +168,17 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
           <div className="flex gap-2">
             <button
               onClick={handleExport}
-              disabled={recipes.length === 0}
+              disabled={recipes.length === 0 || !canImportExport}
               className="px-4 py-2 rounded-lg text-xs font-medium bg-navy-800 text-parchment-400 hover:bg-navy-700 border border-navy-600/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              Export JSON
+              {canImportExport ? 'Export JSON' : 'Plus Export'}
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 rounded-lg text-xs font-medium bg-navy-800 text-parchment-400 hover:bg-navy-700 border border-navy-600/30 transition-colors"
+              disabled={!canImportExport}
+              className="px-4 py-2 rounded-lg text-xs font-medium bg-navy-800 text-parchment-400 hover:bg-navy-700 border border-navy-600/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Import JSON
+              {canImportExport ? 'Import JSON' : 'Plus Import'}
             </button>
             <input
               ref={fileInputRef}
@@ -95,6 +191,9 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
         </div>
         {importMsg && (
           <p className="text-green-400 text-sm mt-3">{importMsg}</p>
+        )}
+        {vaultMsg && (
+          <p className="text-gold-400 text-sm mt-3">{vaultMsg}</p>
         )}
       </div>
 
@@ -154,6 +253,7 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
 
                 <div className="text-[10px] text-parchment-500 mb-3">
                   {recipe.totalOilWeight} {recipe.unit} · {recipe.lyeType} · {recipe.superfat}% SF
+                  {recipe.cloudRecipeId && <span className="text-gold-500/70"> · vault</span>}
                 </div>
 
                 {recipe.notes && (
@@ -179,6 +279,20 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
                     {confirmDeleteId === recipe.id ? 'Confirm?' : 'Delete'}
                   </button>
                 </div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleShare(recipe)}
+                    className="flex-1 py-2 rounded-lg bg-navy-800/60 text-parchment-400 hover:text-gold-300 transition-colors text-xs font-medium border border-navy-600/30"
+                  >
+                    {canShare ? 'Share Link' : 'Plus Share'}
+                  </button>
+                  <button
+                    onClick={() => handlePdf(recipe)}
+                    className="flex-1 py-2 rounded-lg bg-navy-800/60 text-parchment-400 hover:text-gold-300 transition-colors text-xs font-medium border border-navy-600/30"
+                  >
+                    {canPdfExport ? 'PDF' : 'Pro PDF'}
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -191,7 +305,7 @@ export default function SavedRecipesList({ onLoadRecipe, refreshKey }: SavedReci
           <div className="text-3xl mb-3 opacity-30">&#128203;</div>
           <p className="text-parchment-400 text-sm mb-2">No saved recipes yet</p>
           <p className="text-parchment-500 text-xs">
-            Build a recipe in the Lye Calculator tab, then click &ldquo;Save Recipe&rdquo; to keep it here.
+            Build a recipe in the Recipe Designer tab, then click &ldquo;Save&rdquo; to keep it here.
           </p>
         </div>
       )}

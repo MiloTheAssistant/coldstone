@@ -20,9 +20,19 @@ interface CostPanelProps {
   unit: WeightUnit;
   lyeWeight: number;
   totalBatchWeight: number;
+  canUseIngredientCosts: boolean;
+  onCostEntriesChange?: (entries: OilCostEntry[]) => void;
 }
 
-export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight, totalBatchWeight }: CostPanelProps) {
+export default function CostPanel({
+  recipeOils,
+  totalOilWeight,
+  unit,
+  lyeWeight,
+  totalBatchWeight,
+  canUseIngredientCosts,
+  onCostEntriesChange,
+}: CostPanelProps) {
   const [costEntries, setCostEntries] = useState<OilCostEntry[]>([]);
   const [lyeCost, setLyeCost] = useState(0);
   const [barsPerBatch, setBarsPerBatch] = useState<number>(10);
@@ -34,9 +44,38 @@ export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight,
 
   // Load cost data from localStorage
   useEffect(() => {
-    setCostEntries(loadCostEntries());
+    const localCosts = loadCostEntries();
+    setCostEntries(localCosts);
+    onCostEntriesChange?.(localCosts);
     setLyeCost(getLyeCostPerOz());
-  }, []);
+
+    if (!canUseIngredientCosts) return;
+    void fetch('/api/soap-abacus/ingredient-costs')
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        if (!Array.isArray(data?.costs)) return;
+        const serverCosts: OilCostEntry[] = data.costs.map((cost: {
+          ingredientId: string;
+          pricePerUnit: number;
+          unitSize: number;
+          unit: WeightUnit;
+          supplier?: string | null;
+          updatedAt?: string;
+        }) => ({
+          oilId: cost.ingredientId,
+          pricePerUnit: cost.pricePerUnit,
+          unitSize: cost.unitSize,
+          unit: cost.unit,
+          supplier: cost.supplier || undefined,
+          lastUpdated: cost.updatedAt || new Date().toISOString(),
+        }));
+        for (const entry of serverCosts) saveCostEntry(entry);
+        const merged = loadCostEntries();
+        setCostEntries(merged);
+        onCostEntriesChange?.(merged);
+      })
+      .catch(() => undefined);
+  }, [canUseIngredientCosts, onCostEntriesChange]);
 
   const handleSavePrice = useCallback((oilId: string) => {
     const price = parseFloat(editPrice);
@@ -51,14 +90,35 @@ export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight,
       supplier: editSupplier || undefined,
       lastUpdated: new Date().toISOString(),
     });
-    setCostEntries(loadCostEntries());
+    const nextEntries = loadCostEntries();
+    setCostEntries(nextEntries);
+    onCostEntriesChange?.(nextEntries);
+    if (canUseIngredientCosts) {
+      void fetch('/api/soap-abacus/ingredient-costs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ingredientId: oilId,
+          ingredientType: 'oil',
+          pricePerUnit: price,
+          unitSize: size,
+          unit: editUnit,
+          supplier: editSupplier || undefined,
+        }),
+      });
+    }
     setEditingOilId(null);
-  }, [editPrice, editSize, editUnit, editSupplier]);
+  }, [canUseIngredientCosts, editPrice, editSize, editUnit, editSupplier, onCostEntriesChange]);
 
   const handleRemovePrice = useCallback((oilId: string) => {
     removeCostEntry(oilId);
-    setCostEntries(loadCostEntries());
-  }, []);
+    const nextEntries = loadCostEntries();
+    setCostEntries(nextEntries);
+    onCostEntriesChange?.(nextEntries);
+    if (canUseIngredientCosts) {
+      void fetch(`/api/soap-abacus/ingredient-costs?ingredientId=${encodeURIComponent(oilId)}`, { method: 'DELETE' });
+    }
+  }, [canUseIngredientCosts, onCostEntriesChange]);
 
   const handleLyeCostChange = useCallback((value: string) => {
     const cost = parseFloat(value) || 0;
@@ -88,14 +148,26 @@ export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight,
       };
     });
 
-    return calculateRecipeCost(oilsWithNames, lyeWeight, unit, barsPerBatch, totalBatchWeight);
+    return calculateRecipeCost(oilsWithNames, lyeWeight, unit, barsPerBatch, totalBatchWeight, costEntries, lyeCost);
   }, [recipeOils, totalOilWeight, unit, lyeWeight, totalBatchWeight, barsPerBatch, costEntries, lyeCost]);
 
   const costMap = useMemo(() => new Map(costEntries.map(e => [e.oilId, e])), [costEntries]);
 
   return (
     <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
-      <h3 className="text-gold-400 font-serif text-lg mb-4">Cost Calculator</h3>
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-gold-400 font-serif text-lg">Cost Calculator</h3>
+          {!canUseIngredientCosts && (
+            <p className="text-xs text-parchment-500 mt-1">Upgrade to Plus to enter ingredient costs and carry them through the Abacus.</p>
+          )}
+        </div>
+        {!canUseIngredientCosts && (
+          <span className="text-[10px] rounded-full border border-gold-500/20 px-2 py-1 uppercase tracking-wider text-gold-400">
+            Plus
+          </span>
+        )}
+      </div>
 
       {/* Lye Cost Input */}
       <div className="mb-4">
@@ -108,6 +180,7 @@ export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight,
             type="number"
             value={lyeCost || ''}
             onChange={e => handleLyeCostChange(e.target.value)}
+            disabled={!canUseIngredientCosts}
             placeholder="0.00"
             step="0.01"
             min="0"
@@ -154,12 +227,14 @@ export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight,
                       </span>
                       <button
                         onClick={() => startEditing(entry.oilId)}
+                        disabled={!canUseIngredientCosts}
                         className="text-[10px] text-parchment-500 hover:text-gold-400 transition-colors"
                       >
                         edit
                       </button>
                       <button
                         onClick={() => handleRemovePrice(entry.oilId)}
+                        disabled={!canUseIngredientCosts}
                         className="text-[10px] text-red-500/60 hover:text-red-400 transition-colors"
                       >
                         ×
@@ -168,9 +243,10 @@ export default function CostPanel({ recipeOils, totalOilWeight, unit, lyeWeight,
                   ) : !isEditing ? (
                     <button
                       onClick={() => startEditing(entry.oilId)}
-                      className="text-xs text-gold-500/60 hover:text-gold-400 transition-colors"
+                      disabled={!canUseIngredientCosts}
+                      className="text-xs text-gold-500/60 hover:text-gold-400 transition-colors disabled:text-parchment-600 disabled:cursor-not-allowed"
                     >
-                      + Add Price
+                      {canUseIngredientCosts ? '+ Add Price' : 'Plus'}
                     </button>
                   ) : null}
                 </div>

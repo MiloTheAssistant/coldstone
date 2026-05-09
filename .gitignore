@@ -4,3 +4,8 @@ node_modules
 .env
 .env.local
 *.log
+tsconfig.tsbuildinfo
+.chrome-check*/
+header-check*.png
+
+.env*.local

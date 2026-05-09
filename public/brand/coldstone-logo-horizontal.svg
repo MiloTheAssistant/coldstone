@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 150" role="img" aria-labelledby="title desc">
+  <title id="title">Coldstone Soap Co. gunmetal shield logo</title>
+  <desc id="desc">A self-contained worn gunmetal and stone shield logo for Coldstone Soap Co.</desc>
+  <defs>
+    <filter id="stoneTexture" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.92" numOctaves="4" seed="17"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 .22"/>
+      </feComponentTransfer>
+      <feBlend mode="overlay" in2="SourceGraphic"/>
+    </filter>
+    <linearGradient id="gunmetal" x1="52" y1="12" x2="504" y2="142" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#56514A"/>
+      <stop offset="0.28" stop-color="#191B1D"/>
+      <stop offset="0.58" stop-color="#2F3336"/>
+      <stop offset="1" stop-color="#08090A"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="60" y1="10" x2="500" y2="144" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D4A017"/>
+      <stop offset="0.28" stop-color="#7A4B14"/>
+      <stop offset="0.67" stop-color="#B8A898"/>
+      <stop offset="1" stop-color="#4A0E0E"/>
+    </linearGradient>
+    <linearGradient id="wornType" x1="145" y1="42" x2="430" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F5F0E8"/>
+      <stop offset="0.42" stop-color="#C8C0B4"/>
+      <stop offset="0.72" stop-color="#D4A017"/>
+      <stop offset="1" stop-color="#EEE1C7"/>
+    </linearGradient>
+    <filter id="engrave" x="-20%" y="-40%" width="140%" height="180%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.2" flood-color="#000000" flood-opacity=".85"/>
+      <feDropShadow dx="0" dy="-1" stdDeviation=".45" flood-color="#F5F0E8" flood-opacity=".25"/>
+    </filter>
+  </defs>
+
+  <path d="M36 18h488l18 25v53l-39 36H57L18 96V43L36 18Z" fill="url(#gunmetal)" stroke="url(#edge)" stroke-width="4" filter="url(#stoneTexture)"/>
+  <path d="M46 30h468l12 17v43l-30 29H64L34 90V47l12-17Z" fill="none" stroke="#F5F0E8" stroke-opacity=".14" stroke-width="1.5"/>
+  <path d="M78 49 111 35l33 14v28c0 21-12.4 33.4-33 40-20.6-6.6-33-19-33-40V49Z" fill="#090A0B" stroke="#D4A017" stroke-width="3"/>
+  <path d="M111 47c-12 0-20 6.5-20 16.2 0 11.3 9.7 14.4 18 16.7 5.2 1.4 9.1 2.8 9.1 6.2 0 3.2-3.2 5.4-8.2 5.4-4.4 0-8.4-1.4-11.4-4.2l-5.2 7.2c3.8 3.7 9.5 5.8 16.3 5.8 11.3 0 19.5-6.1 19.5-15.4 0-11-9.1-14.1-17.3-16.4-5.5-1.5-9.8-3-9.8-6.7 0-3.5 3.4-5.8 8.4-5.8 4 0 7.5 1.2 10.3 3.8l4.8-7.1c-3.5-3.1-8.6-4.7-14.5-4.7Z" fill="#F5F0E8" filter="url(#engrave)"/>
+  <path d="M166 35h328" stroke="#D4A017" stroke-opacity=".26" stroke-width="1.2"/>
+  <text x="331" y="78" text-anchor="middle" fill="url(#wornType)" font-family="Cinzel, Georgia, serif" font-size="48" font-weight="700" letter-spacing="10" filter="url(#engrave)">COLDSTONE</text>
+  <text x="331" y="106" text-anchor="middle" fill="#C9BDAF" font-family="Montserrat, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="9">SOAP CO.</text>
+  <path d="M225 101h47M390 101h47" stroke="#991818" stroke-width="2.5"/>
+</svg>

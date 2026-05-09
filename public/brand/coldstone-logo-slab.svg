@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 118" role="img" aria-labelledby="title desc">
+  <title id="title">Coldstone Soap Company slab logo concept</title>
+  <desc id="desc">A slab-style wordmark logo concept for Coldstone Soap Company.</desc>
+  <path d="M16 18h398l-18 82H34L16 18Z" fill="#080D1A" stroke="#D4A017" stroke-width="3"/>
+  <path d="M33 31h364" stroke="#991818" stroke-width="2"/>
+  <text x="215" y="67" text-anchor="middle" fill="#F5F0E8" font-family="Cinzel, Georgia, serif" font-size="35" font-weight="700" letter-spacing="8">COLDSTONE</text>
+  <text x="215" y="88" text-anchor="middle" fill="#B8A898" font-family="Montserrat, Arial, sans-serif" font-size="10" font-weight="600" letter-spacing="7">SOAP COMPANY</text>
+</svg>

@@ -4,6 +4,12 @@ import { OILS_DATABASE, OilData, PROPERTY_RANGES, RECIPE_TEMPLATES, RecipeTempla
 
 export type LyeType = 'NaOH' | 'KOH';
 export type WeightUnit = 'oz' | 'lb' | 'g' | 'kg';
+export type WaterMethod = 'water-lye-ratio' | 'lye-concentration' | 'water-as-percent-of-oils';
+
+export interface WaterSettings {
+  method: WaterMethod;
+  value: number;
+}
 
 export interface RecipeOil {
   oil: OilData;
@@ -28,6 +34,9 @@ export interface LyeResult {
   superfatPercent: number;
   lyeType: LyeType;
   waterRatio: number;
+  waterMethod: WaterMethod;
+  waterValue: number;
+  kohPurityPercent?: number;
   unit: WeightUnit;
 }
 
@@ -92,8 +101,6 @@ export function calculateProperties(oils: { oil: OilData; percent: number }[]): 
 
 // ─── Lye Calculation ─────────────────────────────────────────────────────────
 
-const KOH_NAOH_RATIO = 1.403;
-
 /**
  * Calculate the lye and water needed for a given recipe.
  *
@@ -107,8 +114,9 @@ export function calculateLye(
   oils: { oil: OilData; weight: number }[],
   superfatPercent: number = 5,
   lyeType: LyeType = 'NaOH',
-  waterRatio: number = 2,
+  water: number | WaterSettings = 2,
   unit: WeightUnit = 'oz',
+  kohPurityPercent: number = 100,
 ): LyeResult {
   const totalOilWeight = oils.reduce((s, o) => s + o.weight, 0);
   let totalLye = 0;
@@ -119,8 +127,14 @@ export function calculateLye(
   }
 
   // Apply superfat discount
-  const lyeWeight = totalLye * (1 - superfatPercent / 100);
-  const waterWeight = lyeWeight * waterRatio;
+  const pureLyeWeight = totalLye * (1 - superfatPercent / 100);
+  const lyeWeight = lyeType === 'KOH'
+    ? pureLyeWeight / (Math.max(1, Math.min(100, kohPurityPercent)) / 100)
+    : pureLyeWeight;
+  const waterSettings = typeof water === 'number'
+    ? { method: 'water-lye-ratio' as const, value: water }
+    : water;
+  const waterWeight = calculateWaterWeight(lyeWeight, totalOilWeight, waterSettings);
 
   return {
     lyeWeight: round(lyeWeight, 2),
@@ -128,7 +142,12 @@ export function calculateLye(
     totalOilWeight: round(totalOilWeight, 2),
     superfatPercent,
     lyeType,
-    waterRatio,
+    waterRatio: waterSettings.method === 'water-lye-ratio'
+      ? waterSettings.value
+      : round(waterWeight / lyeWeight, 2),
+    waterMethod: waterSettings.method,
+    waterValue: waterSettings.value,
+    kohPurityPercent: lyeType === 'KOH' ? kohPurityPercent : undefined,
     unit,
   };
 }
@@ -143,8 +162,9 @@ export function calculateFullRecipe(
   totalOilWeight: number,
   superfatPercent: number = 5,
   lyeType: LyeType = 'NaOH',
-  waterRatio: number = 2,
+  water: number | WaterSettings = 2,
   unit: WeightUnit = 'oz',
+  kohPurityPercent: number = 100,
 ): FullRecipeResult {
   const oils: RecipeOil[] = oilEntries.map(({ oil, percent }) => ({
     oil,
@@ -158,8 +178,9 @@ export function calculateFullRecipe(
     oils.map(o => ({ oil: o.oil, weight: o.weight })),
     superfatPercent,
     lyeType,
-    waterRatio,
+    water,
     unit,
+    kohPurityPercent,
   );
 
   const totalBatchWeight = round(lye.totalOilWeight + lye.lyeWeight + lye.waterWeight, 2);
@@ -287,4 +308,17 @@ export function evaluateRecipe(properties: SoapProperties): {
 function round(n: number, decimals: number): number {
   const factor = 10 ** decimals;
   return Math.round(n * factor) / factor;
+}
+
+function calculateWaterWeight(lyeWeight: number, totalOilWeight: number, settings: WaterSettings): number {
+  if (settings.method === 'lye-concentration') {
+    const concentration = Math.max(1, Math.min(99, settings.value || 33));
+    return lyeWeight * ((100 - concentration) / concentration);
+  }
+
+  if (settings.method === 'water-as-percent-of-oils') {
+    return totalOilWeight * ((settings.value || 38) / 100);
+  }
+
+  return lyeWeight * (settings.value || 2);
 }

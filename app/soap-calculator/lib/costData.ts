@@ -39,7 +39,7 @@ const TO_OZ: Record<WeightUnit, number> = {
   kg: 35.274,
 };
 
-function pricePerOz(entry: OilCostEntry): number {
+export function pricePerOz(entry: OilCostEntry): number {
   const totalOz = entry.unitSize * TO_OZ[entry.unit];
   return totalOz > 0 ? entry.pricePerUnit / totalOz : 0;
 }
@@ -101,10 +101,10 @@ export function calculateRecipeCost(
   unit: WeightUnit,
   barsPerBatch: number | null,
   totalBatchWeight: number,
+  entries: OilCostEntry[] = loadCostEntries(),
+  lyeCostPerOz: number = getLyeCostPerOz(),
 ): CostBreakdown {
-  const costEntries = loadCostEntries();
-  const lyeCostPerOz = getLyeCostPerOz();
-  const costMap = new Map(costEntries.map(e => [e.oilId, e]));
+  const costMap = new Map(entries.map(e => [e.oilId, e]));
 
   const missingPricing: string[] = [];
   const oilCosts = recipeOils.map(({ oilId, oilName, weight }) => {
