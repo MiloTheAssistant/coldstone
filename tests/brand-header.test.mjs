@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import test from 'node:test';
 
 const headerSource = readFileSync(new URL('../app/components/Header.tsx', import.meta.url), 'utf8');
@@ -22,15 +22,20 @@ test('header and footer use the shared Coldstone logo component', () => {
   assert.match(footerSource, /<Logo\s+variant="footer"/);
 });
 
-test('logo assets include selected horizontal and mark files', () => {
+test('logo assets include selected horizontal, mark, and favicon files', () => {
   const badge = readFileSync(new URL('../public/brand/coldstone-s-badge.svg', import.meta.url), 'utf8');
   const mark = readFileSync(new URL('../public/brand/coldstone-logo-mark.svg', import.meta.url), 'utf8');
-  const icon = readFileSync(new URL('../app/icon.svg', import.meta.url), 'utf8');
+  const favicon = new URL('../app/favicon.ico', import.meta.url);
+  const icon = new URL('../app/icon.png', import.meta.url);
+  const appleIcon = new URL('../app/apple-icon.png', import.meta.url);
 
   assert.match(badge, /feTurbulence/);
   assert.match(badge, />S</);
   assert.match(mark, />S</);
-  assert.match(icon, />S</);
+  for (const file of [favicon, icon, appleIcon]) {
+    assert.equal(existsSync(file), true, `${file.pathname} is missing`);
+    assert.ok(statSync(file).size > 10_000, `${file.pathname} is too small to be a real raster icon`);
+  }
 });
 
 test('logo wordmark is real HTML text with centered Soap Co. copy', () => {

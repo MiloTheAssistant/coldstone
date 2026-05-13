@@ -5,18 +5,18 @@ import test from 'node:test';
 const pageSource = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
 
 test('homepage uses art-directed desktop and mobile hero assets', () => {
-  assert.match(pageSource, /coldstone-hero-desktop\.jpg/);
-  assert.match(pageSource, /coldstone-hero-mobile\.jpg/);
+  assert.match(pageSource, /coldstone-field-kit-ritual-desktop\.png/);
+  assert.match(pageSource, /coldstone-field-kit-ritual-mobile\.png/);
   assert.doesNotMatch(pageSource, /Pure\.<br \/>Natural\.<br \/>Uncompromising\./);
-  assert.match(pageSource, /Stone-Stamped Soap/);
-  assert.match(pageSource, /Built for Hard Use/);
-  assert.match(pageSource, /Field Kit Soap/);
+  assert.match(pageSource, /Built for the Ritual/);
+  assert.match(pageSource, /Ready for Hard Use/);
+  assert.match(pageSource, /Field Kit Ritual/);
 });
 
-test('generated hero image files exist and are substantive jpegs', () => {
+test('generated hero image files exist and are substantive pngs', () => {
   for (const file of [
-    '../public/hero/coldstone-hero-desktop.jpg',
-    '../public/hero/coldstone-hero-mobile.jpg',
+    '../public/hero/coldstone-field-kit-ritual-desktop.png',
+    '../public/hero/coldstone-field-kit-ritual-mobile.png',
   ]) {
     const url = new URL(file, import.meta.url);
     assert.equal(existsSync(url), true, `${file} is missing`);

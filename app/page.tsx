@@ -58,23 +58,23 @@ export default function Home() {
       <section className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/hero/coldstone-hero-desktop.jpg"
-            alt="Coldstone Soap Co. stamped stone soap bar on field-kit materials"
+            src="/hero/coldstone-field-kit-ritual-desktop.png"
+            alt="Coldstone Soap Co. bar in a rugged dopp kit sink ritual scene"
             fill
             className="hidden object-cover object-center md:block"
             priority
             sizes="100vw"
           />
           <Image
-            src="/hero/coldstone-hero-mobile.jpg"
-            alt="Close crop of a stamped Coldstone Soap Co. stone soap bar"
+            src="/hero/coldstone-field-kit-ritual-mobile.png"
+            alt="Coldstone Soap Co. bar with wet stone, canvas, and steel grooming kit materials"
             fill
-            className="object-cover object-center md:hidden"
+            className="object-cover object-[50%_55%] md:hidden"
             priority
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-midnight/55 via-midnight/12 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-b from-midnight/45 via-transparent to-midnight/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-midnight/45 via-midnight/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-midnight/35 via-transparent to-midnight/82" />
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none"
             style={{
@@ -88,15 +88,15 @@ export default function Home() {
           <div className="mx-auto w-full max-w-7xl">
             <div className="max-w-[320px] sm:max-w-xl">
               <p className="mb-5 font-sans text-[9px] uppercase leading-5 tracking-[0.2em] text-stone-300 sm:text-[11px] sm:tracking-[0.34em]">
-                Veteran Owned <span className="mx-1 text-stone-500">·</span> Field Kit Soap <span className="mx-1 text-stone-500">·</span> USA Made
+                Veteran Owned <span className="mx-1 text-stone-500">·</span> Field Kit Ritual <span className="mx-1 text-stone-500">·</span> USA Made
               </p>
               <h1 className="font-serif text-[2.05rem] font-bold leading-[1.04] tracking-wide text-parchment-100 sm:text-6xl md:text-6xl lg:text-7xl">
-                Stone-Stamped Soap.<br />
-                <span className="text-stone-300">Built for Hard Use.</span>
+                Built for the Ritual.<br />
+                <span className="text-stone-300">Ready for Hard Use.</span>
               </h1>
               <div className="my-7 h-px w-16 bg-stone-400/80" />
               <p className="max-w-[320px] text-sm leading-7 text-parchment-300 sm:max-w-xl sm:text-base">
-                Cold process bars with a slow cure, mineral-dark character, and disciplined utility for shower kits, work sinks, and the everyday field kit.
+                Cold process bars with a slow cure, mineral-dark character, and disciplined utility for the sink, the shower kit, and the everyday field kit.
               </p>
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <a
