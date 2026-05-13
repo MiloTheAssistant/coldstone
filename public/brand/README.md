@@ -123,10 +123,10 @@ Every generated image should feel like it belongs to Coldstone Soap Co. and coul
 
 Use the current source-family approach:
 
-- **Existing logo family:** keep `coldstone-*.svg` as the authoritative website logo system.
+- **Existing logo family:** keep `coldstone-*.svg` as protected source/logo assets; do not overwrite them.
 - **Hero ritual family:** use `public/hero/coldstone-field-kit-ritual-*.png` as the current homepage source family.
 - **Existing product family:** keep current hero/product photos as source and fallback assets.
-- **Profile stamp family:** one photoreal circular-crop-safe brass/gunmetal `S` stamp copied across platforms.
+- **Profile stamp family:** one photoreal circular-crop-safe brass/gunmetal `S` stamp copied across platforms and used for round site logo contexts.
 - **Favicon family:** `app/favicon.ico`, `app/icon.png`, and `app/apple-icon.png` are derived from the approved website profile stamp for browser and device use.
 - **Wide field-kit family:** wide cover/header compositions derived from the ritual hero.
 - **Square stone family:** reusable square post/profile backgrounds.
