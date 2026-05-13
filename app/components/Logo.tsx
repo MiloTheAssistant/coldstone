@@ -41,7 +41,7 @@ export default function Logo({ variant, scrolled = false }: LogoProps) {
     >
       <Image
         src={profileStampSrc}
-        alt=""
+        alt="Coldstone Soap Co. profile stamp"
         width={58}
         height={58}
         priority={variant === 'header'}

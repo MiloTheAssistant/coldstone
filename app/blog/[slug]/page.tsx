@@ -3,8 +3,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Header from '../../components/Header';
+import JsonLd from '../../components/JsonLd';
 import SiteFooter from '../../components/SiteFooter';
 import { getBlogPostBySlug, getPublishedBlogPosts } from '../../data/blog';
+import { SITE_NAME, SITE_URL, absoluteUrl } from '../../lib/seo';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -38,12 +40,16 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   }
 
   return {
-    title: `${post.title} | Coldstone Soap Co.`,
+    title: `${post.title} | ${SITE_NAME}`,
     description: post.description,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.description,
       type: 'article',
+      url: `${SITE_URL}/blog/${post.slug}`,
       publishedTime: post.publishedDate,
       images: [{ url: post.heroImage, width: 1200, height: 630, alt: post.heroAlt }],
     },
@@ -65,9 +71,35 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = getPublishedBlogPosts()
     .filter((candidate) => candidate.slug !== post.slug)
     .slice(0, 3);
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": `${SITE_URL}/blog/${post.slug}#article`,
+    headline: post.title,
+    description: post.description,
+    image: absoluteUrl(post.heroImage),
+    datePublished: post.publishedDate,
+    dateModified: post.publishedDate,
+    author: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: absoluteUrl("/brand/coldstone-logo-badge.svg"),
+      },
+    },
+    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+  };
 
   return (
     <div className="min-h-screen bg-midnight">
+      <JsonLd data={articleSchema} />
       <Header />
       <main>
         <article>

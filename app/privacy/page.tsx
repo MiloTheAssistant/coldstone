@@ -7,6 +7,9 @@ import { policyPages } from '../data/policies';
 export const metadata: Metadata = {
   title: 'Privacy Policy | Coldstone Soap Co.',
   description: 'How Coldstone Soap Co. handles customer, newsletter, checkout, and website data.',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 export default function PrivacyPage() {

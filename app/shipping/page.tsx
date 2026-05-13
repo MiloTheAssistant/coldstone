@@ -7,6 +7,9 @@ import { policyPages } from '../data/policies';
 export const metadata: Metadata = {
   title: 'Shipping | Coldstone Soap Co.',
   description: 'Shipping expectations, domestic fulfillment notes, and launch shipping policy for Coldstone Soap Co.',
+  alternates: {
+    canonical: '/shipping',
+  },
 };
 
 export default function ShippingPage() {

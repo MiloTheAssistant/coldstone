@@ -8,6 +8,10 @@ import SiteFooter from '../../components/SiteFooter';
 export const metadata: Metadata = {
   title: 'Order Received | Coldstone Soap Co.',
   description: 'Your Coldstone Soap Co. checkout was completed.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function CheckoutSuccessPage() {

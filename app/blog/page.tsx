@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: 'Blog | Coldstone Soap Co.',
   description:
     'Soapmaking notes, ingredient guides, grooming tips, and behind-the-batch writing from Coldstone Soap Co.',
+  alternates: {
+    canonical: '/blog',
+  },
 };
 
 function formatPostDate(date: string) {

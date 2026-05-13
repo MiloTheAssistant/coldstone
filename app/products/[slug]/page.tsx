@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import AddToCartButton from '../../components/AddToCartButton';
 import Header from '../../components/Header';
+import JsonLd from '../../components/JsonLd';
 import SiteFooter from '../../components/SiteFooter';
 import { checkoutTrustLinks, productTrustDetails } from '../../data/policies';
 import { formatPrice, getProductBySlug, products } from '../../data/products';
+import { SITE_NAME, SITE_URL, absoluteUrl } from '../../lib/seo';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -27,11 +29,15 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   return {
-    title: `${product.name} | Coldstone Soap Co.`,
+    title: `${product.name} | ${SITE_NAME}`,
     description: product.shortDescription,
+    alternates: {
+      canonical: `/products/${product.slug}`,
+    },
     openGraph: {
-      title: `${product.name} | Coldstone Soap Co.`,
+      title: `${product.name} | ${SITE_NAME}`,
       description: product.shortDescription,
+      url: `${SITE_URL}/products/${product.slug}`,
       images: [{ url: product.campaignImage, width: 1200, height: 630, alt: `${product.name} campaign image` }],
     },
   };
@@ -43,8 +49,32 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   if (!product) notFound();
 
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${SITE_URL}/products/${product.slug}#product`,
+    name: product.name,
+    description: product.description,
+    sku: product.sku,
+    image: [absoluteUrl(product.campaignImage), absoluteUrl(product.storyImage)],
+    brand: {
+      "@type": "Brand",
+      name: SITE_NAME,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/products/${product.slug}`,
+      priceCurrency: "USD",
+      price: (product.priceCents / 100).toFixed(2),
+      availability:
+        product.inventoryStatus === "in-stock" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  };
+
   return (
     <div className="min-h-screen bg-midnight">
+      <JsonLd data={productSchema} />
       <Header />
       <main className="px-5 sm:px-6 pt-32 pb-16 md:pt-40 md:pb-24">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_0.9fr] gap-10 lg:gap-16 items-start">

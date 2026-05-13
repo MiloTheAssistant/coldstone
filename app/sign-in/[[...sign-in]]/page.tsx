@@ -5,6 +5,10 @@ import { SignIn } from '@clerk/nextjs';
 export const metadata: Metadata = {
   title: 'Log In | Soap Abacus Studio',
   description: 'Log in to unlock Soap Abacus Studio recipe design, saving, costing, and membership features.',
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: 'Log In | Soap Abacus Studio',
     description: 'Log in to unlock Soap Abacus Studio recipe design, saving, costing, and membership features.',
