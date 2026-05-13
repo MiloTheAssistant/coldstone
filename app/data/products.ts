@@ -8,6 +8,8 @@ export interface Product {
   ingredients: string[];
   priceCents: number;
   image: string;
+  campaignImage: string;
+  storyImage: string;
   notes: string;
   scentProfile: string[];
   skinFeel: string;
@@ -32,6 +34,8 @@ export const products: Product[] = [
     ingredients: ['Olive oil', 'Coconut oil', 'Shea butter', 'Activated charcoal', 'Tea tree oil'],
     priceCents: 1200,
     image: '/black-granite-soap.jpg',
+    campaignImage: '/brand/campaign/black-granite-post.png',
+    storyImage: '/brand/campaign/black-granite-story.png',
     notes: 'Clarifying / Fresh / Charcoal',
     scentProfile: ['Tea tree', 'Clean herbal', 'Mineral'],
     skinFeel: 'Crisp, clean, and balanced for everyday use.',
@@ -52,6 +56,8 @@ export const products: Product[] = [
     ingredients: ['Olive oil', 'Coconut oil', 'Shea butter', 'Cocoa butter', 'Cedar oil', 'Sage oil'],
     priceCents: 1400,
     image: '/stone-forge.jpg',
+    campaignImage: '/brand/campaign/stone-forge-post.png',
+    storyImage: '/brand/campaign/stone-forge-story.png',
     notes: 'Earthy / Rich lather / Grounded',
     scentProfile: ['Cedar', 'Sage', 'Warm wood'],
     skinFeel: 'Creamy, sturdy, and long-lasting with a grounded finish.',

@@ -13,8 +13,8 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     <article className="group bg-navy-900 border border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition-colors duration-500 rounded-sm h-full flex flex-col">
       <Link href={`/products/${product.slug}`} className="block aspect-[3/2] sm:aspect-[4/3] relative overflow-hidden">
         <Image
-          src={product.image}
-          alt={`${product.name} soap bar`}
+          src={product.campaignImage}
+          alt={`${product.name} campaign image`}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-700"
           priority={priority}

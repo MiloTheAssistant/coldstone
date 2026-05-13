@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       title: `${product.name} | Coldstone Soap Co.`,
       description: product.shortDescription,
-      images: [{ url: product.image, width: 1200, height: 630, alt: `${product.name} soap bar` }],
+      images: [{ url: product.campaignImage, width: 1200, height: 630, alt: `${product.name} campaign image` }],
     },
   };
 }
@@ -50,8 +50,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_0.9fr] gap-10 lg:gap-16 items-start">
           <div className="relative aspect-[4/3] overflow-hidden border border-gold-500/20 bg-navy-900">
             <Image
-              src={product.image}
-              alt={`${product.name} soap bar`}
+              src={product.campaignImage}
+              alt={`${product.name} campaign image`}
               fill
               priority
               className="object-cover"
@@ -94,6 +94,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <p className="text-parchment-400 text-sm leading-relaxed mb-8">{product.skinFeel}</p>
+
+            <div className="mb-8 grid grid-cols-[0.7fr_1fr] gap-4 border border-gold-500/15 bg-navy-900/45 p-3">
+              <div className="relative min-h-40 overflow-hidden">
+                <Image
+                  src={product.storyImage}
+                  alt={`${product.name} vertical campaign crop`}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 640px) 180px, 35vw"
+                />
+              </div>
+              <div className="flex flex-col justify-center py-3 pr-2">
+                <h2 className="text-gold-400 text-xs tracking-[0.25em] mb-3 uppercase">Built for the Kit</h2>
+                <p className="text-parchment-400 text-sm leading-relaxed">
+                  A field-ready bar with enough visual weight for the counter, the shower, and the travel kit.
+                </p>
+              </div>
+            </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
               <AddToCartButton

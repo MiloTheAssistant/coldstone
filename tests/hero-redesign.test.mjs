@@ -13,6 +13,17 @@ test('homepage uses art-directed desktop and mobile hero assets', () => {
   assert.match(pageSource, /Field Kit Ritual/);
 });
 
+test('homepage integrates the expanded campaign image library', () => {
+  for (const asset of [
+    'maker-bench-process.png',
+    'ingredient-still-life.png',
+    'packing-bench.png',
+    'bathroom-ritual-use-context.png',
+  ]) {
+    assert.match(pageSource, new RegExp(asset));
+  }
+});
+
 test('generated hero image files exist and are substantive pngs', () => {
   for (const file of [
     '../public/hero/coldstone-field-kit-ritual-desktop.png',

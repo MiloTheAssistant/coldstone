@@ -49,6 +49,41 @@ const processSteps = [
   },
 ];
 
+const ritualScenes = [
+  {
+    eyebrow: "Maker Bench",
+    title: "Cold process, handled like craft.",
+    body:
+      "Oils, tools, molds, cure time, and bench discipline carry the bar before it ever reaches the sink.",
+    image: "/brand/campaign/maker-bench-process.png",
+    alt: "Coldstone maker bench with cold process soapmaking tools",
+  },
+  {
+    eyebrow: "Ingredient Standard",
+    title: "Mineral-dark materials. No noise.",
+    body:
+      "Charcoal, stone, cedar, sage, and simple oils keep the visual language grounded in the bar itself.",
+    image: "/brand/campaign/ingredient-still-life.png",
+    alt: "Coldstone ingredient still life with charcoal, cedar, sage, oils, and stone",
+  },
+  {
+    eyebrow: "Packing Bench",
+    title: "Small-batch order, packed with intent.",
+    body:
+      "The same field-kit restraint carries into wrapping, packing, and the way the product shows up.",
+    image: "/brand/campaign/packing-bench.png",
+    alt: "Coldstone packing bench with wrapped soap bars and rugged tools",
+  },
+  {
+    eyebrow: "Use Context",
+    title: "Bright enough for product clarity.",
+    body:
+      "The ritual world gets cleaner and more usable when the soap needs to sell the daily routine.",
+    image: "/brand/campaign/bathroom-ritual-use-context.png",
+    alt: "Coldstone soap in a brighter bathroom field kit use context",
+  },
+];
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-midnight">
@@ -155,6 +190,46 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* ── Ritual System ── */}
+      <section className="bg-midnight px-5 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto max-w-7xl">
+          <ScrollReveal className="mb-10 max-w-3xl md:mb-14">
+            <p className="mb-3 text-[10px] uppercase tracking-[0.45em] text-gold-500">BRAND RITUAL</p>
+            <h2 className="font-serif text-3xl leading-tight text-parchment-100 md:text-5xl">
+              The same standard from bench to sink.
+            </h2>
+            <div className="my-6 h-px w-14 bg-gold-500/60" />
+            <p className="max-w-2xl text-sm leading-7 text-parchment-400">
+              Coldstone should feel consistent wherever a customer meets it: process, ingredients, packing, product detail, and the daily wash ritual.
+            </p>
+          </ScrollReveal>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {ritualScenes.map((scene, index) => (
+              <ScrollReveal key={scene.title} delay={index * 90}>
+                <article className="group overflow-hidden border border-gold-500/15 bg-navy-900/60">
+                  <div className="relative aspect-[16/9] overflow-hidden">
+                    <Image
+                      src={scene.image}
+                      alt={scene.alt}
+                      fill
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-midnight/75 via-midnight/10 to-transparent" />
+                  </div>
+                  <div className="p-5 sm:p-6">
+                    <p className="mb-2 text-[9px] uppercase tracking-[0.34em] text-gold-500/80">{scene.eyebrow}</p>
+                    <h3 className="mb-3 font-serif text-xl text-parchment-100 sm:text-2xl">{scene.title}</h3>
+                    <p className="text-sm leading-6 text-parchment-400">{scene.body}</p>
+                  </div>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── Products ── */}
       <section id="shop" className="py-16 md:py-28 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
@@ -275,8 +350,8 @@ export default function Home() {
           <ScrollReveal>
             <div className="aspect-[4/3] md:aspect-square relative overflow-hidden border-l-2 border-gold-500/40">
               <Image
-                src="/stone-forge.jpg"
-                alt="Stone Forge soap bar"
+                src="/brand/campaign/packing-bench.png"
+                alt="Coldstone packing bench with wrapped soap bars"
                 fill
                 className="object-cover"
               />

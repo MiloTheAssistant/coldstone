@@ -33,3 +33,16 @@ test('Black Granite has a distinct charcoal granite soap image', () => {
   assert.equal(existsSync(imagePath), true, 'Black Granite soap image is missing');
   assert.ok(statSync(imagePath).size > 40_000, 'Black Granite soap image is too small');
 });
+
+test('product catalog exposes campaign imagery for website integration', () => {
+  for (const product of products) {
+    assert.match(product.campaignImage, /^\/brand\/campaign\/.+-post\.png$/);
+    assert.match(product.storyImage, /^\/brand\/campaign\/.+-story\.png$/);
+
+    for (const image of [product.campaignImage, product.storyImage]) {
+      const imagePath = new URL(`../public${image}`, import.meta.url);
+      assert.equal(existsSync(imagePath), true, `${image} is missing`);
+      assert.ok(statSync(imagePath).size > 40_000, `${image} is too small`);
+    }
+  }
+});
