@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "./components/Header";
@@ -6,6 +7,12 @@ import ProductCard from "./components/ProductCard";
 import SiteFooter from "./components/SiteFooter";
 import { products } from "./data/products";
 import { SOAP_ABACUS_LINK } from "./data/site";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 const testimonials = [
   {

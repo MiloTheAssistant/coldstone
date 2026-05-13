@@ -9,9 +9,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.coldstonesoap.com"),
   title: `${SITE_NAME} | Pure. American. Uncompromising.`,
   description: SITE_DESCRIPTION,
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: `${SITE_NAME} | Pure. American. Uncompromising.`,
     description: SITE_DESCRIPTION,
