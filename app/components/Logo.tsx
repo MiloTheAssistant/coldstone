@@ -11,6 +11,8 @@ const lockupClasses = {
   footer: 'h-[72px] min-w-[290px]',
 };
 
+const profileStampSrc = '/brand/website/profile-stamp.png';
+
 export default function Logo({ variant, scrolled = false }: LogoProps) {
   if (variant === 'mobile') {
     return (
@@ -20,12 +22,12 @@ export default function Logo({ variant, scrolled = false }: LogoProps) {
         className="inline-flex h-14 w-14 items-center justify-center transition-opacity duration-300 hover:opacity-90"
       >
         <Image
-          src="/brand/coldstone-s-badge.svg"
-          alt="Coldstone Soap Co. S badge"
+          src={profileStampSrc}
+          alt="Coldstone Soap Co. profile stamp"
           width={56}
           height={56}
           priority
-          className={`rounded-full ${scrolled ? 'drop-shadow-none' : 'drop-shadow-[0_8px_20px_rgba(0,0,0,0.45)]'}`}
+          className={`rounded-full object-cover ${scrolled ? 'drop-shadow-none' : 'drop-shadow-[0_8px_20px_rgba(0,0,0,0.45)]'}`}
         />
       </Link>
     );
@@ -38,12 +40,12 @@ export default function Logo({ variant, scrolled = false }: LogoProps) {
       className={`group inline-flex shrink-0 items-center gap-3 transition-opacity duration-300 hover:opacity-90 ${lockupClasses[variant]}`}
     >
       <Image
-        src="/brand/coldstone-s-badge.svg"
+        src={profileStampSrc}
         alt=""
         width={58}
         height={58}
         priority={variant === 'header'}
-        className="h-11 w-11 rounded-full drop-shadow-[0_10px_22px_rgba(0,0,0,0.5)] lg:h-12 lg:w-12"
+        className="h-11 w-11 rounded-full object-cover drop-shadow-[0_10px_22px_rgba(0,0,0,0.5)] lg:h-12 lg:w-12"
       />
       <span className="flex min-w-0 flex-1 flex-col items-center leading-none">
         <span className="font-serif text-[22px] font-bold tracking-[0.24em] text-parchment-100 drop-shadow-[0_2px_0_rgba(0,0,0,0.85)] lg:text-[25px]">COLDSTONE</span>
