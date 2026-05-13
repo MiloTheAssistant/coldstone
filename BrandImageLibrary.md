@@ -32,6 +32,7 @@ public/
     contact-sheet.png
     source/
     website/
+    campaign/
     facebook/
     instagram/
     tiktok/
@@ -168,6 +169,12 @@ public/brand/
 ```text
 public/brand/source/field-kit-ritual-scene.png
 public/brand/source/photoreal-s-stamp.png
+public/brand/source/maker-bench-process.png
+public/brand/source/packing-bench.png
+public/brand/source/ingredient-still-life.png
+public/brand/source/bathroom-ritual-use-context.png
+public/brand/source/product-family-black-granite.png
+public/brand/source/product-family-stone-forge.png
 
 public/hero/coldstone-field-kit-ritual-desktop.png
 public/hero/coldstone-field-kit-ritual-mobile.png
@@ -195,6 +202,17 @@ public/brand/linkedin/post-background.png
 public/brand/x/profile-stamp.png
 public/brand/x/header-background.png
 public/brand/x/post-background.png
+
+public/brand/campaign/maker-bench-process.png
+public/brand/campaign/packing-bench.png
+public/brand/campaign/ingredient-still-life.png
+public/brand/campaign/bathroom-ritual-use-context.png
+public/brand/campaign/black-granite-post.png
+public/brand/campaign/black-granite-story.png
+public/brand/campaign/stone-forge-post.png
+public/brand/campaign/stone-forge-story.png
+
+public/og-image.png
 ```
 
 ## Reusable Prompt Framework
@@ -245,6 +263,12 @@ public/brand/coldstone-s-badge.svg
 public/brand/contact-sheet.png
 public/brand/source/field-kit-ritual-scene.png
 public/brand/source/photoreal-s-stamp.png
+public/brand/source/maker-bench-process.png
+public/brand/source/packing-bench.png
+public/brand/source/ingredient-still-life.png
+public/brand/source/bathroom-ritual-use-context.png
+public/brand/source/product-family-black-granite.png
+public/brand/source/product-family-stone-forge.png
 public/brand/website/profile-stamp.png
 public/brand/website/profile-background.png
 public/brand/facebook/profile-stamp.png
@@ -263,6 +287,15 @@ public/brand/linkedin/post-background.png
 public/brand/x/profile-stamp.png
 public/brand/x/header-background.png
 public/brand/x/post-background.png
+public/brand/campaign/maker-bench-process.png
+public/brand/campaign/packing-bench.png
+public/brand/campaign/ingredient-still-life.png
+public/brand/campaign/bathroom-ritual-use-context.png
+public/brand/campaign/black-granite-post.png
+public/brand/campaign/black-granite-story.png
+public/brand/campaign/stone-forge-post.png
+public/brand/campaign/stone-forge-story.png
+public/og-image.png
 ```
 
 Brand-relevant site imagery currently outside the generated brand library:
@@ -282,9 +315,8 @@ app/apple-icon.png
 
 ## Additional Content To Consider
 
-- `public/brand/source/maker-bench-process.png`: a process source image with oils, cure racks, anonymous hands, and workbench detail for blog/process campaigns.
-- `public/brand/source/packing-bench.png`: shipping, wrapping, kraft paper, twine, labels turned away or unreadable, and small-batch fulfillment context.
-- `public/brand/source/ingredient-still-life.png`: charcoal, mineral stone, oils, cedar/sage cues, and natural texture for product education.
-- `public/brand/source/bathroom-ritual-use-context.png`: sink/shower kit use-context that is brighter than the hero and useful for conversion sections.
-- Product-specific social backgrounds for Black Granite and Stone Forge if product campaigns become a near-term priority.
-- A refreshed Open Graph image if production metadata should use a dedicated brand OG image instead of platform post backgrounds.
+- Product-detail page hero images wired directly into `app/products/[slug]/page.tsx`.
+- Process-section imagery wired into a future process/about page.
+- Email/newsletter header images if campaigns become a priority.
+- Retail/wholesale sell-sheet images for sales collateral.
+- Seasonal or limited-run campaign source families once those products exist.

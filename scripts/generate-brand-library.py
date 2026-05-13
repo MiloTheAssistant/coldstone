@@ -19,6 +19,12 @@ SOURCES = {
     "black_granite": PUBLIC / "black-granite-soap.jpg",
     "ritual_scene": BRAND / "source" / "field-kit-ritual-scene.png",
     "stamp_source": BRAND / "source" / "photoreal-s-stamp.png",
+    "maker_bench": BRAND / "source" / "maker-bench-process.png",
+    "packing_bench": BRAND / "source" / "packing-bench.png",
+    "ingredient_still_life": BRAND / "source" / "ingredient-still-life.png",
+    "bathroom_context": BRAND / "source" / "bathroom-ritual-use-context.png",
+    "product_black_granite": BRAND / "source" / "product-family-black-granite.png",
+    "product_stone_forge": BRAND / "source" / "product-family-stone-forge.png",
 }
 
 PROFILE_SIZE = (1024, 1024)
@@ -46,9 +52,18 @@ ASSETS: dict[str, tuple[int, int, str, str]] = {
     "x/profile-stamp.png": (*PROFILE_SIZE, "stamp", "center"),
     "x/header-background.png": (1500, 500, "hero", "right"),
     "x/post-background.png": (1600, 900, "hero", "center"),
+    "campaign/maker-bench-process.png": (1600, 900, "maker_bench", "left"),
+    "campaign/packing-bench.png": (1600, 900, "packing_bench", "left"),
+    "campaign/ingredient-still-life.png": (1600, 900, "ingredient_still_life", "left"),
+    "campaign/bathroom-ritual-use-context.png": (1600, 900, "bathroom_context", "left"),
+    "campaign/black-granite-post.png": (1200, 630, "product_black_granite", "left"),
+    "campaign/black-granite-story.png": (1080, 1920, "product_black_granite", "bottom"),
+    "campaign/stone-forge-post.png": (1200, 630, "product_stone_forge", "left"),
+    "campaign/stone-forge-story.png": (1080, 1920, "product_stone_forge", "bottom"),
 }
 
 CONTACT_SHEET = BRAND / "contact-sheet.png"
+OG_IMAGE = PUBLIC / "og-image.png"
 
 PALETTE = {
     "midnight": (18, 18, 18),
@@ -294,6 +309,25 @@ def make_background(width: int, height: int, source_key: str, variant: str) -> I
         base = cover_fit(source, (width, height), variant)
         return ImageEnhance.Contrast(base).enhance(1.02)
 
+    if source_key in {
+        "maker_bench",
+        "packing_bench",
+        "ingredient_still_life",
+        "bathroom_context",
+        "product_black_granite",
+        "product_stone_forge",
+    }:
+        source = Image.open(SOURCES[source_key]).convert("RGB")
+        base = cover_fit(source, (width, height), variant)
+        base = ImageEnhance.Contrast(base).enhance(1.05)
+        base = ImageEnhance.Color(base).enhance(0.94)
+        if source_key == "bathroom_context":
+            base = ImageEnhance.Brightness(base).enhance(1.08)
+        canvas = base.convert("RGBA")
+        add_linear_scrim(canvas, "left", 112 if width / height < 1.0 else 136)
+        add_linear_scrim(canvas, "bottom", 58)
+        return canvas.convert("RGB")
+
     source = Image.open(SOURCES[source_key]).convert("RGB")
     base = make_source_texture(source, (width, height), blur=34 if height < 700 else 42)
     base = ImageEnhance.Brightness(base).enhance(1.1)
@@ -335,6 +369,32 @@ def make_background(width: int, height: int, source_key: str, variant: str) -> I
     return canvas.convert("RGB")
 
 
+def make_og_image() -> Image.Image:
+    width, height = 1200, 630
+    base = make_background(width, height, "bathroom_context", "right").convert("RGBA")
+    add_linear_scrim(base, "left", 190)
+    add_linear_scrim(base, "bottom", 72)
+
+    stamp = make_profile_stamp().resize((116, 116), Image.Resampling.LANCZOS).convert("RGBA")
+    base.alpha_composite(stamp, (74, 80))
+
+    draw = ImageDraw.Draw(base)
+    font_title = load_font(70, bold=True)
+    font_sub = load_font(30, bold=False)
+    font_micro = load_font(19, bold=True)
+    parchment = PALETTE["parchment"]
+    gold = PALETTE["gold"]
+    stone = (188, 181, 166)
+
+    draw.text((214, 92), "COLDSTONE", font=font_title, fill=parchment)
+    draw.text((220, 164), "SOAP CO.", font=font_micro, fill=stone)
+    draw.rectangle((78, 245, 470, 248), fill=gold)
+    draw.text((78, 288), "Stone-stamped soap.", font=font_sub, fill=parchment)
+    draw.text((78, 330), "Built for hard use.", font=font_sub, fill=parchment)
+    draw.text((78, 424), "Veteran Owned  ·  Cold Process  ·  USA Made", font=font_micro, fill=stone)
+    return base.convert("RGB")
+
+
 def make_profile_stamp() -> Image.Image:
     stamp = Image.open(SOURCES["stamp_source"]).convert("RGB")
     stamp = cover_fit(stamp, PROFILE_SIZE, "center")
@@ -351,6 +411,7 @@ def save_assets() -> None:
 
     for platform in ["website", "facebook", "instagram", "tiktok", "linkedin", "x"]:
         (BRAND / platform).mkdir(parents=True, exist_ok=True)
+    (BRAND / "campaign").mkdir(parents=True, exist_ok=True)
 
     stamp = make_profile_stamp()
     for relative, (width, height, source, variant) in ASSETS.items():
@@ -360,6 +421,8 @@ def save_assets() -> None:
             stamp.save(target, optimize=True)
         else:
             make_background(width, height, source, variant).save(target, optimize=True)
+
+    make_og_image().save(OG_IMAGE, optimize=True)
 
 
 def validate_assets() -> list[str]:
@@ -397,6 +460,20 @@ def validate_assets() -> list[str]:
                     errors.append(f"{relative} expected {width}x{height}, got {img.size[0]}x{img.size[1]}")
         except Exception as exc:  # noqa: BLE001 - validation should surface any image-open failure
             errors.append(f"{relative} is not a valid image: {exc}")
+
+    if not OG_IMAGE.exists():
+        errors.append("Missing public/og-image.png")
+    elif OG_IMAGE.stat().st_size <= 0:
+        errors.append("Empty public/og-image.png")
+    else:
+        try:
+            with Image.open(OG_IMAGE) as img:
+                img.verify()
+            with Image.open(OG_IMAGE) as img:
+                if img.size != (1200, 630):
+                    errors.append(f"public/og-image.png expected 1200x630, got {img.size[0]}x{img.size[1]}")
+        except Exception as exc:  # noqa: BLE001 - validation should surface any image-open failure
+            errors.append(f"public/og-image.png is not a valid image: {exc}")
     return errors
 
 
@@ -466,7 +543,10 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
 
-    print(f"Validated {len(HERO_ASSETS)} hero assets, {len(ASSETS)} brand assets, and {CONTACT_SHEET.relative_to(ROOT)}")
+    print(
+        f"Validated {len(HERO_ASSETS)} hero assets, {len(ASSETS)} brand assets, "
+        f"{CONTACT_SHEET.relative_to(ROOT)}, and {OG_IMAGE.relative_to(ROOT)}"
+    )
     return 0
 
 

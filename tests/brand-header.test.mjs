@@ -79,3 +79,12 @@ test('soap calculator links open Soap Abacus in a new browser context', () => {
 test('Coldstone website metadata uses the www production domain', () => {
   assert.match(layoutSource, /metadataBase:\s*new URL\("https:\/\/www\.coldstonesoap\.com"\)/);
 });
+
+test('Coldstone website metadata uses the dedicated Open Graph image', () => {
+  const ogImage = new URL('../public/og-image.png', import.meta.url);
+
+  assert.match(layoutSource, /url:\s*"\/og-image\.png"/);
+  assert.match(layoutSource, /images:\s*\["\/og-image\.png"\]/);
+  assert.equal(existsSync(ogImage), true, 'public/og-image.png is missing');
+  assert.ok(statSync(ogImage).size > 40_000, 'public/og-image.png is too small to be a real social image');
+});

@@ -131,13 +131,16 @@ Use the current source-family approach:
 - **Wide field-kit family:** wide cover/header compositions derived from the ritual hero.
 - **Square stone family:** reusable square post/profile backgrounds.
 - **Vertical field-kit family:** 9:16 story/reel assets.
+- **Campaign family:** process, packing, ingredient, brighter use-context, and product-specific campaign crops derived from dedicated source images.
 - **Contact sheet:** generated review sheet for fast approval.
 
 Platform folders:
 
 ```txt
 public/brand/
+  source/
   website/
+  campaign/
   facebook/
   instagram/
   tiktok/
@@ -150,6 +153,15 @@ Expected platform assets:
 ```txt
 public/brand/website/profile-stamp.png
 public/brand/website/profile-background.png
+
+public/brand/campaign/maker-bench-process.png
+public/brand/campaign/packing-bench.png
+public/brand/campaign/ingredient-still-life.png
+public/brand/campaign/bathroom-ritual-use-context.png
+public/brand/campaign/black-granite-post.png
+public/brand/campaign/black-granite-story.png
+public/brand/campaign/stone-forge-post.png
+public/brand/campaign/stone-forge-story.png
 
 public/brand/facebook/profile-stamp.png
 public/brand/facebook/cover-background.png
@@ -257,8 +269,22 @@ public\brand\coldstone-s-badge.svg
 public\brand\contact-sheet.png
 public\brand\source\field-kit-ritual-scene.png
 public\brand\source\photoreal-s-stamp.png
+public\brand\source\maker-bench-process.png
+public\brand\source\packing-bench.png
+public\brand\source\ingredient-still-life.png
+public\brand\source\bathroom-ritual-use-context.png
+public\brand\source\product-family-black-granite.png
+public\brand\source\product-family-stone-forge.png
 public\brand\website\profile-stamp.png
 public\brand\website\profile-background.png
+public\brand\campaign\maker-bench-process.png
+public\brand\campaign\packing-bench.png
+public\brand\campaign\ingredient-still-life.png
+public\brand\campaign\bathroom-ritual-use-context.png
+public\brand\campaign\black-granite-post.png
+public\brand\campaign\black-granite-story.png
+public\brand\campaign\stone-forge-post.png
+public\brand\campaign\stone-forge-story.png
 public\brand\facebook\profile-stamp.png
 public\brand\facebook\cover-background.png
 public\brand\facebook\post-background.png
@@ -275,4 +301,5 @@ public\brand\linkedin\post-background.png
 public\brand\x\profile-stamp.png
 public\brand\x\header-background.png
 public\brand\x\post-background.png
+public\og-image.png
 ```

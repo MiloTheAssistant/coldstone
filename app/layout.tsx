@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     description:
       "Handcrafted cold process soap. Veteran owned. Small batch. Made in the USA.",
     type: "website",
-    images: [{ url: "/brand/facebook/post-background.png", width: 1200, height: 630, alt: "Coldstone Soap Co. field kit ritual" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Coldstone Soap Co. field kit ritual" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Coldstone Soap Co.",
     description: "Handcrafted cold process soap. Veteran owned. Small batch. Made in the USA.",
-    images: ["/brand/x/post-background.png"],
+    images: ["/og-image.png"],
   },
 };
 
