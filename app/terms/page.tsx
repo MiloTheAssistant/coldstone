@@ -7,6 +7,9 @@ import { policyPages } from '../data/policies';
 export const metadata: Metadata = {
   title: 'Terms of Use | Coldstone Soap Co.',
   description: 'Terms for using the Coldstone Soap Co. website and purchasing products.',
+  alternates: {
+    canonical: '/terms',
+  },
 };
 
 export default function TermsPage() {

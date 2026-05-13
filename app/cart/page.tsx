@@ -7,6 +7,10 @@ import SiteFooter from '../components/SiteFooter';
 export const metadata: Metadata = {
   title: 'Cart | Coldstone Soap Co.',
   description: 'Review your Coldstone Soap Co. cart before checkout.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function CartPage() {

@@ -7,6 +7,10 @@ import SiteFooter from '../../components/SiteFooter';
 export const metadata: Metadata = {
   title: 'Checkout Canceled | Coldstone Soap Co.',
   description: 'Return to your Coldstone Soap Co. cart or continue shopping.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function CheckoutCancelPage() {

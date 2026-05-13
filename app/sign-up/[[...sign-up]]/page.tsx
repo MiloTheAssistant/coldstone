@@ -5,6 +5,10 @@ import { SignUp } from '@clerk/nextjs';
 export const metadata: Metadata = {
   title: 'Create Account | Soap Abacus Studio',
   description: 'Create a free Soap Abacus account to unlock recipe editing, saving, and membership options.',
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: 'Create Account | Soap Abacus Studio',
     description: 'Create a free Soap Abacus account to unlock recipe editing, saving, and membership options.',

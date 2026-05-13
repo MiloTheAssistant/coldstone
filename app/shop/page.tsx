@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: 'Shop Cold Process Soap | Coldstone Soap Co.',
   description:
     'Shop handcrafted cold process soap from Coldstone Soap Co. Small batch, veteran owned, and made in the USA.',
+  alternates: {
+    canonical: '/shop',
+  },
 };
 
 export default function ShopPage() {

@@ -7,6 +7,9 @@ import { policyPages } from '../data/policies';
 export const metadata: Metadata = {
   title: 'Returns | Coldstone Soap Co.',
   description: 'Return and issue-resolution policy for Coldstone Soap Co. handmade soap orders.',
+  alternates: {
+    canonical: '/returns',
+  },
 };
 
 export default function ReturnsPage() {
