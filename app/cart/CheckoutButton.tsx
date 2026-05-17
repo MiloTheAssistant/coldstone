@@ -49,7 +49,7 @@ export default function CheckoutButton() {
         type="button"
         onClick={handleCheckout}
         disabled={isLoading || items.length === 0}
-        className="w-full border border-gold-500 text-gold-400 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-gold-500 hover:text-midnight transition-colors disabled:cursor-wait disabled:opacity-70"
+        className="w-full bg-crimson-600 text-parchment-100 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-crimson-500 transition-colors disabled:cursor-wait disabled:opacity-70"
       >
         {isLoading ? 'STARTING CHECKOUT...' : 'SECURE CHECKOUT'}
       </button>

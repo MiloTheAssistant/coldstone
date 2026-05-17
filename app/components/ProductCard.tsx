@@ -33,6 +33,13 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         <p className="text-xs tracking-[0.15em] sm:tracking-[0.2em] text-parchment-400 mb-4 italic">
           {product.tagline}
         </p>
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.16em]">
+          <span className="font-semibold text-gold-400">{formatPrice(product.priceCents)}</span>
+          <span className="text-parchment-500">{product.weight}</span>
+          <span className="text-parchment-500">
+            {product.inventoryStatus === 'in-stock' ? 'In stock' : 'Out of stock'}
+          </span>
+        </div>
         <p className="text-parchment-400 text-sm leading-relaxed mb-6">{product.shortDescription}</p>
 
         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-6">
@@ -53,7 +60,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           >
             VIEW DETAILS
           </Link>
-          <AddToCartButton product={product} />
+          <AddToCartButton product={product} label={`ADD - ${formatPrice(product.priceCents)}`} />
         </div>
       </div>
     </article>

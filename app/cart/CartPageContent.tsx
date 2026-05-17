@@ -104,13 +104,13 @@ export default function CartPageContent() {
             <span className="text-right">Calculated in Checkout</span>
           </div>
         </div>
+        <CheckoutButton />
         <Link
           href="/shop"
-          className="block text-center bg-crimson-600 text-parchment-100 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-crimson-500 transition-colors mb-3"
+          className="mt-3 block text-center border border-gold-500/40 text-gold-400 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-gold-500/10 transition-colors"
         >
           CONTINUE SHOPPING
         </Link>
-        <CheckoutButton />
         <div className="border-t border-gold-500/15 mt-5 pt-5">
           <p className="text-[11px] tracking-[0.18em] text-gold-500 mb-3 uppercase">Review before checkout</p>
           <div className="grid grid-cols-2 gap-2">

@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import ScrollReveal from "./components/ScrollReveal";
 import ProductCard from "./components/ProductCard";
 import SiteFooter from "./components/SiteFooter";
+import { trustHighlights } from "./data/policies";
 import { products } from "./data/products";
 import { SOAP_ABACUS_LINK } from "./data/site";
 
@@ -129,8 +130,12 @@ export default function Home() {
         <div className="relative z-10 flex min-h-screen items-end px-5 pb-24 pt-32 sm:px-8 md:items-center md:pb-0 md:pt-24">
           <div className="mx-auto w-full max-w-7xl">
             <div className="max-w-[320px] sm:max-w-xl">
-              <p className="mb-5 font-sans text-[9px] uppercase leading-5 tracking-[0.2em] text-stone-300 sm:text-[11px] sm:tracking-[0.34em]">
-                Veteran Owned <span className="mx-1 text-stone-500">·</span> Field Kit Ritual <span className="mx-1 text-stone-500">·</span> USA Made
+              <p className="mb-5 flex flex-wrap gap-x-2 gap-y-1 font-sans text-[9px] uppercase leading-5 tracking-[0.16em] text-stone-300 sm:text-[11px] sm:tracking-[0.34em]">
+                <span>Veteran Owned</span>
+                <span className="text-stone-500">·</span>
+                <span>Field Kit Ritual</span>
+                <span className="text-stone-500">·</span>
+                <span>USA Made</span>
               </p>
               <h1 className="font-serif text-[2.05rem] font-bold leading-[1.04] tracking-wide text-parchment-100 sm:text-6xl md:text-6xl lg:text-7xl">
                 Built for the Ritual.<br />
@@ -198,6 +203,47 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ── Trust Bar ── */}
+      <section className="bg-midnight px-5 py-8 sm:px-6">
+        <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {trustHighlights.map((item) => (
+            <article key={item.title} className="border border-gold-500/15 bg-navy-900/55 p-4">
+              <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-gold-400">{item.title}</p>
+              <p className="text-xs leading-6 text-parchment-400">{item.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Products ── */}
+      <section id="shop" className="py-14 md:py-24 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
+        <div className="max-w-6xl mx-auto">
+          <ScrollReveal className="text-center mb-12 md:mb-20">
+            <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">THE COLLECTION</p>
+            <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">
+              Start with the bars.
+            </h2>
+            <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-14">
+            {products.map((product, i) => (
+              <ScrollReveal key={product.name} delay={i * 120} className="group">
+                <ProductCard product={product} priority={i === 0} />
+              </ScrollReveal>
+            ))}
+          </div>
+          <div className="text-center mt-10 md:mt-14">
+            <Link
+              href="/shop"
+              className="inline-block border border-gold-500/50 text-gold-400 px-10 py-4 text-[11px] tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-all duration-300"
+            >
+              VISIT THE SHOP
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── Ritual System ── */}
       <section className="bg-midnight px-5 py-16 sm:px-6 md:py-24">
         <div className="mx-auto max-w-7xl">
@@ -234,35 +280,6 @@ export default function Home() {
                 </article>
               </ScrollReveal>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Products ── */}
-      <section id="shop" className="py-16 md:py-28 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
-        <div className="max-w-6xl mx-auto">
-          <ScrollReveal className="text-center mb-12 md:mb-20">
-            <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">THE COLLECTION</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">
-              Crafted with Intention
-            </h2>
-            <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
-          </ScrollReveal>
-
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-14">
-            {products.map((product, i) => (
-              <ScrollReveal key={product.name} delay={i * 120} className="group">
-                <ProductCard product={product} priority={i === 0} />
-              </ScrollReveal>
-            ))}
-          </div>
-          <div className="text-center mt-10 md:mt-14">
-            <Link
-              href="/shop"
-              className="inline-block border border-gold-500/50 text-gold-400 px-10 py-4 text-[11px] tracking-[0.25em] hover:bg-gold-500 hover:text-midnight transition-all duration-300"
-            >
-              VISIT THE SHOP
-            </Link>
           </div>
         </div>
       </section>

@@ -28,7 +28,7 @@ export default function CheckoutSuccessPage() {
         <div className="max-w-3xl mx-auto border border-gold-500/15 bg-navy-900/70 p-6 sm:p-8 text-center">
           <h2 className="font-serif text-2xl text-parchment-100 mb-4">Thank you for ordering Coldstone.</h2>
           <p className="text-parchment-400 text-sm leading-relaxed mb-8">
-            This page clears your local cart after a successful checkout return. Phase 3 webhooks prepare the fulfillment hook for durable order handling.
+            Your cart has been cleared. Keep an eye on your inbox for order details and shipping updates.
           </p>
           <Link
             href="/shop"

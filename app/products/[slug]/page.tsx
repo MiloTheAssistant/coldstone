@@ -98,6 +98,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p className="text-gold-400 text-2xl font-semibold mb-6">{formatPrice(product.priceCents)}</p>
             <p className="text-parchment-300 text-sm leading-relaxed mb-8">{product.description}</p>
 
+            <div className="mb-8 border border-gold-500/15 bg-navy-900/55 p-4">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-gold-400">
+                  {product.inventoryStatus === 'in-stock' ? 'Ready to ship' : 'Currently unavailable'}
+                </p>
+                <p className="text-sm text-parchment-400">Secure checkout through Stripe</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <AddToCartButton
+                  product={product}
+                  label={`ADD TO CART - ${formatPrice(product.priceCents)}`}
+                  className="bg-crimson-600 text-parchment-100 px-8 py-4 text-[11px] tracking-[0.18em] hover:bg-crimson-500 transition-colors disabled:cursor-not-allowed disabled:bg-navy-700 disabled:text-parchment-500"
+                />
+                <Link
+                  href="/cart"
+                  className="text-center border border-gold-500/40 text-gold-400 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-gold-500/10 transition-colors"
+                >
+                  REVIEW CART
+                </Link>
+              </div>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-4 mb-8">
               <div className="border border-gold-500/15 bg-navy-900/60 p-4">
                 <h2 className="text-gold-400 text-xs tracking-[0.25em] mb-2 uppercase">Scent</h2>
@@ -144,13 +166,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
-              <AddToCartButton
-                product={product}
-                className="bg-crimson-600 text-parchment-100 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-crimson-500 transition-colors disabled:cursor-not-allowed disabled:bg-navy-700 disabled:text-parchment-500"
-              />
               <Link
                 href="/shop"
-                className="text-center border border-gold-500/40 text-gold-400 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-gold-500/10 transition-colors"
+                className="text-center border border-gold-500/40 text-gold-400 px-8 py-4 text-[11px] tracking-[0.22em] hover:bg-gold-500/10 transition-colors sm:col-span-2"
               >
                 BACK TO SHOP
               </Link>

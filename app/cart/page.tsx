@@ -20,7 +20,7 @@ export default function CartPage() {
       <PageIntro
         eyebrow="Cart"
         title="Review your bars before checkout."
-        description="Update quantities, remove items, and keep browsing. Secure Stripe checkout arrives in Phase 3."
+        description="Update quantities, remove items, and continue to secure Stripe checkout when your order is ready."
       />
       <main className="px-5 sm:px-6 pb-16 md:pb-24">
         <CartPageContent />

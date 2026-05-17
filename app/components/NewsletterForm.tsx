@@ -22,7 +22,7 @@ export default function NewsletterForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+      className="flex w-full max-w-md flex-col gap-3 sm:flex-row lg:ml-auto"
     >
       <input
         type="email"
@@ -30,11 +30,11 @@ export default function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="YOUR EMAIL ADDRESS"
         required
-        className="flex-1 bg-transparent border border-gold-500/30 text-parchment-100 placeholder:text-parchment-500 px-5 py-3.5 text-[11px] tracking-[0.15em] focus:outline-none focus:border-gold-500 transition-colors"
+        className="min-w-0 flex-1 bg-transparent border border-gold-500/30 text-parchment-100 placeholder:text-parchment-500 px-5 py-3.5 text-[11px] tracking-[0.08em] sm:tracking-[0.15em] focus:outline-none focus:border-gold-500 transition-colors"
       />
       <button
         type="submit"
-        className="bg-crimson-600 text-parchment-100 px-8 py-3.5 text-[11px] tracking-[0.25em] hover:bg-crimson-500 transition-colors"
+        className="bg-crimson-600 text-parchment-100 px-8 py-3.5 text-[11px] tracking-[0.22em] hover:bg-crimson-500 transition-colors"
       >
         JOIN
       </button>
