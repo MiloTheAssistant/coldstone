@@ -1,4 +1,4 @@
-import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import { neon, type NeonQueryFunction, type NeonQueryFunctionInTransaction } from '@neondatabase/serverless';
 
 export interface RecipeSnapshot {
   id: string;
@@ -33,6 +33,52 @@ export interface ShareLinkRecord {
   createdAt: string;
   expiresAt: string | null;
   revokedAt: string | null;
+}
+
+export interface IngredientListCodeRecord {
+  id: string;
+  publicationId: string;
+  revisionId: string;
+  ownerId: string;
+  ilcCode: string;
+  ingredients: unknown[];
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface RecipePublicationRecord {
+  id: string;
+  ownerId: string;
+  recipeId: string;
+  currentRevisionId: string | null;
+  srcCode: string;
+  status: 'active' | 'revoked';
+  title: string;
+  slug: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecipePublicationRevisionRecord {
+  id: string;
+  publicationId: string;
+  recipeId: string;
+  recipeVersionId: string;
+  ownerId: string;
+  revisionNumber: number;
+  revisionNotes: string;
+  releaseNotesPublic: string;
+  recipeSnapshot: RecipeSnapshot;
+  ingredientListSnapshot: unknown[];
+  active: boolean;
+  createdAt: string;
+}
+
+export interface PublishedRecipeRelease {
+  publication: RecipePublicationRecord;
+  revision: RecipePublicationRevisionRecord;
+  ilc: IngredientListCodeRecord;
 }
 
 export interface SoapAbacusMembershipRecord {
@@ -279,6 +325,164 @@ export async function getSharedRecipe(token: string) {
   return row.snapshot as RecipeSnapshot;
 }
 
+export async function getRecipePublicationBySrcCode(srcCode: string): Promise<PublishedRecipeRelease | null> {
+  const sql = getSql();
+  const rows = await sql`
+    select
+      p.*,
+      r.id as revision_row_id,
+      r.publication_id as revision_publication_id,
+      r.recipe_id as revision_recipe_id,
+      r.recipe_version_id,
+      r.owner_id as revision_owner_id,
+      r.revision_number,
+      r.revision_notes,
+      r.release_notes_public,
+      r.recipe_snapshot,
+      r.ingredient_list_snapshot,
+      r.active as revision_active,
+      r.created_at as revision_created_at,
+      i.id as ilc_row_id,
+      i.publication_id as ilc_publication_id,
+      i.revision_id as ilc_revision_id,
+      i.owner_id as ilc_owner_id,
+      i.ilc_code,
+      i.ingredients,
+      i.metadata as ilc_metadata,
+      i.created_at as ilc_created_at
+    from recipe_publications p
+    join recipe_publication_revisions r on r.id = p.current_revision_id and r.publication_id = p.id
+    join ingredient_list_codes i on i.revision_id = r.id and i.publication_id = p.id
+    where p.src_code = ${srcCode}
+      and p.status = 'active'
+      and r.active = true
+    limit 1
+  `;
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    publication: mapPublicationRow(row),
+    revision: mapPublicationRevisionRow({
+      id: row.revision_row_id,
+      publication_id: row.revision_publication_id,
+      recipe_id: row.revision_recipe_id,
+      recipe_version_id: row.recipe_version_id,
+      owner_id: row.revision_owner_id,
+      revision_number: row.revision_number,
+      revision_notes: row.revision_notes,
+      release_notes_public: row.release_notes_public,
+      recipe_snapshot: row.recipe_snapshot,
+      ingredient_list_snapshot: row.ingredient_list_snapshot,
+      active: row.revision_active,
+      created_at: row.revision_created_at,
+    }),
+    ilc: mapIngredientListCodeRow({
+      id: row.ilc_row_id,
+      publication_id: row.ilc_publication_id,
+      revision_id: row.ilc_revision_id,
+      owner_id: row.ilc_owner_id,
+      ilc_code: row.ilc_code,
+      ingredients: row.ingredients,
+      metadata: row.ilc_metadata,
+      created_at: row.ilc_created_at,
+    }),
+  };
+}
+
+export async function createRecipePublication(input: {
+  publication: RecipePublicationRecord;
+  revision: RecipePublicationRevisionRecord;
+  ilc: IngredientListCodeRecord;
+}) {
+  const sql = getSql();
+  await sql.transaction((tx) => [
+    tx`
+      insert into recipe_publications (
+        id, owner_id, recipe_id, current_revision_id, src_code, status, title, slug, metadata, created_at, updated_at
+      )
+      values (
+        ${input.publication.id}, ${input.publication.ownerId}, ${input.publication.recipeId},
+        null, ${input.publication.srcCode}, ${input.publication.status},
+        ${input.publication.title}, ${input.publication.slug}, ${JSON.stringify(input.publication.metadata || {})},
+        ${input.publication.createdAt}, ${input.publication.updatedAt}
+      )
+    `,
+    buildInsertPublicationRevisionQuery(tx, input.revision),
+    buildInsertIngredientListCodeQuery(tx, input.ilc),
+    tx`
+      update recipe_publications
+      set current_revision_id = ${input.revision.id}, updated_at = ${input.revision.createdAt}
+      where id = ${input.publication.id}
+    `,
+  ]);
+  return input;
+}
+
+export async function addRecipePublicationRevision(input: {
+  publicationId: string;
+  revision: RecipePublicationRevisionRecord;
+  ilc: IngredientListCodeRecord;
+}) {
+  const sql = getSql();
+  await sql.transaction((tx) => [
+    buildInsertPublicationRevisionQuery(tx, input.revision),
+    buildInsertIngredientListCodeQuery(tx, input.ilc),
+    tx`
+      update recipe_publications
+      set current_revision_id = ${input.revision.id}, updated_at = ${input.revision.createdAt}
+      where id = ${input.publicationId}
+    `,
+  ]);
+  return input;
+}
+
+export async function countMonthlySrcPublicationsForUser(ownerId: string, now = new Date()) {
+  const sql = getSql();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
+  const rows = await sql`
+    select count(*)::int as count
+    from recipe_publications
+    where owner_id = ${ownerId}
+      and created_at >= ${start}
+      and created_at < ${end}
+  `;
+  return Number(rows[0]?.count || 0);
+}
+
+function buildInsertPublicationRevisionQuery(
+  sql: NeonQueryFunctionInTransaction<false, false>,
+  revision: RecipePublicationRevisionRecord,
+) {
+  return sql`
+    insert into recipe_publication_revisions (
+      id, publication_id, recipe_id, recipe_version_id, owner_id, revision_number, revision_notes,
+      release_notes_public, recipe_snapshot, ingredient_list_snapshot, active, created_at
+    )
+    values (
+      ${revision.id}, ${revision.publicationId}, ${revision.recipeId}, ${revision.recipeVersionId},
+      ${revision.ownerId}, ${revision.revisionNumber}, ${revision.revisionNotes},
+      ${revision.releaseNotesPublic}, ${JSON.stringify(revision.recipeSnapshot)},
+      ${JSON.stringify(revision.ingredientListSnapshot)}, ${revision.active}, ${revision.createdAt}
+    )
+  `;
+}
+
+function buildInsertIngredientListCodeQuery(
+  sql: NeonQueryFunctionInTransaction<false, false>,
+  ilc: IngredientListCodeRecord,
+) {
+  return sql`
+    insert into ingredient_list_codes (
+      id, publication_id, revision_id, owner_id, ilc_code, ingredients, metadata, created_at
+    )
+    values (
+      ${ilc.id}, ${ilc.publicationId}, ${ilc.revisionId}, ${ilc.ownerId}, ${ilc.ilcCode},
+      ${JSON.stringify(ilc.ingredients)}, ${JSON.stringify(ilc.metadata || {})}, ${ilc.createdAt}
+    )
+  `;
+}
+
 export async function recordPdfExport(input: {
   id: string;
   recipeId: string;
@@ -334,6 +538,52 @@ async function replaceRecipeDetails(recipe: RecipeSnapshot) {
       )
     `;
   }
+}
+
+function mapPublicationRow(row: Record<string, unknown>): RecipePublicationRecord {
+  return {
+    id: String(row.id),
+    ownerId: String(row.owner_id),
+    recipeId: String(row.recipe_id),
+    currentRevisionId: (row.current_revision_id as string | null) || null,
+    srcCode: String(row.src_code),
+    status: row.status === 'revoked' ? 'revoked' : 'active',
+    title: String(row.title || 'Untitled Soap Recipe'),
+    slug: String(row.slug || 'soap-recipe'),
+    metadata: (row.metadata as Record<string, unknown>) || {},
+    createdAt: new Date(row.created_at as string).toISOString(),
+    updatedAt: new Date(row.updated_at as string).toISOString(),
+  };
+}
+
+function mapPublicationRevisionRow(row: Record<string, unknown>): RecipePublicationRevisionRecord {
+  return {
+    id: String(row.id),
+    publicationId: String(row.publication_id),
+    recipeId: String(row.recipe_id),
+    recipeVersionId: String(row.recipe_version_id),
+    ownerId: String(row.owner_id),
+    revisionNumber: Number(row.revision_number || 1),
+    revisionNotes: String(row.revision_notes || ''),
+    releaseNotesPublic: String(row.release_notes_public || ''),
+    recipeSnapshot: row.recipe_snapshot as RecipeSnapshot,
+    ingredientListSnapshot: (row.ingredient_list_snapshot as unknown[]) || [],
+    active: row.active !== false,
+    createdAt: new Date(row.created_at as string).toISOString(),
+  };
+}
+
+function mapIngredientListCodeRow(row: Record<string, unknown>): IngredientListCodeRecord {
+  return {
+    id: String(row.id),
+    publicationId: String(row.publication_id),
+    revisionId: String(row.revision_id),
+    ownerId: String(row.owner_id),
+    ilcCode: String(row.ilc_code),
+    ingredients: (row.ingredients as unknown[]) || [],
+    metadata: (row.metadata as Record<string, unknown>) || {},
+    createdAt: new Date(row.created_at as string).toISOString(),
+  };
 }
 
 function mapMembershipRow(row: Record<string, unknown>): SoapAbacusMembershipRecord {
