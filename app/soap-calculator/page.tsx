@@ -418,7 +418,7 @@ function SoapCalculatorExperience({
 
       {/* Tab Navigation */}
       <nav className="overflow-x-auto border-b border-navy-600/20 bg-navy-900/40">
-        <div className="mx-auto flex min-w-full w-max max-w-7xl gap-1 px-4">
+        <div className="mx-auto flex w-max min-w-full max-w-7xl gap-1 px-4 lg:w-full lg:min-w-0">
           {([
             { id: 'calculator', label: 'Recipe Designer' },
             { id: 'generator', label: 'Recipe Blender' },
