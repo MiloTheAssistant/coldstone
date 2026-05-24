@@ -229,7 +229,7 @@ function buildPublicationRevision(input = {}) {
     ownerId: input.ownerId || recipe.ownerId || null,
     revisionNumber: Number(input.revisionNumber) || 1,
     revisionNotes: input.revisionNotes || '',
-    releaseNotesPublic: input.revisionNotes || '',
+    releaseNotesPublic: input.releaseNotesPublic || '',
     recipeSnapshot: cloneSnapshot(recipe),
     ingredientListSnapshot: buildIngredientListSnapshot(recipe),
     createdAt: now,

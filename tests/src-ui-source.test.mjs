@@ -24,7 +24,9 @@ test('Soap Abacus exposes SRC stamping dialog and saved recipe actions', () => {
   assert.match(stampDialogSource, /Stamp SRC only when this recipe is ready for production or sale/);
   assert.match(stampDialogSource, /revisionNotes/);
   assert.match(savedRecipesListSource, /canStampSrc/);
+  assert.match(savedRecipesListSource, /\{canStampSrc && \(/);
   assert.match(savedRecipesListSource, /Stamp It/);
+  assert.doesNotMatch(savedRecipesListSource, /Plus Stamp/);
   assert.match(savedRecipesListSource, /\/api\/recipes\/\$\{recipeId\}\/src/);
   assert.match(savedRecipesListSource, /stampError/);
   assert.match(stampDialogSource, /error\?: string \| null/);

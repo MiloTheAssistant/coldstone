@@ -12,9 +12,16 @@ test('SRC publication service enforces paid stamping and Pro same-SRC updates', 
   assert.match(source, /Only Pro members can update an existing SRC/);
 });
 
+test('Plus SRC quota is enforced inside the publication transaction path', () => {
+  assert.match(source, /createRecipePublicationWithinMonthlyQuota/);
+  assert.doesNotMatch(source, /countMonthlySrcPublicationsForUser\(input\.ownerId\)/);
+  assert.match(source, /monthlyQuotaExceeded/);
+});
+
 test('SRC publication service retries code generation collisions', () => {
   assert.match(source, /MAX_CODE_ATTEMPTS = 5/);
   assert.match(source, /for \(let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt \+= 1\)/);
+  assert.match(source, /isIlcCodeUniqueConstraintError/);
 });
 
 test('SRC publication service handles database unique constraint races', () => {

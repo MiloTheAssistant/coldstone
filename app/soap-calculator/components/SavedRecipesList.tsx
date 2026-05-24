@@ -376,24 +376,25 @@ export default function SavedRecipesList({
                     {canPdfExport ? 'PDF' : 'Pro PDF'}
                   </button>
                 </div>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => openStampDialog(recipe, 'new-src')}
-                    disabled={!canStampSrc}
-                    className="flex-1 py-2 rounded-lg bg-navy-800/60 text-parchment-400 hover:text-gold-300 transition-colors text-xs font-medium border border-navy-600/30 disabled:opacity-40 disabled:cursor-not-allowed"
-                    title={canStampSrc ? 'Stamp this recipe with a new SRC.' : 'Upgrade to Plus to stamp SRCs.'}
-                  >
-                    {canStampSrc ? 'Stamp It' : 'Plus Stamp'}
-                  </button>
-                  {recipe.srcCode && canUpdateSrcRevision && (
+                {canStampSrc && (
+                  <div className="flex gap-2 mt-2">
                     <button
-                      onClick={() => openStampDialog(recipe, 'same-src')}
-                      className="flex-1 py-2 rounded-lg bg-gold-500/20 text-gold-300 hover:bg-gold-500/30 transition-colors text-xs font-medium border border-gold-500/20"
+                      onClick={() => openStampDialog(recipe, 'new-src')}
+                      className="flex-1 py-2 rounded-lg bg-navy-800/60 text-parchment-400 hover:text-gold-300 transition-colors text-xs font-medium border border-navy-600/30"
+                      title="Stamp this recipe with a new SRC."
                     >
-                      Update SRC
+                      Stamp It
                     </button>
-                  )}
-                </div>
+                    {recipe.srcCode && canUpdateSrcRevision && (
+                      <button
+                        onClick={() => openStampDialog(recipe, 'same-src')}
+                        className="flex-1 py-2 rounded-lg bg-gold-500/20 text-gold-300 hover:bg-gold-500/30 transition-colors text-xs font-medium border border-gold-500/20"
+                      >
+                        Update SRC
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

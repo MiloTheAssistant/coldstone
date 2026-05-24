@@ -81,6 +81,11 @@ export interface PublishedRecipeRelease {
   ilc: IngredientListCodeRecord;
 }
 
+export interface MonthlyQuotaPublicationResult {
+  created: boolean;
+  monthlyCount: number;
+}
+
 export interface SoapAbacusMembershipRecord {
   userId: string;
   tier: 'free' | 'plus' | 'pro';
@@ -416,6 +421,87 @@ export async function createRecipePublication(input: {
     `,
   ]);
   return input;
+}
+
+export async function createRecipePublicationWithinMonthlyQuota(input: {
+  publication: RecipePublicationRecord;
+  revision: RecipePublicationRevisionRecord;
+  ilc: IngredientListCodeRecord;
+  monthlyLimit: number;
+  now?: Date;
+}): Promise<MonthlyQuotaPublicationResult> {
+  const sql = getSql();
+  const now = input.now || new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
+  const lockKey = `${input.publication.ownerId}:src:${start}`;
+
+  const rows = await sql`
+    with quota_lock as (
+      select pg_advisory_xact_lock(hashtext(${lockKey}))
+    ),
+    monthly_count as (
+      select count(*)::int as count
+      from recipe_publications
+      where owner_id = ${input.publication.ownerId}
+        and created_at >= ${start}
+        and created_at < ${end}
+        and exists (select 1 from quota_lock)
+    ),
+    inserted_publication as (
+      insert into recipe_publications (
+        id, owner_id, recipe_id, current_revision_id, src_code, status, title, slug, metadata, created_at, updated_at
+      )
+      select
+        ${input.publication.id}, ${input.publication.ownerId}, ${input.publication.recipeId},
+        null, ${input.publication.srcCode}, ${input.publication.status},
+        ${input.publication.title}, ${input.publication.slug}, ${JSON.stringify(input.publication.metadata || {})},
+        ${input.publication.createdAt}, ${input.publication.updatedAt}
+      where (select count from monthly_count) < ${input.monthlyLimit}
+      returning id
+    ),
+    inserted_revision as (
+      insert into recipe_publication_revisions (
+        id, publication_id, recipe_id, recipe_version_id, owner_id, revision_number, revision_notes,
+        release_notes_public, recipe_snapshot, ingredient_list_snapshot, active, created_at
+      )
+      select
+        ${input.revision.id}, ${input.revision.publicationId}, ${input.revision.recipeId},
+        ${input.revision.recipeVersionId}, ${input.revision.ownerId}, ${input.revision.revisionNumber},
+        ${input.revision.revisionNotes}, ${input.revision.releaseNotesPublic},
+        ${JSON.stringify(input.revision.recipeSnapshot)}, ${JSON.stringify(input.revision.ingredientListSnapshot)},
+        ${input.revision.active}, ${input.revision.createdAt}
+      from inserted_publication
+      returning id
+    ),
+    inserted_ilc as (
+      insert into ingredient_list_codes (
+        id, publication_id, revision_id, owner_id, ilc_code, ingredients, metadata, created_at
+      )
+      select
+        ${input.ilc.id}, ${input.ilc.publicationId}, ${input.ilc.revisionId}, ${input.ilc.ownerId},
+        ${input.ilc.ilcCode}, ${JSON.stringify(input.ilc.ingredients)}, ${JSON.stringify(input.ilc.metadata || {})},
+        ${input.ilc.createdAt}
+      from inserted_revision
+      returning id
+    ),
+    updated_publication as (
+      update recipe_publications
+      set current_revision_id = ${input.revision.id}, updated_at = ${input.revision.createdAt}
+      where id = ${input.publication.id}
+        and exists (select 1 from inserted_revision)
+        and exists (select 1 from inserted_ilc)
+      returning id
+    )
+    select
+      (select count from monthly_count)::int as monthly_count,
+      exists(select 1 from updated_publication) as created
+  `;
+
+  return {
+    created: rows[0]?.created === true,
+    monthlyCount: Number(rows[0]?.monthly_count || 0),
+  };
 }
 
 export async function addRecipePublicationRevision(input: {

@@ -8,8 +8,8 @@ import {
 } from '@/app/soap-calculator/studio/recipe-studio-model';
 import {
   addRecipePublicationRevision,
-  countMonthlySrcPublicationsForUser,
   createRecipePublication,
+  createRecipePublicationWithinMonthlyQuota,
   getRecipeForUser,
   getRecipePublicationBySrcCode,
   type IngredientListCodeRecord,
@@ -63,19 +63,6 @@ export async function stampRecipeSrc(input: StampRecipeInput) {
         { status: 402 },
       ),
     };
-  }
-
-  if (input.membership.effectiveTier === 'plus' && input.mode === 'new-src') {
-    const monthlyCount = await countMonthlySrcPublicationsForUser(input.ownerId);
-    if (monthlyCount >= PLUS_MONTHLY_SRC_LIMIT) {
-      return {
-        ok: false as const,
-        response: NextResponse.json(
-          { error: `Plus members can stamp ${PLUS_MONTHLY_SRC_LIMIT} SRCs per month. Upgrade to Pro for unlimited SRC stamping.` },
-          { status: 402 },
-        ),
-      };
-    }
   }
 
   const recipe = await getRecipeForUser(input.recipeId, input.ownerId);
@@ -202,32 +189,40 @@ async function stampSameSrcRevision(input: StampRecipeInput, recipe: RecipeSnaps
     };
   }
 
-  const revision = makeRevision(
-    existing.publication,
-    recipe,
-    input.ownerId,
-    existing.revision.revisionNumber + 1,
-    input.revisionNotes,
-  );
-  const ilc = makeIlc(revision);
+  for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt += 1) {
+    const revision = makeRevision(
+      existing.publication,
+      recipe,
+      input.ownerId,
+      existing.revision.revisionNumber + 1,
+      input.revisionNotes,
+    );
+    const ilc = makeIlc(revision);
 
-  try {
-    await addRecipePublicationRevision({ publicationId: existing.publication.id, revision, ilc });
-  } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return {
-        ok: false as const,
-        response: NextResponse.json(
-          { error: 'This SRC was updated by another request. Reload the SRC and try again.' },
-          { status: 409 },
-        ),
-      };
+    try {
+      await addRecipePublicationRevision({ publicationId: existing.publication.id, revision, ilc });
+    } catch (error) {
+      if (isIlcCodeUniqueConstraintError(error)) continue;
+      if (isUniqueConstraintError(error)) {
+        return {
+          ok: false as const,
+          response: NextResponse.json(
+            { error: 'This SRC was updated by another request. Reload the SRC and try again.' },
+            { status: 409 },
+          ),
+        };
+      }
+      throw error;
     }
-    throw error;
+
+    const release = await getRecipePublicationBySrcCode(existing.publication.srcCode);
+    return buildReleaseResult(release, input.origin);
   }
 
-  const release = await getRecipePublicationBySrcCode(existing.publication.srcCode);
-  return buildReleaseResult(release, input.origin);
+  return {
+    ok: false as const,
+    response: NextResponse.json({ error: 'Unable to generate a unique ILC. Please try again.' }, { status: 500 }),
+  };
 }
 
 async function stampNewSrc(input: StampRecipeInput, recipe: RecipeSnapshot) {
@@ -241,7 +236,27 @@ async function stampNewSrc(input: StampRecipeInput, recipe: RecipeSnapshot) {
     const ilc = makeIlc(revision);
 
     try {
-      await createRecipePublication({ publication, revision, ilc });
+      if (input.membership.effectiveTier === 'plus') {
+        const monthlyQuotaExceeded = await createRecipePublicationWithinMonthlyQuota({
+          publication,
+          revision,
+          ilc,
+          monthlyLimit: PLUS_MONTHLY_SRC_LIMIT,
+        }).then(result => !result.created && result.monthlyCount >= PLUS_MONTHLY_SRC_LIMIT);
+
+        if (monthlyQuotaExceeded) {
+          return {
+            ok: false as const,
+            response: NextResponse.json(
+              { error: `Plus members can stamp ${PLUS_MONTHLY_SRC_LIMIT} SRCs per month. Upgrade to Pro for unlimited SRC stamping.` },
+              { status: 402 },
+            ),
+          };
+        }
+      } else {
+        await createRecipePublication({ publication, revision, ilc });
+
+      }
     } catch (error) {
       if (isUniqueConstraintError(error)) continue;
       throw error;
@@ -277,6 +292,18 @@ function isUniqueConstraintError(error: unknown) {
 
   const message = typeof candidate.message === 'string' ? candidate.message.toLowerCase() : '';
   return message.includes('unique') || message.includes('duplicate key');
+}
+
+function isIlcCodeUniqueConstraintError(error: unknown) {
+  if (!isUniqueConstraintError(error) || !error || typeof error !== 'object') return false;
+
+  const candidate = error as { constraint?: unknown; message?: unknown };
+  const constraint = typeof candidate.constraint === 'string' ? candidate.constraint.toLowerCase() : '';
+  const message = typeof candidate.message === 'string' ? candidate.message.toLowerCase() : '';
+  return constraint.includes('ingredient_list_codes_ilc_code')
+    || constraint.includes('ilc_code')
+    || message.includes('ingredient_list_codes_ilc_code')
+    || message.includes('ilc_code');
 }
 
 function makePublication(recipe: RecipeSnapshot, ownerId: string, srcCode: string): RecipePublicationRecord {

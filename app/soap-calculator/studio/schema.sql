@@ -113,7 +113,7 @@ create table if not exists user_ingredient_costs (
 create table if not exists recipe_publications (
   id text primary key,
   owner_id text not null,
-  recipe_id text not null references recipes(id) on delete cascade,
+  recipe_id text not null references recipes(id) on delete restrict,
   current_revision_id text,
   src_code text not null unique,
   status text not null default 'active',
@@ -127,7 +127,7 @@ create table if not exists recipe_publications (
 create table if not exists recipe_publication_revisions (
   id text primary key,
   publication_id text not null references recipe_publications(id) on delete cascade,
-  recipe_id text not null references recipes(id) on delete cascade,
+  recipe_id text not null references recipes(id) on delete restrict,
   recipe_version_id text not null,
   owner_id text not null,
   revision_number integer not null,
@@ -162,6 +162,54 @@ create table if not exists partner_export_events (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+do $$
+begin
+  if exists (
+    select 1 from pg_constraint
+    where conname = 'recipe_publications_recipe_id_fkey'
+      and conrelid = 'recipe_publications'::regclass
+      and confdeltype = 'c'
+  ) then
+    alter table recipe_publications
+      drop constraint recipe_publications_recipe_id_fkey;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'recipe_publications_recipe_id_fkey'
+      and conrelid = 'recipe_publications'::regclass
+  ) then
+    alter table recipe_publications
+      add constraint recipe_publications_recipe_id_fkey
+      foreign key (recipe_id) references recipes(id)
+      on delete restrict;
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1 from pg_constraint
+    where conname = 'recipe_publication_revisions_recipe_id_fkey'
+      and conrelid = 'recipe_publication_revisions'::regclass
+      and confdeltype = 'c'
+  ) then
+    alter table recipe_publication_revisions
+      drop constraint recipe_publication_revisions_recipe_id_fkey;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'recipe_publication_revisions_recipe_id_fkey'
+      and conrelid = 'recipe_publication_revisions'::regclass
+  ) then
+    alter table recipe_publication_revisions
+      add constraint recipe_publication_revisions_recipe_id_fkey
+      foreign key (recipe_id) references recipes(id)
+      on delete restrict;
+  end if;
+end $$;
 
 do $$
 begin

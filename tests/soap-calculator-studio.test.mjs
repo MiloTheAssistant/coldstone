@@ -242,13 +242,18 @@ test('buildPublicationRevision creates immutable SRC revision records', () => {
   assert.equal(revision.srcCode, 'AB9K-LMNO-PQRS-TUVW-XYZa');
   assert.equal(revision.ilcCode, 'ILC-AB9-KLM-NOP-QRS');
   assert.equal(revision.revisionNumber, 1);
-  assert.equal(revision.releaseNotesPublic, 'Initial production stamp.');
+  assert.equal(revision.revisionNotes, 'Initial production stamp.');
+  assert.equal(revision.releaseNotesPublic, '');
   assert.equal(revision.recipeSnapshot.versionId, 'version_1');
   assert.equal(revision.ingredientListSnapshot.length, 1);
 });
 
 test('studio schema defines SRC publication tables and unique codes', () => {
   const schema = readFileSync(new URL('../app/soap-calculator/studio/schema.sql', import.meta.url), 'utf8');
+  const publicationSchema = schema.slice(
+    schema.indexOf('create table if not exists recipe_publications'),
+    schema.indexOf('create table if not exists ingredient_list_codes'),
+  );
   assert.match(schema, /create table if not exists recipe_publications/);
   assert.match(schema, /src_code text not null unique/);
   assert.match(schema, /create table if not exists recipe_publication_revisions/);
@@ -256,6 +261,10 @@ test('studio schema defines SRC publication tables and unique codes', () => {
   assert.match(schema, /unique \(id, publication_id\)/);
   assert.match(schema, /\(current_revision_id, id\) references recipe_publication_revisions\(id, publication_id\)/);
   assert.match(schema, /deferrable initially deferred/);
+  assert.match(schema, /recipe_id text not null references recipes\(id\) on delete restrict/);
+  assert.doesNotMatch(publicationSchema, /recipe_id text not null references recipes\(id\) on delete cascade/);
+  assert.match(schema, /recipe_publications_recipe_id_fkey[\s\S]*on delete restrict/);
+  assert.match(schema, /recipe_publication_revisions_recipe_id_fkey[\s\S]*on delete restrict/);
   assert.match(schema, /create table if not exists ingredient_list_codes/);
   assert.match(schema, /ilc_code text not null unique/);
   assert.match(schema, /ingredient_list_codes_revision_publication_fk[\s\S]*\(revision_id, publication_id\) references recipe_publication_revisions\(id, publication_id\)/);
