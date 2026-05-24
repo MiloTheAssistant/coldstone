@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  FEATURE_KEYS,
+  hasFeature,
+} from '../app/soap-calculator/studio/membership-model.js';
+
+import {
   buildRecipeSnapshot,
   buildRecipeVaultPayloadFromSavedRecipe,
   calculateAdvancedLye,
@@ -71,6 +76,16 @@ test('getModeProcess exposes different guidance density per calculator mode', ()
   );
   assert.ok(getModeProcess('intermediate').some((step) => step.id === 'pricing'));
   assert.ok(getModeProcess('expert').some((step) => step.id === 'expert-controls'));
+});
+
+test('membership features gate SRC stamping by tier', () => {
+  assert.equal(hasFeature({ tier: 'free', effectiveTier: 'free' }, FEATURE_KEYS.SRC_STAMPING), false);
+  assert.equal(hasFeature({ tier: 'plus', effectiveTier: 'plus' }, FEATURE_KEYS.SRC_STAMPING), true);
+  assert.equal(hasFeature({ tier: 'pro', effectiveTier: 'pro' }, FEATURE_KEYS.SRC_STAMPING), true);
+
+  assert.equal(hasFeature({ tier: 'free', effectiveTier: 'free' }, FEATURE_KEYS.SRC_REVISION_UPDATE), false);
+  assert.equal(hasFeature({ tier: 'plus', effectiveTier: 'plus' }, FEATURE_KEYS.SRC_REVISION_UPDATE), false);
+  assert.equal(hasFeature({ tier: 'pro', effectiveTier: 'pro' }, FEATURE_KEYS.SRC_REVISION_UPDATE), true);
 });
 
 test('buildRecipeSnapshot keeps full recipe data private by default', () => {
