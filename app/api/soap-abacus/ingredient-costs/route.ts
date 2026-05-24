@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
 
   const ingredientId = typeof body.ingredientId === 'string' ? body.ingredientId : '';
   const pricePerUnit = Number(body.pricePerUnit);
+  const shippingCost = Number(body.shippingCost || 0);
+  const taxCost = Number(body.taxCost || 0);
   const unitSize = Number(body.unitSize);
   const unit = typeof body.unit === 'string' ? body.unit : 'oz';
 
@@ -58,7 +60,10 @@ export async function POST(request: NextRequest) {
     unitSize,
     unit,
     notes: typeof body.notes === 'string' ? body.notes : '',
-    metadata: {},
+    metadata: {
+      shippingCost: Number.isFinite(shippingCost) && shippingCost > 0 ? shippingCost : undefined,
+      taxCost: Number.isFinite(taxCost) && taxCost > 0 ? taxCost : undefined,
+    },
   });
 
   return NextResponse.json({ cost });

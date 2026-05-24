@@ -4,7 +4,9 @@ import type { WeightUnit } from '../data/calculator';
 
 export interface OilCostEntry {
   oilId: string;
-  pricePerUnit: number;   // e.g., 12.99
+  pricePerUnit: number;   // item/package cost, e.g., 12.99
+  shippingCost?: number;
+  taxCost?: number;
   unitSize: number;        // e.g., 16
   unit: WeightUnit;        // e.g., 'oz'
   supplier?: string;
@@ -41,7 +43,8 @@ const TO_OZ: Record<WeightUnit, number> = {
 
 export function pricePerOz(entry: OilCostEntry): number {
   const totalOz = entry.unitSize * TO_OZ[entry.unit];
-  return totalOz > 0 ? entry.pricePerUnit / totalOz : 0;
+  const landedCost = entry.pricePerUnit + (entry.shippingCost || 0) + (entry.taxCost || 0);
+  return totalOz > 0 ? landedCost / totalOz : 0;
 }
 
 // ─── CRUD Operations ─────────────────────────────────────────────────────────

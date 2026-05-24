@@ -29,7 +29,7 @@ import FragrancePanel from './components/FragrancePanel';
 import AIRecipeGenerator from './components/AIRecipeGenerator';
 import AuthActions from '../components/AuthActions';
 import { saveRecipe, updateRecipe, type SavedRecipe } from './lib/storage';
-import { loadCostEntries, pricePerOz, type OilCostEntry } from './lib/costData';
+import { loadCostEntries, pricePerOz, removeCostEntry, saveCostEntry, type OilCostEntry } from './lib/costData';
 import {
   FEATURE_KEYS,
   hasFeature,
@@ -329,6 +329,8 @@ function SoapCalculatorExperience({
             ingredientId: entry.oilId,
             supplier: entry.supplier,
             pricePerUnit: entry.pricePerUnit,
+            shippingCost: entry.shippingCost,
+            taxCost: entry.taxCost,
             unitSize: entry.unitSize,
             unit: entry.unit,
           })) : [],
@@ -448,6 +450,42 @@ function SoapCalculatorExperience({
   const handlePrint = useCallback(() => {
     window.print();
   }, []);
+
+  const syncIngredientCostToVault = useCallback((entry: OilCostEntry) => {
+    if (!canUseIngredientCosts) return;
+    void fetch('/api/soap-abacus/ingredient-costs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ingredientId: entry.oilId,
+        ingredientType: 'oil',
+        supplier: entry.supplier || undefined,
+        pricePerUnit: entry.pricePerUnit,
+        shippingCost: entry.shippingCost,
+        taxCost: entry.taxCost,
+        unitSize: entry.unitSize,
+        unit: entry.unit,
+      }),
+    });
+  }, [canUseIngredientCosts]);
+
+  const handleSaveIngredientCost = useCallback((entry: OilCostEntry) => {
+    saveCostEntry(entry);
+    const nextEntries = loadCostEntries();
+    setCostEntries(nextEntries);
+    syncIngredientCostToVault(entry);
+    showToast('Ingredient cost saved.');
+  }, [showToast, syncIngredientCostToVault]);
+
+  const handleRemoveIngredientCost = useCallback((oilId: string) => {
+    removeCostEntry(oilId);
+    const nextEntries = loadCostEntries();
+    setCostEntries(nextEntries);
+    if (canUseIngredientCosts) {
+      void fetch(`/api/soap-abacus/ingredient-costs?ingredientId=${encodeURIComponent(oilId)}`, { method: 'DELETE' });
+    }
+    showToast('Ingredient cost cleared.');
+  }, [canUseIngredientCosts, showToast]);
 
   // ── Render ──
 
@@ -1315,7 +1353,14 @@ function SoapCalculatorExperience({
 
       {/* Oil Info Modal */}
       {selectedOilInfo && (
-        <OilInfo oil={selectedOilInfo} onClose={() => setSelectedOilInfo(null)} />
+        <OilInfo
+          oil={selectedOilInfo}
+          costEntry={costMap.get(selectedOilInfo.id)}
+          canUseIngredientCosts={canUseIngredientCosts}
+          onSaveCostEntry={handleSaveIngredientCost}
+          onRemoveCostEntry={handleRemoveIngredientCost}
+          onClose={() => setSelectedOilInfo(null)}
+        />
       )}
 
       {/* Footer */}

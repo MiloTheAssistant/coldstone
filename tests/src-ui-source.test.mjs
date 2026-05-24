@@ -6,7 +6,9 @@ const lookupPanelPath = new URL('../app/soap-calculator/components/SrcLookupPane
 const stampDialogPath = new URL('../app/soap-calculator/components/SrcStampDialog.tsx', import.meta.url);
 const savedRecipesListPath = new URL('../app/soap-calculator/components/SavedRecipesList.tsx', import.meta.url);
 const recipeCardPath = new URL('../app/soap-calculator/components/RecipeCard.tsx', import.meta.url);
+const oilInfoPath = new URL('../app/soap-calculator/components/OilInfo.tsx', import.meta.url);
 const calculatorPagePath = new URL('../app/soap-calculator/page.tsx', import.meta.url);
+const costDataPath = new URL('../app/soap-calculator/lib/costData.ts', import.meta.url);
 
 test('Soap Abacus exposes SRC lookup panel source and renders it in Recipe Cache', () => {
   const lookupPanelSource = readFileSync(lookupPanelPath, 'utf8');
@@ -73,4 +75,21 @@ test('Recipe Blender and loaded templates expose SRC and ILC shopping lists', ()
   assert.match(calculatorPageSource, /setLoadedTemplateId\(template\.id\)/);
   assert.match(calculatorPageSource, /Template SRC/);
   assert.match(calculatorPageSource, /ILC Shopping List/);
+});
+
+test('Ingredients DB oil modal edits landed ingredient cost', () => {
+  const oilInfoSource = readFileSync(oilInfoPath, 'utf8');
+  const calculatorPageSource = readFileSync(calculatorPagePath, 'utf8');
+  const costDataSource = readFileSync(costDataPath, 'utf8');
+
+  assert.match(costDataSource, /shippingCost\?: number/);
+  assert.match(costDataSource, /taxCost\?: number/);
+  assert.match(costDataSource, /entry\.pricePerUnit \+ \(entry\.shippingCost \|\| 0\) \+ \(entry\.taxCost \|\| 0\)/);
+  assert.match(oilInfoSource, /Item Cost/);
+  assert.match(oilInfoSource, /Shipping/);
+  assert.match(oilInfoSource, /Tax/);
+  assert.match(oilInfoSource, /Landed cost/);
+  assert.match(calculatorPageSource, /handleSaveIngredientCost/);
+  assert.match(calculatorPageSource, /onSaveCostEntry=\{handleSaveIngredientCost\}/);
+  assert.match(calculatorPageSource, /onRemoveCostEntry=\{handleRemoveIngredientCost\}/);
 });
