@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecipePublicationBySrcCode, isRecipeVaultConfigured } from '@/app/lib/recipe-vault';
-import { decorateRelease } from '@/app/lib/src-publication-service';
+import { decoratePublicRelease } from '@/app/lib/src-publication-service';
 import { isValidSrcCode, normalizeSrcCode } from '@/app/soap-calculator/studio/recipe-studio-model';
 
 export const runtime = 'nodejs';
@@ -24,5 +24,5 @@ export async function GET(
     return NextResponse.json({ error: 'SRC not found.' }, { status: 404 });
   }
 
-  return NextResponse.json({ release: decorateRelease(release, request.nextUrl.origin) });
+  return NextResponse.json({ release: decoratePublicRelease(release, request.nextUrl.origin) });
 }

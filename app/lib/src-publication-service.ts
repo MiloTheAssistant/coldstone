@@ -103,6 +103,89 @@ export function decorateRelease(release: PublishedRecipeRelease | null, origin: 
   };
 }
 
+export function decoratePublicRelease(release: PublishedRecipeRelease | null, origin: string) {
+  if (!release) return null;
+
+  return {
+    publication: {
+      srcCode: release.publication.srcCode,
+      title: release.publication.title,
+      status: release.publication.status,
+      createdAt: release.publication.createdAt,
+      updatedAt: release.publication.updatedAt,
+    },
+    revision: {
+      revisionNumber: release.revision.revisionNumber,
+      releaseNotesPublic: release.revision.releaseNotesPublic,
+      createdAt: release.revision.createdAt,
+      recipe: decoratePublicRecipe(release.revision.recipeSnapshot),
+    },
+    ilc: {
+      ilcCode: release.ilc.ilcCode,
+      ingredients: decoratePublicEntries(release.ilc.ingredients),
+    },
+    url: buildSrcReleaseUrl(origin, release.publication.srcCode),
+    qrUrl: `/api/src/${release.publication.srcCode}/qr`,
+  };
+}
+
+function decoratePublicRecipe(recipe: RecipeSnapshot) {
+  return {
+    name: recipe.name,
+    slug: recipe.slug,
+    mode: recipe.mode,
+    oils: decoratePublicEntries(recipe.oils),
+    liquids: decoratePublicEntries(recipe.liquids),
+    fragrances: decoratePublicEntries(recipe.fragrances),
+    additives: decoratePublicEntries(recipe.additives),
+  };
+}
+
+function decoratePublicEntries(value: unknown): PublicIngredientEntry[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(isRecord).map((entry) => ({
+    ingredientType: readString(entry.ingredientType),
+    ingredientId: readString(entry.ingredientId),
+    displayName: readString(entry.displayName),
+    name: readString(entry.name),
+    oilId: readString(entry.oilId),
+    liquidId: readString(entry.liquidId),
+    fragranceId: readString(entry.fragranceId),
+    additiveId: readString(entry.additiveId),
+    percent: readNumber(entry.percent),
+    usagePercent: readNumber(entry.usagePercent),
+    weight: readNumber(entry.weight),
+    unit: readString(entry.unit),
+  }));
+}
+
+type PublicIngredientEntry = {
+  ingredientType?: string;
+  ingredientId?: string;
+  displayName?: string;
+  name?: string;
+  oilId?: string;
+  liquidId?: string;
+  fragranceId?: string;
+  additiveId?: string;
+  percent?: number;
+  usagePercent?: number;
+  weight?: number;
+  unit?: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readString(value: unknown) {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function readNumber(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
 async function stampSameSrcRevision(input: StampRecipeInput, recipe: RecipeSnapshot) {
   if (!input.existingSrcCode) {
     return {

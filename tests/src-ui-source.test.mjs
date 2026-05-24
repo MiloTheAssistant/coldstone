@@ -32,3 +32,16 @@ test('Soap Abacus exposes SRC stamping dialog and saved recipe actions', () => {
   assert.match(savedRecipesListSource, /release\?\.ilc\?\.ilcCode/);
   assert.match(savedRecipesListSource, /Number\.isFinite\(release\?\.revision\?\.revisionNumber\)/);
 });
+
+test('Soap Abacus clones SRC releases from public-safe data only', () => {
+  const calculatorPageSource = readFileSync(calculatorPagePath, 'utf8');
+
+  assert.match(calculatorPageSource, /const recipe = readPublicRecipe\(data\)/);
+  assert.doesNotMatch(calculatorPageSource, /recipeSnapshot/);
+  assert.match(calculatorPageSource, /setRecipeNotes\(''\)/);
+  assert.match(calculatorPageSource, /OILS_DATABASE\.some\(oil => oil\.id === oilId\)/);
+  assert.match(calculatorPageSource, /Number\.isFinite\(percent\)/);
+  assert.match(calculatorPageSource, /percent > 0/);
+  assert.match(calculatorPageSource, /Math\.min\(100, Math\.max\(0, percent\)\)/);
+  assert.match(calculatorPageSource, /if \(oils\.length === 0\) throw new Error\('SRC release has no cloneable oils\.'\)/);
+});

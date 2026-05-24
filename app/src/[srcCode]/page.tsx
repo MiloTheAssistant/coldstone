@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { decoratePublicRelease } from '@/app/lib/src-publication-service';
 import { getRecipePublicationBySrcCode, isRecipeVaultConfigured } from '@/app/lib/recipe-vault';
-import type { RecipeSnapshot } from '@/app/lib/recipe-vault';
 import { isValidSrcCode, normalizeSrcCode } from '@/app/soap-calculator/studio/recipe-studio-model';
 
 export const dynamic = 'force-dynamic';
@@ -32,8 +32,11 @@ export default async function SrcReleasePage({ params }: { params: Promise<{ src
   const release = await getRecipePublicationBySrcCode(normalized);
   if (!release || release.publication.status === 'revoked') notFound();
 
-  const { publication, revision, ilc } = release;
-  const recipe = revision.recipeSnapshot;
+  const publicRelease = decoratePublicRelease(release, '');
+  if (!publicRelease) notFound();
+
+  const { publication, revision, ilc } = publicRelease;
+  const recipe = revision.recipe;
   const createdDate = formatDate(revision.createdAt);
   const ingredientEntries = toPublicEntries(ilc.ingredients);
 
@@ -49,7 +52,6 @@ export default async function SrcReleasePage({ params }: { params: Promise<{ src
             <div>
               <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Public SRC Release</p>
               <h1 className="mt-2 font-serif text-4xl text-gold-300">{publication.title || recipe.name}</h1>
-              {recipe.description && <p className="mt-3 max-w-2xl text-parchment-400">{recipe.description}</p>}
             </div>
             <div className="rounded-lg border border-navy-600/30 bg-parchment-100 p-3">
               <Image
@@ -67,6 +69,13 @@ export default async function SrcReleasePage({ params }: { params: Promise<{ src
             <CodeCard label="Ingredient List Code" value={ilc.ilcCode} />
             <CodeCard label="Revision" value={`#${revision.revisionNumber}`} detail={createdDate} />
           </div>
+
+          <Link
+            href={`/soap-calculator?srcCode=${publication.srcCode}`}
+            className="mt-6 inline-block rounded-lg bg-gold-500/20 px-4 py-2 text-sm font-semibold text-gold-300 hover:bg-gold-500/30"
+          >
+            Clone to My Recipes
+          </Link>
 
           {revision.releaseNotesPublic && (
             <section className="mt-8">
@@ -97,7 +106,7 @@ function CodeCard({ label, value, detail }: { label: string; value: string; deta
   );
 }
 
-function FormulaSection({ recipe }: { recipe: RecipeSnapshot }) {
+function FormulaSection({ recipe }: { recipe: { oils?: unknown; liquids?: unknown; fragrances?: unknown; additives?: unknown } }) {
   const oils = toPublicEntries(recipe.oils);
   const liquids = toPublicEntries(recipe.liquids);
   const fragrances = toPublicEntries(recipe.fragrances);

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from 'react';
+import { Suspense, useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs';
 import { OILS_DATABASE, OilData, RECIPE_TEMPLATES, RecipeTemplate, ADDITIVES, CATEGORY_LABELS } from './data/oils';
 import {
@@ -73,10 +74,12 @@ function SoapCalculatorExperience({
   membership,
   refreshMembership,
   isReadOnlyPreview = false,
+  cloneSrcCode = null,
 }: {
   membership: MembershipState;
   refreshMembership: () => Promise<void>;
   isReadOnlyPreview?: boolean;
+  cloneSrcCode?: string | null;
 }) {
   // ── Active tab ──
   const [activeTab, setActiveTab] = useState<Tab>('calculator');
@@ -119,6 +122,7 @@ function SoapCalculatorExperience({
   const saveToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [recipeNotes, setRecipeNotes] = useState('');
   const [costEntries, setCostEntries] = useState<OilCostEntry[]>([]);
+  const lastClonedSrcCode = useRef<string | null>(null);
 
   // ── Derived calculations ──
   const totalPercent = recipeOils.reduce((s, o) => s + o.percent, 0);
@@ -223,6 +227,42 @@ function SoapCalculatorExperience({
     setSaveToast(msg);
     saveToastTimer.current = setTimeout(() => setSaveToast(null), 3000);
   }, []);
+
+  useEffect(() => {
+    if (!cloneSrcCode || isReadOnlyPreview || lastClonedSrcCode.current === cloneSrcCode) return;
+
+    let cancelled = false;
+    lastClonedSrcCode.current = cloneSrcCode;
+
+    const cloneSrcRelease = async () => {
+      try {
+        const response = await fetch(`/api/src/${cloneSrcCode}`);
+        if (!response.ok) throw new Error('SRC release lookup failed.');
+
+        const data = await response.json();
+        const recipe = readPublicRecipe(data);
+        const oils = readRecipeOils(recipe.oils);
+        if (oils.length === 0) throw new Error('SRC release has no cloneable oils.');
+
+        if (cancelled) return;
+        setRecipeOils(oils);
+        setRecipeName(`${readStringValue(recipe.name) || 'SRC Recipe'} copy`);
+        setRecipeNotes('');
+        setCalculatorMode(readCalculatorMode(recipe.mode) || 'intermediate');
+        setLoadedRecipeId(null);
+        setActiveTab('calculator');
+        showToast('SRC release cloned as an editable draft.');
+      } catch {
+        if (!cancelled) showToast('Unable to clone SRC release right now.');
+      }
+    };
+
+    void cloneSrcRelease();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cloneSrcCode, isReadOnlyPreview, showToast]);
 
   const handleModeChange = useCallback((mode: CalculatorMode) => {
     if (mode === 'intermediate' && !canUseIntermediate) {
@@ -1216,6 +1256,50 @@ function SoapCalculatorExperience({
   );
 }
 
+function readPublicRecipe(data: unknown) {
+  if (!isRecord(data)) throw new Error('Invalid SRC response.');
+  const release = data.release;
+  if (!isRecord(release)) throw new Error('Invalid SRC release.');
+  const revision = release.revision;
+  if (!isRecord(revision)) throw new Error('Invalid SRC revision.');
+  const recipe = revision.recipe;
+  if (!isRecord(recipe)) throw new Error('Invalid SRC recipe.');
+  return recipe;
+}
+
+function readRecipeOils(value: unknown): RecipeOilEntry[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(isRecord)
+    .map(entry => {
+      const oilId = readStringValue(entry.oilId) || '';
+      const percent = readNumberValue(entry.percent);
+      if (!OILS_DATABASE.some(oil => oil.id === oilId)) return null;
+      if (typeof percent !== 'number' || !Number.isFinite(percent) || !(percent > 0)) return null;
+      return {
+        oilId,
+        percent: Math.min(100, Math.max(0, percent)),
+      };
+    })
+    .filter((entry): entry is RecipeOilEntry => entry !== null);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readStringValue(value: unknown) {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function readNumberValue(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function readCalculatorMode(value: unknown): CalculatorMode | undefined {
+  return value === 'easy' || value === 'intermediate' || value === 'expert' ? value : undefined;
+}
+
 // ─── Helper Components ───────────────────────────────────────────────────────
 
 export default function SoapCalculatorPage() {
@@ -1234,11 +1318,17 @@ export default function SoapCalculatorPage() {
     );
   }
 
-  return <SoapStudioGate />;
+  return (
+    <Suspense fallback={<SoapStudioLoading />}>
+      <SoapStudioGate />
+    </Suspense>
+  );
 }
 
 function SoapStudioGate() {
   const { isLoaded, isSignedIn } = useUser();
+  const searchParams = useSearchParams();
+  const srcCode = searchParams.get('srcCode');
   const [membership, setMembership] = useState<MembershipState>(DEFAULT_MEMBERSHIP);
 
   const refreshMembership = useCallback(async () => {
@@ -1276,11 +1366,20 @@ function SoapStudioGate() {
         membership={PREVIEW_MEMBERSHIP}
         refreshMembership={async () => undefined}
         isReadOnlyPreview
+        cloneSrcCode={srcCode}
       />
     );
   }
 
-  return <SoapCalculatorExperience membership={membership} refreshMembership={refreshMembership} />;
+  return <SoapCalculatorExperience membership={membership} refreshMembership={refreshMembership} cloneSrcCode={srcCode} />;
+}
+
+function SoapStudioLoading() {
+  return (
+    <div className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center">
+      <p className="text-sm text-parchment-500">Loading Soap Abacus Studio...</p>
+    </div>
+  );
 }
 
 function ReadOnlyPreviewBanner() {
