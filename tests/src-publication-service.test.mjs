@@ -10,6 +10,8 @@ test('SRC publication service enforces paid stamping and Pro same-SRC updates', 
   assert.match(source, /FEATURE_KEYS\.SRC_REVISION_UPDATE/);
   assert.match(source, /mode === 'same-src'/);
   assert.match(source, /Only Pro members can update an existing SRC/);
+  assert.match(source, /existing\.publication\.recipeId !== recipe\.id/);
+  assert.match(source, /SRC can only be updated from its original recipe/);
 });
 
 test('Plus SRC quota is enforced inside the publication transaction path', () => {

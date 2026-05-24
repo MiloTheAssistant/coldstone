@@ -188,6 +188,12 @@ async function stampSameSrcRevision(input: StampRecipeInput, recipe: RecipeSnaps
       response: NextResponse.json({ error: 'SRC publication not found for this account.' }, { status: 404 }),
     };
   }
+  if (existing.publication.recipeId !== recipe.id) {
+    return {
+      ok: false as const,
+      response: NextResponse.json({ error: 'SRC can only be updated from its original recipe.' }, { status: 409 }),
+    };
+  }
 
   for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt += 1) {
     const revision = makeRevision(
