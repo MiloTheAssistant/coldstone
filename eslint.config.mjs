@@ -16,6 +16,7 @@ const eslintConfig = [
       "node_modules/**",
       "out/**",
       ".vercel/**",
+      ".worktrees/**",
       ".chrome-check*/**",
       "next-env.d.ts",
     ],
