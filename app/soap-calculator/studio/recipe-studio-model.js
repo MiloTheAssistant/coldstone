@@ -116,6 +116,127 @@ function createId(prefix) {
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 }
 
+const CODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function pickCodeChar(index) {
+  return CODE_ALPHABET[Math.abs(Number(index) || 0) % CODE_ALPHABET.length];
+}
+
+function randomIndexes(length) {
+  const values = new Uint32Array(length);
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(values);
+    return Array.from(values);
+  }
+  return Array.from({ length }, () => Math.floor(Math.random() * CODE_ALPHABET.length));
+}
+
+function groupCode(chars, groupLength) {
+  const groups = [];
+  for (let index = 0; index < chars.length; index += groupLength) {
+    groups.push(chars.slice(index, index + groupLength).join(''));
+  }
+  return groups.join('-');
+}
+
+function createSrcCode(indexes) {
+  const values = Array.isArray(indexes) ? indexes : randomIndexes(20);
+  return groupCode(values.slice(0, 20).map(pickCodeChar), 4);
+}
+
+function createIlcCode(indexes) {
+  const values = Array.isArray(indexes) ? indexes : randomIndexes(12);
+  return `ILC-${groupCode(values.slice(0, 12).map(pickCodeChar), 3)}`;
+}
+
+function normalizeSrcCode(value) {
+  const compact = String(value || '').replace(/[^a-zA-Z0-9]/g, '');
+  if (compact.length !== 20) return compact;
+  return groupCode(compact.split(''), 4);
+}
+
+function isValidSrcCode(value) {
+  return /^[A-Za-z0-9]{4}(-[A-Za-z0-9]{4}){4}$/.test(String(value || ''));
+}
+
+function isValidIlcCode(value) {
+  return /^ILC-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3}){3}$/.test(String(value || ''));
+}
+
+function cloneSnapshot(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function buildIngredientListSnapshot(recipe = {}) {
+  const entries = [];
+  for (const oil of recipe.oils || []) {
+    entries.push({
+      ingredientType: 'oil',
+      ingredientId: oil.oilId || oil.ingredientId || 'oil',
+      displayName: oil.name || oil.displayName || oil.oilId || 'Oil',
+      percent: Number.isFinite(Number(oil.percent)) ? Number(oil.percent) : null,
+      weight: Number.isFinite(Number(oil.weight)) ? Number(oil.weight) : null,
+      unit: oil.unit || null,
+      metadata: cloneSnapshot(oil),
+    });
+  }
+  for (const liquid of recipe.liquids || []) {
+    entries.push({
+      ingredientType: 'liquid',
+      ingredientId: liquid.liquidId || liquid.ingredientId || 'liquid',
+      displayName: liquid.name || liquid.displayName || liquid.liquidId || 'Liquid',
+      percent: Number.isFinite(Number(liquid.percent)) ? Number(liquid.percent) : null,
+      weight: Number.isFinite(Number(liquid.weight)) ? Number(liquid.weight) : null,
+      unit: liquid.unit || null,
+      metadata: cloneSnapshot(liquid),
+    });
+  }
+  for (const fragrance of recipe.fragrances || []) {
+    entries.push({
+      ingredientType: 'fragrance',
+      ingredientId: fragrance.fragranceId || fragrance.ingredientId || 'fragrance',
+      displayName: fragrance.name || fragrance.displayName || fragrance.fragranceId || 'Fragrance',
+      percent: Number.isFinite(Number(fragrance.usagePercent)) ? Number(fragrance.usagePercent) : null,
+      weight: Number.isFinite(Number(fragrance.weight)) ? Number(fragrance.weight) : null,
+      unit: fragrance.unit || null,
+      metadata: cloneSnapshot(fragrance),
+    });
+  }
+  for (const additive of recipe.additives || []) {
+    entries.push({
+      ingredientType: 'additive',
+      ingredientId: additive.additiveId || additive.ingredientId || 'additive',
+      displayName: additive.name || additive.displayName || additive.additiveId || 'Additive',
+      percent: Number.isFinite(Number(additive.percent)) ? Number(additive.percent) : null,
+      weight: Number.isFinite(Number(additive.weight)) ? Number(additive.weight) : null,
+      unit: additive.unit || null,
+      metadata: cloneSnapshot(additive),
+    });
+  }
+  return entries;
+}
+
+function buildPublicationRevision(input = {}) {
+  const now = input.now || new Date().toISOString();
+  const recipe = input.recipe || {};
+  return {
+    id: input.revisionId || createId('pubrev'),
+    publicationId: input.publicationId,
+    srcCode: input.srcCode,
+    ilcCode: input.ilcCode,
+    recipeId: recipe.id,
+    recipeVersionId: recipe.versionId,
+    ownerId: input.ownerId || recipe.ownerId || null,
+    revisionNumber: Number(input.revisionNumber) || 1,
+    revisionNotes: input.revisionNotes || '',
+    releaseNotesPublic: input.revisionNotes || '',
+    recipeSnapshot: cloneSnapshot(recipe),
+    ingredientListSnapshot: buildIngredientListSnapshot(recipe),
+    createdAt: now,
+    active: input.active !== false,
+  };
+}
+
 function buildRecipeSnapshot(input = {}) {
   const now = input.now || new Date().toISOString();
   const id = input.id || createId('recipe');
@@ -243,11 +364,19 @@ function slugify(value) {
 }
 
 module.exports = {
+  buildIngredientListSnapshot,
+  buildPublicationRevision,
   buildRecipeSnapshot,
   buildRecipeVaultPayloadFromSavedRecipe,
   calculateAdvancedLye,
+  createIlcCode,
   createRecipeVersion,
   createShareLink,
+  createSrcCode,
   getModeProcess,
+  isValidIlcCode,
+  isValidSrcCode,
+  normalizeSrcCode,
+  slugify,
   validateRecipeAccess,
 };

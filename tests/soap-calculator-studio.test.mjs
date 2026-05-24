@@ -7,12 +7,19 @@ import {
 } from '../app/soap-calculator/studio/membership-model.js';
 
 import {
+  buildIngredientListSnapshot,
+  buildPublicationRevision,
   buildRecipeSnapshot,
   buildRecipeVaultPayloadFromSavedRecipe,
   calculateAdvancedLye,
+  createIlcCode,
   createRecipeVersion,
   createShareLink,
+  createSrcCode,
   getModeProcess,
+  isValidIlcCode,
+  isValidSrcCode,
+  normalizeSrcCode,
   validateRecipeAccess,
 } from '../app/soap-calculator/studio/recipe-studio-model.js';
 
@@ -164,6 +171,114 @@ test('createShareLink defaults public recipe URLs to Soap Abacus', () => {
   const share = createShareLink(recipe, { token: 'share_default' });
 
   assert.equal(share.url, 'https://www.soapabacus.com/recipes/share_default');
+});
+
+test('createSrcCode and createIlcCode produce public code formats', () => {
+  const srcCode = createSrcCode([0, 1, 61, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]);
+  const ilcCode = createIlcCode([0, 1, 61, 10, 11, 12, 13, 14, 15, 16, 17, 18]);
+
+  assert.equal(srcCode, 'AB9K-LMNO-PQRS-TUVW-XYZa');
+  assert.equal(ilcCode, 'ILC-AB9-KLM-NOP-QRS');
+  assert.equal(isValidSrcCode(srcCode), true);
+  assert.equal(isValidIlcCode(ilcCode), true);
+  assert.equal(normalizeSrcCode('ab9k lmno pqrs tuvw xyza'), 'ab9k-lmno-pqrs-tuvw-xyza');
+});
+
+test('normalizeSrcCode preserves case and leaves malformed extra-long input invalid', () => {
+  assert.equal(normalizeSrcCode('aB9k lmNo pQrS tUvW xYZa'), 'aB9k-lmNo-pQrS-tUvW-xYZa');
+
+  const extraLong = normalizeSrcCode('aB9k lmNo pQrS tUvW xYZa EXTRA');
+  assert.equal(isValidSrcCode(extraLong), false);
+});
+
+test('buildIngredientListSnapshot freezes purchase-oriented ingredients', () => {
+  const recipe = buildRecipeSnapshot({
+    id: 'recipe_1',
+    ownerId: 'user_1',
+    name: 'Production Bar',
+    oils: [
+      { oilId: 'olive', name: 'Olive Oil', percent: 35, weight: 11.2, unit: 'oz' },
+      { oilId: 'coconut-76', name: 'Coconut Oil 76', percent: 25, weight: 8, unit: 'oz' },
+    ],
+    liquids: [{ liquidId: 'water', name: 'Water', weight: 9, unit: 'oz' }],
+    fragrances: [{ fragranceId: 'lavender', name: 'Lavender EO', weight: 1, unit: 'oz' }],
+  });
+
+  const snapshot = buildIngredientListSnapshot(recipe);
+  assert.equal(snapshot.length, 4);
+  assert.deepEqual(snapshot[0], {
+    ingredientType: 'oil',
+    ingredientId: 'olive',
+    displayName: 'Olive Oil',
+    percent: 35,
+    weight: 11.2,
+    unit: 'oz',
+    metadata: { oilId: 'olive', name: 'Olive Oil', percent: 35, weight: 11.2, unit: 'oz' },
+  });
+});
+
+test('buildPublicationRevision creates immutable SRC revision records', () => {
+  const recipe = buildRecipeSnapshot({
+    id: 'recipe_1',
+    versionId: 'version_1',
+    ownerId: 'user_1',
+    name: 'Production Bar',
+    oils: [{ oilId: 'olive', name: 'Olive Oil', percent: 35, weight: 11.2, unit: 'oz' }],
+  });
+
+  const revision = buildPublicationRevision({
+    publicationId: 'pub_1',
+    revisionId: 'pubrev_1',
+    srcCode: 'AB9K-LMNO-PQRS-TUVW-XYZa',
+    ilcCode: 'ILC-AB9-KLM-NOP-QRS',
+    recipe,
+    ownerId: 'user_1',
+    revisionNumber: 1,
+    revisionNotes: 'Initial production stamp.',
+    now: '2026-05-23T12:00:00.000Z',
+  });
+
+  assert.equal(revision.srcCode, 'AB9K-LMNO-PQRS-TUVW-XYZa');
+  assert.equal(revision.ilcCode, 'ILC-AB9-KLM-NOP-QRS');
+  assert.equal(revision.revisionNumber, 1);
+  assert.equal(revision.releaseNotesPublic, 'Initial production stamp.');
+  assert.equal(revision.recipeSnapshot.versionId, 'version_1');
+  assert.equal(revision.ingredientListSnapshot.length, 1);
+});
+
+test('buildPublicationRevision deep-copies nested ingredient metadata', () => {
+  const recipe = buildRecipeSnapshot({
+    id: 'recipe_1',
+    versionId: 'version_1',
+    ownerId: 'user_1',
+    name: 'Nested Vendor Bar',
+    oils: [{
+      oilId: 'olive',
+      name: 'Olive Oil',
+      percent: 35,
+      weight: 11.2,
+      unit: 'oz',
+      vendor: { name: 'Original Supplier', affiliate: { code: 'SUP-1' } },
+    }],
+  });
+
+  const revision = buildPublicationRevision({
+    publicationId: 'pub_1',
+    revisionId: 'pubrev_1',
+    srcCode: 'AB9K-LMNO-PQRS-TUVW-XYZa',
+    ilcCode: 'ILC-AB9-KLM-NOP-QRS',
+    recipe,
+    ownerId: 'user_1',
+    revisionNumber: 1,
+  });
+
+  recipe.oils[0].vendor.name = 'Changed Supplier';
+  recipe.oils[0].vendor.affiliate.code = 'CHANGED';
+
+  assert.deepEqual(revision.ingredientListSnapshot[0].metadata.vendor, {
+    name: 'Original Supplier',
+    affiliate: { code: 'SUP-1' },
+  });
 });
 
 test('validateRecipeAccess keeps recipes private unless owner or valid share token is present', () => {
