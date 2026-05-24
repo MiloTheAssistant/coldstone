@@ -17,6 +17,18 @@ test('Soap Abacus exposes SRC lookup panel source and renders it in Recipe Cache
   assert.match(calculatorPageSource, /<SrcLookupPanel \/>/);
 });
 
+test('Soap Abacus local development can run without Clerk configured', () => {
+  const calculatorPageSource = readFileSync(calculatorPagePath, 'utf8');
+
+  assert.match(calculatorPageSource, /const clerkEnabled = Boolean\(process\.env\.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY\)/);
+  assert.match(calculatorPageSource, /const localDevWithoutClerk = !clerkEnabled && process\.env\.NODE_ENV !== 'production'/);
+  assert.match(calculatorPageSource, /if \(localDevWithoutClerk\) \{/);
+  assert.match(calculatorPageSource, /<LocalDevSoapStudio \/>/);
+  assert.match(calculatorPageSource, /function LocalDevSoapStudio\(\)/);
+  assert.match(calculatorPageSource, /membership=\{PREVIEW_MEMBERSHIP\}/);
+  assert.match(calculatorPageSource, /isReadOnlyPreview=\{false\}/);
+});
+
 test('Soap Abacus exposes SRC stamping dialog and saved recipe actions', () => {
   const stampDialogSource = readFileSync(stampDialogPath, 'utf8');
   const savedRecipesListSource = readFileSync(savedRecipesListPath, 'utf8');

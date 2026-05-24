@@ -1304,6 +1304,15 @@ function readCalculatorMode(value: unknown): CalculatorMode | undefined {
 
 export default function SoapCalculatorPage() {
   const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  const localDevWithoutClerk = !clerkEnabled && process.env.NODE_ENV !== 'production';
+
+  if (localDevWithoutClerk) {
+    return (
+      <Suspense fallback={<SoapStudioLoading />}>
+        <LocalDevSoapStudio />
+      </Suspense>
+    );
+  }
 
   if (!clerkEnabled) {
     return (
@@ -1322,6 +1331,20 @@ export default function SoapCalculatorPage() {
     <Suspense fallback={<SoapStudioLoading />}>
       <SoapStudioGate />
     </Suspense>
+  );
+}
+
+function LocalDevSoapStudio() {
+  const searchParams = useSearchParams();
+  const srcCode = searchParams.get('srcCode');
+
+  return (
+    <SoapCalculatorExperience
+      membership={PREVIEW_MEMBERSHIP}
+      refreshMembership={async () => undefined}
+      isReadOnlyPreview={false}
+      cloneSrcCode={srcCode}
+    />
   );
 }
 
