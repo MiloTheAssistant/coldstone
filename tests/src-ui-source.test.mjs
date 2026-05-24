@@ -5,6 +5,7 @@ import test from 'node:test';
 const lookupPanelPath = new URL('../app/soap-calculator/components/SrcLookupPanel.tsx', import.meta.url);
 const stampDialogPath = new URL('../app/soap-calculator/components/SrcStampDialog.tsx', import.meta.url);
 const savedRecipesListPath = new URL('../app/soap-calculator/components/SavedRecipesList.tsx', import.meta.url);
+const recipeCardPath = new URL('../app/soap-calculator/components/RecipeCard.tsx', import.meta.url);
 const calculatorPagePath = new URL('../app/soap-calculator/page.tsx', import.meta.url);
 
 test('Soap Abacus exposes SRC lookup panel source and renders it in Recipe Cache', () => {
@@ -58,4 +59,18 @@ test('Soap Abacus clones SRC releases from public-safe data only', () => {
   assert.match(calculatorPageSource, /percent > 0/);
   assert.match(calculatorPageSource, /Math\.min\(100, Math\.max\(0, percent\)\)/);
   assert.match(calculatorPageSource, /if \(oils\.length === 0\) throw new Error\('SRC release has no cloneable oils\.'\)/);
+});
+
+test('Recipe Blender and loaded templates expose SRC and ILC shopping lists', () => {
+  const recipeCardSource = readFileSync(recipeCardPath, 'utf8');
+  const calculatorPageSource = readFileSync(calculatorPagePath, 'utf8');
+
+  assert.match(recipeCardSource, /template\.srcCode/);
+  assert.match(recipeCardSource, /template\.ilcCode/);
+  assert.match(recipeCardSource, /ILC Shopping List/);
+  assert.match(recipeCardSource, /affiliateUrl/);
+  assert.match(calculatorPageSource, /loadedTemplate/);
+  assert.match(calculatorPageSource, /setLoadedTemplateId\(template\.id\)/);
+  assert.match(calculatorPageSource, /Template SRC/);
+  assert.match(calculatorPageSource, /ILC Shopping List/);
 });

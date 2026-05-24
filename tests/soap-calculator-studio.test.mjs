@@ -185,6 +185,26 @@ test('createSrcCode and createIlcCode produce public code formats', () => {
   assert.equal(normalizeSrcCode('ab9k lmno pqrs tuvw xyza'), 'ab9k-lmno-pqrs-tuvw-xyza');
 });
 
+test('built-in Recipe Blender templates declare SRC, ILC, and future affiliate shopping data', () => {
+  const source = readFileSync(new URL('../app/soap-calculator/data/oils.ts', import.meta.url), 'utf8');
+  const recipeTemplateSource = source.slice(
+    source.indexOf('export const RECIPE_TEMPLATES'),
+    source.indexOf('/**\n * Additive categories'),
+  );
+
+  const templateCount = (recipeTemplateSource.match(/^  \{\r?\n    id: '/gm) || []).length;
+  const srcCodes = recipeTemplateSource.match(/srcCode: '[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}'/g) || [];
+  const ilcCodes = recipeTemplateSource.match(/ilcCode: 'ILC-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}'/g) || [];
+
+  assert.equal(templateCount, 18);
+  assert.equal(srcCodes.length, 18);
+  assert.equal(ilcCodes.length, 18);
+  assert.equal(new Set(srcCodes).size, 18);
+  assert.equal(new Set(ilcCodes).size, 18);
+  assert.match(source, /affiliateUrl\?: string/);
+  assert.match(recipeTemplateSource, /id: 'tallow-tradition'[\s\S]*srcCode: '[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}'[\s\S]*ilcCode: 'ILC-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}'/);
+});
+
 test('normalizeSrcCode preserves case and leaves malformed extra-long input invalid', () => {
   assert.equal(normalizeSrcCode('aB9k lmNo pQrS tUvW xYZa'), 'aB9k-lmNo-pQrS-tUvW-xYZa');
 

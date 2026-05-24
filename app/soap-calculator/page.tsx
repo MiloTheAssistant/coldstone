@@ -122,6 +122,8 @@ function SoapCalculatorExperience({
   const saveToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [recipeNotes, setRecipeNotes] = useState('');
   const [costEntries, setCostEntries] = useState<OilCostEntry[]>([]);
+  const [loadedTemplateId, setLoadedTemplateId] = useState<string | null>(null);
+  const [showLoadedTemplateShoppingList, setShowLoadedTemplateShoppingList] = useState(false);
   const lastClonedSrcCode = useRef<string | null>(null);
 
   // ── Derived calculations ──
@@ -158,6 +160,20 @@ function SoapCalculatorExperience({
   const canUseRecipeBlenderAI = hasFeature(membership, FEATURE_KEYS.AI_RECIPE_BLENDER);
   const canUseAdvancedLye = hasFeature(membership, FEATURE_KEYS.ADVANCED_LYE);
   const costMap = useMemo(() => new Map(costEntries.map(entry => [entry.oilId, entry])), [costEntries]);
+  const loadedTemplate = useMemo(
+    () => RECIPE_TEMPLATES.find(template => template.id === loadedTemplateId) ?? null,
+    [loadedTemplateId],
+  );
+  const loadedTemplateShoppingList = useMemo(() => {
+    if (!loadedTemplate) return [];
+    return loadedTemplate.oils.map(entry => {
+      const oil = OILS_DATABASE.find(o => o.id === entry.oilId);
+      return {
+        ...entry,
+        name: oil?.name ?? entry.oilId.replace(/-/g, ' '),
+      };
+    });
+  }, [loadedTemplate]);
 
   useEffect(() => {
     setCostEntries(loadCostEntries());
@@ -189,6 +205,8 @@ function SoapCalculatorExperience({
     setRecipeOils(template.oils.map(o => ({ oilId: o.oilId, percent: o.percent })));
     setSuperfat(template.superfat);
     setRecipeName(template.name);
+    setLoadedTemplateId(template.id);
+    setShowLoadedTemplateShoppingList(false);
     setActiveTab('calculator');
   }, []);
 
@@ -197,6 +215,8 @@ function SoapCalculatorExperience({
     setSuperfat(recipe.superfat);
     setRecipeName(recipe.name);
     setLoadedRecipeId(null);
+    setLoadedTemplateId(null);
+    setShowLoadedTemplateShoppingList(false);
     setActiveTab('calculator');
   }, []);
 
@@ -250,6 +270,8 @@ function SoapCalculatorExperience({
         setRecipeNotes('');
         setCalculatorMode(readCalculatorMode(recipe.mode) || 'intermediate');
         setLoadedRecipeId(null);
+        setLoadedTemplateId(null);
+        setShowLoadedTemplateShoppingList(false);
         setActiveTab('calculator');
         showToast('SRC release cloned as an editable draft.');
       } catch {
@@ -418,6 +440,8 @@ function SoapCalculatorExperience({
     setRecipeNotes(recipe.notes);
     setCalculatorMode(recipe.mode || 'intermediate');
     setLoadedRecipeId(recipe.id);
+    setLoadedTemplateId(null);
+    setShowLoadedTemplateShoppingList(false);
     setActiveTab('calculator');
   }, []);
 
@@ -530,6 +554,57 @@ function SoapCalculatorExperience({
                     )}
                   </div>
                 </div>
+
+                {loadedTemplate && (
+                  <div className="mb-5 rounded-lg border border-gold-500/20 bg-navy-950/40 p-4 text-sm">
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-parchment-500">Template SRC</div>
+                        <div className="mt-1 break-all font-mono text-gold-300">{loadedTemplate.srcCode}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-parchment-500">Ingredients List Code</div>
+                        <button
+                          type="button"
+                          onClick={() => setShowLoadedTemplateShoppingList(open => !open)}
+                          className="mt-1 break-all font-mono text-gold-300 underline decoration-gold-500/40 underline-offset-4 transition-colors hover:text-gold-200"
+                          aria-expanded={showLoadedTemplateShoppingList}
+                        >
+                          {loadedTemplate.ilcCode}
+                        </button>
+                      </div>
+                    </div>
+                    {showLoadedTemplateShoppingList && (
+                      <div className="mt-4 border-t border-navy-700/60 pt-3">
+                        <div className="mb-2 text-[10px] uppercase tracking-wider text-parchment-500">
+                          ILC Shopping List
+                        </div>
+                        <ul className="grid gap-2 sm:grid-cols-2">
+                          {loadedTemplateShoppingList.map(item => (
+                            <li
+                              key={item.oilId}
+                              className="flex items-center justify-between gap-3 rounded-md bg-navy-800/50 px-3 py-2 text-parchment-300"
+                            >
+                              {item.affiliateUrl ? (
+                                <a
+                                  href={item.affiliateUrl}
+                                  className="underline decoration-navy-500 underline-offset-4 hover:text-gold-200"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {item.name}
+                                </a>
+                              ) : (
+                                <span>{item.name}</span>
+                              )}
+                              <span className="shrink-0 font-mono text-gold-400">{item.percent}%</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Calculator Mode */}
                 <div className="mb-5">
