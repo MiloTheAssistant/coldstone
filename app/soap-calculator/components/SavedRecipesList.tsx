@@ -6,6 +6,7 @@ import { calculateProperties } from '../data/calculator';
 import type { SavedRecipe } from '../lib/storage';
 import { loadRecipes, deleteRecipe, exportRecipesJSON, importRecipesJSON, updateRecipe } from '../lib/storage';
 import { buildRecipeVaultPayloadFromSavedRecipe } from '../studio/recipe-studio-model';
+import SrcStampDialog, { type SrcStampMode } from './SrcStampDialog';
 
 interface SavedRecipesListProps {
   onLoadRecipe: (recipe: SavedRecipe) => void;
@@ -13,6 +14,8 @@ interface SavedRecipesListProps {
   canShare: boolean;
   canPdfExport: boolean;
   canImportExport: boolean;
+  canStampSrc: boolean;
+  canUpdateSrcRevision: boolean;
 }
 
 export default function SavedRecipesList({
@@ -21,11 +24,16 @@ export default function SavedRecipesList({
   canShare,
   canPdfExport,
   canImportExport,
+  canStampSrc,
+  canUpdateSrcRevision,
 }: SavedRecipesListProps) {
   const [recipes, setRecipes] = useState<SavedRecipe[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const [vaultMsg, setVaultMsg] = useState<string | null>(null);
+  const [stampRecipe, setStampRecipe] = useState<SavedRecipe | null>(null);
+  const [stampMode, setStampMode] = useState<SrcStampMode>('new-src');
+  const [stampError, setStampError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -115,6 +123,73 @@ export default function SavedRecipesList({
     const vaultRecipe = await ensureVaultRecipe(recipe);
     if (!vaultRecipe?.cloudRecipeId) return;
     window.location.href = `/api/recipes/${vaultRecipe.cloudRecipeId}/pdf`;
+  };
+
+  const openStampDialog = (recipe: SavedRecipe, mode: SrcStampMode) => {
+    if (!canStampSrc) {
+      setVaultMsg('Upgrade to Plus to stamp Soap Recipe Codes.');
+      setTimeout(() => setVaultMsg(null), 4000);
+      return;
+    }
+    setStampError(null);
+    setVaultMsg(null);
+    setStampRecipe(recipe);
+    setStampMode(mode);
+  };
+
+  const handleStamp = async ({ mode, revisionNotes }: { mode: SrcStampMode; revisionNotes: string }) => {
+    if (!stampRecipe) return;
+    setStampError(null);
+    const vaultRecipe = await ensureVaultRecipe(stampRecipe);
+    if (!vaultRecipe?.cloudRecipeId) {
+      setStampError('Save this recipe to your vault before stamping.');
+      return;
+    }
+
+    const recipeId = vaultRecipe.cloudRecipeId;
+    try {
+      const response = await fetch(`/api/recipes/${recipeId}/src`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode,
+          existingSrcCode: mode === 'same-src' ? vaultRecipe.srcCode : undefined,
+          revisionNotes,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setStampError(data.error || 'Unable to stamp this recipe yet.');
+        return;
+      }
+
+      const release = data.release;
+      const srcCode = release?.publication?.srcCode;
+      const ilcCode = release?.ilc?.ilcCode;
+      const revisionNumber = release?.revision?.revisionNumber;
+      if (
+        typeof srcCode !== 'string'
+        || typeof ilcCode !== 'string'
+        || !Number.isFinite(release?.revision?.revisionNumber)
+      ) {
+        setStampError('The SRC was created, but Soap Abacus could not read the stamp details. Reload Recipe Cache and try again.');
+        return;
+      }
+
+      updateRecipe(stampRecipe.id, {
+        cloudRecipeId: recipeId,
+        visibility: 'private',
+        srcCode,
+        ilcCode,
+        srcRevision: revisionNumber as number,
+      });
+      setRecipes(loadRecipes());
+      setStampRecipe(null);
+      setVaultMsg(mode === 'same-src' ? 'SRC revision updated.' : 'Recipe stamped with SRC and ILC codes.');
+      setTimeout(() => setVaultMsg(null), 4000);
+    } catch {
+      setStampError('Unable to stamp this recipe right now.');
+    }
   };
 
   const handleExport = () => {
@@ -256,6 +331,14 @@ export default function SavedRecipesList({
                   {recipe.cloudRecipeId && <span className="text-gold-500/70"> · vault</span>}
                 </div>
 
+                {(recipe.srcCode || recipe.ilcCode) && (
+                  <div className="mb-3 rounded-lg border border-gold-500/20 bg-gold-500/10 px-3 py-2 text-[10px] text-parchment-300">
+                    {recipe.srcCode && <div>SRC {recipe.srcCode}</div>}
+                    {recipe.ilcCode && <div>ILC {recipe.ilcCode}</div>}
+                    {recipe.srcRevision && <div>Revision {recipe.srcRevision}</div>}
+                  </div>
+                )}
+
                 {recipe.notes && (
                   <p className="text-xs text-parchment-400 mb-3 italic line-clamp-2">{recipe.notes}</p>
                 )}
@@ -293,6 +376,24 @@ export default function SavedRecipesList({
                     {canPdfExport ? 'PDF' : 'Pro PDF'}
                   </button>
                 </div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => openStampDialog(recipe, 'new-src')}
+                    disabled={!canStampSrc}
+                    className="flex-1 py-2 rounded-lg bg-navy-800/60 text-parchment-400 hover:text-gold-300 transition-colors text-xs font-medium border border-navy-600/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                    title={canStampSrc ? 'Stamp this recipe with a new SRC.' : 'Upgrade to Plus to stamp SRCs.'}
+                  >
+                    {canStampSrc ? 'Stamp It' : 'Plus Stamp'}
+                  </button>
+                  {recipe.srcCode && canUpdateSrcRevision && (
+                    <button
+                      onClick={() => openStampDialog(recipe, 'same-src')}
+                      className="flex-1 py-2 rounded-lg bg-gold-500/20 text-gold-300 hover:bg-gold-500/30 transition-colors text-xs font-medium border border-gold-500/20"
+                    >
+                      Update SRC
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -308,6 +409,20 @@ export default function SavedRecipesList({
             Build a recipe in the Recipe Designer tab, then click &ldquo;Save&rdquo; to keep it here.
           </p>
         </div>
+      )}
+
+      {stampRecipe && (
+        <SrcStampDialog
+          recipeName={stampRecipe.name}
+          mode={stampMode}
+          canUpdateSrcRevision={canUpdateSrcRevision}
+          error={stampError}
+          onCancel={() => {
+            setStampError(null);
+            setStampRecipe(null);
+          }}
+          onConfirm={handleStamp}
+        />
       )}
     </div>
   );

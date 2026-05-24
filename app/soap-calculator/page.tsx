@@ -1171,6 +1171,8 @@ function SoapCalculatorExperience({
               canShare={hasFeature(membership, FEATURE_KEYS.SHARE_LINKS)}
               canPdfExport={hasFeature(membership, FEATURE_KEYS.PDF_EXPORT)}
               canImportExport={hasFeature(membership, FEATURE_KEYS.JSON_IMPORT_EXPORT)}
+              canStampSrc={hasFeature(membership, FEATURE_KEYS.SRC_STAMPING)}
+              canUpdateSrcRevision={hasFeature(membership, FEATURE_KEYS.SRC_REVISION_UPDATE)}
             />
           </div>
         )}
