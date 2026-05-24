@@ -22,6 +22,7 @@ import RecipeCard from './components/RecipeCard';
 import OilInfo from './components/OilInfo';
 import PrintableRecipe from './components/PrintableRecipe';
 import SavedRecipesList from './components/SavedRecipesList';
+import SrcLookupPanel from './components/SrcLookupPanel';
 import CostPanel from './components/CostPanel';
 import FragrancePanel from './components/FragrancePanel';
 import AIRecipeGenerator from './components/AIRecipeGenerator';
@@ -1162,13 +1163,16 @@ function SoapCalculatorExperience({
         {/* MY RECIPES TAB                          */}
         {/* ═══════════════════════════════════════ */}
         {activeTab === 'my-recipes' && (
-          <SavedRecipesList
-            onLoadRecipe={handleLoadSavedRecipe}
-            refreshKey={savedRecipesRefreshKey}
-            canShare={hasFeature(membership, FEATURE_KEYS.SHARE_LINKS)}
-            canPdfExport={hasFeature(membership, FEATURE_KEYS.PDF_EXPORT)}
-            canImportExport={hasFeature(membership, FEATURE_KEYS.JSON_IMPORT_EXPORT)}
-          />
+          <div className="space-y-6">
+            <SrcLookupPanel />
+            <SavedRecipesList
+              onLoadRecipe={handleLoadSavedRecipe}
+              refreshKey={savedRecipesRefreshKey}
+              canShare={hasFeature(membership, FEATURE_KEYS.SHARE_LINKS)}
+              canPdfExport={hasFeature(membership, FEATURE_KEYS.PDF_EXPORT)}
+              canImportExport={hasFeature(membership, FEATURE_KEYS.JSON_IMPORT_EXPORT)}
+            />
+          </div>
         )}
       </main>
 
