@@ -93,3 +93,18 @@ test('Ingredients DB oil modal edits landed ingredient cost', () => {
   assert.match(calculatorPageSource, /onSaveCostEntry=\{handleSaveIngredientCost\}/);
   assert.match(calculatorPageSource, /onRemoveCostEntry=\{handleRemoveIngredientCost\}/);
 });
+
+test('Ingredients DB separates base oils, fragrance, additives, liquids, and all ingredients', () => {
+  const calculatorPageSource = readFileSync(calculatorPagePath, 'utf8');
+
+  assert.match(calculatorPageSource, /FRAGRANCES_DATABASE/);
+  assert.match(calculatorPageSource, /type IngredientsDbView = 'base-oils' \| 'fragrance' \| 'colorants' \| 'additives' \| 'liquids' \| 'all'/);
+  assert.match(calculatorPageSource, /Essential Oils & Fragrances/);
+  assert.match(calculatorPageSource, /IFRA Max/);
+  assert.match(calculatorPageSource, /Flash Point/);
+  assert.match(calculatorPageSource, /Colorants/);
+  assert.match(calculatorPageSource, /Liquids/);
+  assert.match(calculatorPageSource, /All Ingredients/);
+  assert.match(calculatorPageSource, /ingredientCostKey\('fragrance'/);
+  assert.match(calculatorPageSource, /ingredientCostKey\('additive'/);
+});

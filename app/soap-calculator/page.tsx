@@ -4,7 +4,8 @@ import { Suspense, useState, useMemo, useCallback, useRef, useEffect, type React
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs';
-import { OILS_DATABASE, OilData, RECIPE_TEMPLATES, RecipeTemplate, ADDITIVES, CATEGORY_LABELS } from './data/oils';
+import { OILS_DATABASE, OilData, RECIPE_TEMPLATES, RecipeTemplate, ADDITIVES, CATEGORY_LABELS, type Additive } from './data/oils';
+import { FRAGRANCES_DATABASE, type FragranceData } from './data/fragrances';
 import {
   calculateProperties,
   calculateFullRecipe,
@@ -45,6 +46,10 @@ interface RecipeOilEntry {
 type Tab = 'calculator' | 'generator' | 'oils-db' | 'my-recipes';
 type CalculatorMode = 'easy' | 'intermediate' | 'expert';
 type SoapAbacusTier = 'free' | 'plus' | 'pro';
+type IngredientsDbView = 'base-oils' | 'fragrance' | 'colorants' | 'additives' | 'liquids' | 'all';
+type SelectedDbIngredient =
+  | { kind: 'fragrance'; item: FragranceData }
+  | { kind: 'additive'; item: Additive };
 type MembershipState = {
   tier: SoapAbacusTier;
   effectiveTier: SoapAbacusTier;
@@ -113,7 +118,9 @@ function SoapCalculatorExperience({
   // ── Oil DB state ──
   const [dbSearch, setDbSearch] = useState('');
   const [dbCategory, setDbCategory] = useState<OilData['category'] | 'all'>('all');
+  const [dbView, setDbView] = useState<IngredientsDbView>('base-oils');
   const [selectedOilInfo, setSelectedOilInfo] = useState<OilData | null>(null);
+  const [selectedDbIngredient, setSelectedDbIngredient] = useState<SelectedDbIngredient | null>(null);
 
   // ── Persistent storage state ──
   const [loadedRecipeId, setLoadedRecipeId] = useState<string | null>(null);
@@ -179,12 +186,36 @@ function SoapCalculatorExperience({
     setCostEntries(loadCostEntries());
   }, []);
 
-  // ── Oil DB filtered list ──
+  // ── Ingredients DB filtered lists ──
+  const normalizedDbSearch = dbSearch.toLowerCase();
   const filteredDbOils = useMemo(() => {
     return OILS_DATABASE
       .filter(oil => dbCategory === 'all' || oil.category === dbCategory)
-      .filter(oil => oil.name.toLowerCase().includes(dbSearch.toLowerCase()));
-  }, [dbSearch, dbCategory]);
+      .filter(oil => matchesIngredientSearch([oil.name, oil.category, oil.notes], normalizedDbSearch));
+  }, [normalizedDbSearch, dbCategory]);
+  const filteredFragrances = useMemo(() => {
+    return FRAGRANCES_DATABASE.filter(fragrance => matchesIngredientSearch([
+      fragrance.name,
+      fragrance.type,
+      fragrance.blendFamily,
+      fragrance.notePosition,
+      fragrance.notes,
+      fragrance.safetyNotes,
+    ], normalizedDbSearch));
+  }, [normalizedDbSearch]);
+  const filteredColorants = useMemo(() => {
+    return ADDITIVES.filter(additive => additive.category === 'colorant')
+      .filter(additive => matchesIngredientSearch([additive.name, additive.usageRate, additive.notes], normalizedDbSearch));
+  }, [normalizedDbSearch]);
+  const filteredLiquids = useMemo(() => {
+    return ADDITIVES.filter(isLiquidAdditive)
+      .filter(additive => matchesIngredientSearch([additive.name, additive.usageRate, additive.notes], normalizedDbSearch));
+  }, [normalizedDbSearch]);
+  const filteredAdditives = useMemo(() => {
+    return ADDITIVES
+      .filter(additive => additive.category !== 'colorant' && !isLiquidAdditive(additive))
+      .filter(additive => matchesIngredientSearch([additive.name, additive.category, additive.usageRate, additive.notes], normalizedDbSearch));
+  }, [normalizedDbSearch]);
 
   // ── Handlers ──
 
@@ -458,7 +489,7 @@ function SoapCalculatorExperience({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ingredientId: entry.oilId,
-        ingredientType: 'oil',
+        ingredientType: ingredientTypeFromCostKey(entry.oilId),
         supplier: entry.supplier || undefined,
         pricePerUnit: entry.pricePerUnit,
         shippingCost: entry.shippingCost,
@@ -1185,18 +1216,42 @@ function SoapCalculatorExperience({
             {/* Search & Filter */}
             <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
               <h3 className="text-gold-400 font-serif text-lg mb-3">
-                Ingredients DB: Oils, Butters, Fats & Waxes ({OILS_DATABASE.length} ingredients)
+                Ingredients DB: Oils, Fragrance, Colorants, Additives & Liquids ({OILS_DATABASE.length + FRAGRANCES_DATABASE.length + ADDITIVES.length} ingredients)
               </h3>
 
-              <div className="flex flex-col md:flex-row gap-3 mb-4">
+              <div className="mb-4 flex flex-wrap gap-2">
+                {([
+                  { id: 'base-oils', label: 'Base Oils' },
+                  { id: 'fragrance', label: 'Fragrance' },
+                  { id: 'colorants', label: 'Colorants' },
+                  { id: 'additives', label: 'Additives' },
+                  { id: 'liquids', label: 'Liquids' },
+                  { id: 'all', label: 'All Ingredients' },
+                ] as { id: IngredientsDbView; label: string }[]).map(view => (
+                  <button
+                    key={view.id}
+                    onClick={() => setDbView(view.id)}
+                    className={`rounded-lg px-4 py-2 text-xs font-medium transition-colors ${
+                      dbView === view.id
+                        ? 'bg-gold-500 text-navy-900'
+                        : 'bg-navy-800 text-parchment-400 hover:bg-navy-700'
+                    }`}
+                  >
+                    {view.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-3">
                 <input
                   type="text"
-                  placeholder="Search oils..."
+                  placeholder="Search ingredients..."
                   value={dbSearch}
                   onChange={e => setDbSearch(e.target.value)}
                   className="flex-1 bg-navy-800 border border-navy-600/40 rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-parchment-500 focus:outline-none focus:border-gold-500/60"
                 />
-                <div className="flex gap-2 flex-wrap">
+                {(dbView === 'base-oils' || dbView === 'all') && (
+                  <div className="flex gap-2 flex-wrap">
                   {(['all', 'oil', 'butter', 'fat', 'wax'] as const).map(cat => (
                     <button
                       key={cat}
@@ -1210,105 +1265,161 @@ function SoapCalculatorExperience({
                       {cat === 'all' ? `All (${OILS_DATABASE.length})` : CATEGORY_LABELS[cat]}
                     </button>
                   ))}
-                </div>
+                  </div>
+                )}
               </div>
 
               <p className="text-parchment-500 text-xs">
-                Click any oil to see its full fatty acid profile, SAP values, and usage notes.
+                Click any row or card to see details and manage landed ingredient costs for future shopping lists.
               </p>
             </div>
 
             {/* Oils Table */}
-            <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-navy-800/60 border-b border-navy-600/30 text-parchment-500 text-xs uppercase">
-                      <th className="text-left py-3 px-4">Name</th>
-                      <th className="text-center py-3 px-2">Type</th>
-                      <th className="text-right py-3 px-2">NaOH SAP</th>
-                      <th className="text-right py-3 px-2">KOH SAP</th>
-                      <th className="text-right py-3 px-2">Iodine</th>
-                      <th className="text-right py-3 px-2">INS</th>
-                      <th className="text-center py-3 px-2">Cost Tier</th>
-                      <th className="text-right py-3 px-2">Cost</th>
-                      <th className="text-right py-3 px-4">Max %</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDbOils.map(oil => (
-                      <tr
-                        key={oil.id}
-                        className="border-b border-navy-800/30 hover:bg-navy-800/40 cursor-pointer transition-colors"
-                        onClick={() => setSelectedOilInfo(oil)}
-                      >
-                        <td className="py-2.5 px-4 text-parchment-200 hover:text-gold-300 transition-colors">
-                          {oil.name}
-                        </td>
-                        <td className="py-2.5 px-2 text-center">
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                            oil.category === 'oil' ? 'bg-green-900/30 text-green-400' :
-                            oil.category === 'butter' ? 'bg-amber-900/30 text-amber-400' :
-                            oil.category === 'fat' ? 'bg-red-900/30 text-red-400' :
-                            'bg-purple-900/30 text-purple-400'
-                          }`}>
-                            {oil.category}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-2 text-right text-parchment-300 font-mono text-xs">{oil.sapNaOH.toFixed(4)}</td>
-                        <td className="py-2.5 px-2 text-right text-parchment-300 font-mono text-xs">{oil.sapKOH}</td>
-                        <td className="py-2.5 px-2 text-right text-parchment-300">{oil.iodine}</td>
-                        <td className="py-2.5 px-2 text-right text-parchment-300">{oil.ins}</td>
-                        <td className="py-2.5 px-2 text-center">
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                            oil.costTier === 'budget' ? 'bg-green-900/30 text-green-400' :
-                            oil.costTier === 'mid' ? 'bg-amber-900/30 text-amber-400' :
-                            'bg-purple-900/30 text-purple-400'
-                          }`}>
-                            {oil.costTier}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-2 text-right text-xs text-parchment-400">
-                          {canUseIngredientCosts
-                            ? formatIngredientCost(costMap.get(oil.id))
-                            : 'Plus'}
-                        </td>
-                        <td className="py-2.5 px-4 text-right text-parchment-400">{oil.maxPercent}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Additives Section */}
-            <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
-              <h3 className="text-gold-400 font-serif text-lg mb-4">
-                Soap Additives & Ingredients
-              </h3>
-
-              {(['colorant', 'exfoliant', 'botanical', 'special'] as const).map(category => (
-                <div key={category} className="mb-6 last:mb-0">
-                  <h4 className="text-parchment-200 font-medium text-sm uppercase tracking-wider mb-2 border-b border-navy-600/20 pb-1">
-                    {category === 'colorant' ? 'Natural Colorants & Clays' :
-                     category === 'exfoliant' ? 'Exfoliants' :
-                     category === 'botanical' ? 'Botanicals' :
-                     'Special Additives'}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {ADDITIVES.filter(a => a.category === category).map(additive => (
-                      <div key={additive.id} className="bg-navy-800/40 rounded-lg p-3">
-                        <div className="flex justify-between items-start">
-                          <span className="text-sm text-parchment-200 font-medium">{additive.name}</span>
-                          <span className="text-[10px] text-gold-500/60 ml-2 whitespace-nowrap">{additive.usageRate}</span>
-                        </div>
-                        <p className="text-xs text-parchment-500 mt-1">{additive.notes}</p>
-                      </div>
-                    ))}
-                  </div>
+            {(dbView === 'base-oils' || dbView === 'all') && (
+              <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl overflow-hidden">
+                <div className="border-b border-navy-600/30 bg-navy-900/80 px-5 py-3">
+                  <h3 className="font-serif text-lg text-gold-400">Base Oils, Butters, Fats & Waxes</h3>
                 </div>
-              ))}
-            </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-navy-800/60 border-b border-navy-600/30 text-parchment-500 text-xs uppercase">
+                        <th className="text-left py-3 px-4">Name</th>
+                        <th className="text-center py-3 px-2">Type</th>
+                        <th className="text-right py-3 px-2">NaOH SAP</th>
+                        <th className="text-right py-3 px-2">KOH SAP</th>
+                        <th className="text-right py-3 px-2">Iodine</th>
+                        <th className="text-right py-3 px-2">INS</th>
+                        <th className="text-center py-3 px-2">Cost Tier</th>
+                        <th className="text-right py-3 px-2">Cost</th>
+                        <th className="text-right py-3 px-4">Max %</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredDbOils.map(oil => (
+                        <tr
+                          key={oil.id}
+                          className="border-b border-navy-800/30 hover:bg-navy-800/40 cursor-pointer transition-colors"
+                          onClick={() => setSelectedOilInfo(oil)}
+                        >
+                          <td className="py-2.5 px-4 text-parchment-200 hover:text-gold-300 transition-colors">
+                            {oil.name}
+                          </td>
+                          <td className="py-2.5 px-2 text-center">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                              oil.category === 'oil' ? 'bg-green-900/30 text-green-400' :
+                              oil.category === 'butter' ? 'bg-amber-900/30 text-amber-400' :
+                              oil.category === 'fat' ? 'bg-red-900/30 text-red-400' :
+                              'bg-purple-900/30 text-purple-400'
+                            }`}>
+                              {oil.category}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-2 text-right text-parchment-300 font-mono text-xs">{oil.sapNaOH.toFixed(4)}</td>
+                          <td className="py-2.5 px-2 text-right text-parchment-300 font-mono text-xs">{oil.sapKOH}</td>
+                          <td className="py-2.5 px-2 text-right text-parchment-300">{oil.iodine}</td>
+                          <td className="py-2.5 px-2 text-right text-parchment-300">{oil.ins}</td>
+                          <td className="py-2.5 px-2 text-center">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                              oil.costTier === 'budget' ? 'bg-green-900/30 text-green-400' :
+                              oil.costTier === 'mid' ? 'bg-amber-900/30 text-amber-400' :
+                              'bg-purple-900/30 text-purple-400'
+                            }`}>
+                              {oil.costTier}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-2 text-right text-xs text-parchment-400">
+                            {canUseIngredientCosts
+                              ? formatIngredientCost(costMap.get(oil.id))
+                              : 'Plus'}
+                          </td>
+                          <td className="py-2.5 px-4 text-right text-parchment-400">{oil.maxPercent}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {(dbView === 'fragrance' || dbView === 'all') && (
+              <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl overflow-hidden">
+                <div className="border-b border-navy-600/30 bg-navy-900/80 px-5 py-3">
+                  <h3 className="font-serif text-lg text-gold-400">Essential Oils & Fragrances</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-navy-800/60 border-b border-navy-600/30 text-parchment-500 text-xs uppercase">
+                        <th className="text-left py-3 px-4">Name</th>
+                        <th className="text-center py-3 px-2">Type</th>
+                        <th className="text-center py-3 px-2">Family</th>
+                        <th className="text-right py-3 px-2">IFRA Max</th>
+                        <th className="text-right py-3 px-2">Common Use</th>
+                        <th className="text-right py-3 px-2">Flash Point</th>
+                        <th className="text-right py-3 px-4">Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredFragrances.map(fragrance => {
+                        const costKey = ingredientCostKey('fragrance', fragrance.id);
+                        return (
+                          <tr
+                            key={fragrance.id}
+                            className="border-b border-navy-800/30 hover:bg-navy-800/40 cursor-pointer transition-colors"
+                            onClick={() => setSelectedDbIngredient({ kind: 'fragrance', item: fragrance })}
+                          >
+                            <td className="py-2.5 px-4 text-parchment-200 hover:text-gold-300 transition-colors">{fragrance.name}</td>
+                            <td className="py-2.5 px-2 text-center">
+                              <span className="rounded-full bg-cyan-900/30 px-2 py-0.5 text-[10px] text-cyan-300">
+                                {formatIngredientLabel(fragrance.type)}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-2 text-center text-parchment-400">{fragrance.blendFamily}</td>
+                            <td className="py-2.5 px-2 text-right text-parchment-300">{fragrance.ifraMaxPercent}%</td>
+                            <td className="py-2.5 px-2 text-right text-parchment-300">{fragrance.commonUsagePercent}%</td>
+                            <td className="py-2.5 px-2 text-right text-parchment-300">{fragrance.flashPoint ? `${fragrance.flashPoint}F` : 'N/A'}</td>
+                            <td className="py-2.5 px-4 text-right text-xs text-parchment-400">
+                              {canUseIngredientCosts ? formatIngredientCost(costMap.get(costKey)) : 'Plus'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {(dbView === 'colorants' || dbView === 'all') && (
+              <IngredientCardSection
+                title="Colorants"
+                items={filteredColorants}
+                costMap={costMap}
+                canUseIngredientCosts={canUseIngredientCosts}
+                onSelect={item => setSelectedDbIngredient({ kind: 'additive', item })}
+              />
+            )}
+
+            {(dbView === 'additives' || dbView === 'all') && (
+              <IngredientCardSection
+                title="Additives"
+                items={filteredAdditives}
+                costMap={costMap}
+                canUseIngredientCosts={canUseIngredientCosts}
+                onSelect={item => setSelectedDbIngredient({ kind: 'additive', item })}
+              />
+            )}
+
+            {(dbView === 'liquids' || dbView === 'all') && (
+              <IngredientCardSection
+                title="Liquids"
+                items={filteredLiquids}
+                costMap={costMap}
+                canUseIngredientCosts={canUseIngredientCosts}
+                onSelect={item => setSelectedDbIngredient({ kind: 'additive', item })}
+              />
+            )}
           </div>
         )}
 
@@ -1360,6 +1471,18 @@ function SoapCalculatorExperience({
           onSaveCostEntry={handleSaveIngredientCost}
           onRemoveCostEntry={handleRemoveIngredientCost}
           onClose={() => setSelectedOilInfo(null)}
+        />
+      )}
+
+      {selectedDbIngredient && (
+        <IngredientDetailModal
+          item={selectedDbIngredient.item}
+          kind={selectedDbIngredient.kind}
+          costEntry={costMap.get(ingredientCostKey(selectedDbIngredient.kind, selectedDbIngredient.item.id))}
+          canUseIngredientCosts={canUseIngredientCosts}
+          onSaveCostEntry={handleSaveIngredientCost}
+          onRemoveCostEntry={handleRemoveIngredientCost}
+          onClose={() => setSelectedDbIngredient(null)}
         />
       )}
 
@@ -1699,6 +1822,284 @@ function LockedFeature({ title, copy }: { title: string; copy: string }) {
       </Link>
     </div>
   );
+}
+
+function IngredientCardSection({
+  title,
+  items,
+  costMap,
+  canUseIngredientCosts,
+  onSelect,
+}: {
+  title: string;
+  items: Additive[];
+  costMap: Map<string, OilCostEntry>;
+  canUseIngredientCosts: boolean;
+  onSelect: (item: Additive) => void;
+}) {
+  return (
+    <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
+      <h3 className="mb-4 font-serif text-lg text-gold-400">{title}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {items.map(additive => {
+          const costKey = ingredientCostKey('additive', additive.id);
+          return (
+            <button
+              key={additive.id}
+              type="button"
+              onClick={() => onSelect(additive)}
+              className="rounded-lg bg-navy-800/40 p-3 text-left transition-colors hover:bg-navy-800/70"
+            >
+              <div className="flex justify-between items-start gap-3">
+                <span className="text-sm text-parchment-200 font-medium">{additive.name}</span>
+                <span className="text-[10px] text-gold-500/60 whitespace-nowrap">{additive.usageRate}</span>
+              </div>
+              <p className="text-xs text-parchment-500 mt-1">{additive.notes}</p>
+              <div className="mt-2 flex items-center justify-between gap-2 text-[10px] uppercase tracking-wider text-parchment-500">
+                <span>{formatIngredientLabel(additive.category)}</span>
+                <span>{canUseIngredientCosts ? formatIngredientCost(costMap.get(costKey)) : 'Plus'}</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function IngredientDetailModal({
+  item,
+  kind,
+  costEntry,
+  canUseIngredientCosts,
+  onSaveCostEntry,
+  onRemoveCostEntry,
+  onClose,
+}: {
+  item: FragranceData | Additive;
+  kind: 'fragrance' | 'additive';
+  costEntry?: OilCostEntry;
+  canUseIngredientCosts: boolean;
+  onSaveCostEntry?: (entry: OilCostEntry) => void;
+  onRemoveCostEntry?: (oilId: string) => void;
+  onClose: () => void;
+}) {
+  const costKey = ingredientCostKey(kind, item.id);
+  const [itemCost, setItemCost] = useState('');
+  const [shippingCost, setShippingCost] = useState('');
+  const [taxCost, setTaxCost] = useState('');
+  const [unitSize, setUnitSize] = useState('16');
+  const [unit, setUnit] = useState<WeightUnit>('oz');
+  const [supplier, setSupplier] = useState('');
+
+  useEffect(() => {
+    setItemCost(costEntry?.pricePerUnit?.toString() || '');
+    setShippingCost(costEntry?.shippingCost?.toString() || '');
+    setTaxCost(costEntry?.taxCost?.toString() || '');
+    setUnitSize(costEntry?.unitSize?.toString() || '16');
+    setUnit(costEntry?.unit || 'oz');
+    setSupplier(costEntry?.supplier || '');
+  }, [costEntry, costKey]);
+
+  const draftCostEntry = useMemo<OilCostEntry | null>(() => {
+    const price = parseFloat(itemCost);
+    const size = parseFloat(unitSize);
+    if (!Number.isFinite(price) || !Number.isFinite(size) || price <= 0 || size <= 0) return null;
+
+    const shipping = parseFloat(shippingCost);
+    const tax = parseFloat(taxCost);
+    return {
+      oilId: costKey,
+      pricePerUnit: price,
+      shippingCost: Number.isFinite(shipping) && shipping > 0 ? shipping : undefined,
+      taxCost: Number.isFinite(tax) && tax > 0 ? tax : undefined,
+      unitSize: size,
+      unit,
+      supplier: supplier || undefined,
+      lastUpdated: costEntry?.lastUpdated || new Date().toISOString(),
+    };
+  }, [costEntry?.lastUpdated, costKey, itemCost, shippingCost, supplier, taxCost, unit, unitSize]);
+
+  const landedCost = draftCostEntry
+    ? draftCostEntry.pricePerUnit + (draftCostEntry.shippingCost || 0) + (draftCostEntry.taxCost || 0)
+    : null;
+  const fragrance = kind === 'fragrance' ? item as FragranceData : null;
+  const additive = kind === 'additive' ? item as Additive : null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-navy-900 border border-navy-600/50 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-gold-400 font-serif text-xl">{item.name}</h3>
+            <span className="text-xs text-parchment-500 uppercase tracking-wider">
+              {fragrance
+                ? `${formatIngredientLabel(fragrance.type)} · ${fragrance.blendFamily} · ${fragrance.notePosition} note`
+                : additive
+                  ? formatIngredientLabel(additive.category)
+                  : ''}
+            </span>
+          </div>
+          <button onClick={onClose} className="text-parchment-500 hover:text-parchment-200 text-xl">×</button>
+        </div>
+
+        {fragrance && (
+          <div className="mb-5 grid grid-cols-2 gap-3">
+            <ResultBox label="IFRA Max" value={`${fragrance.ifraMaxPercent}%`} />
+            <ResultBox label="Common Use" value={`${fragrance.commonUsagePercent}%`} />
+            <ResultBox label="Flash Point" value={fragrance.flashPoint ? `${fragrance.flashPoint}F` : 'N/A'} />
+            <ResultBox label="Family" value={formatIngredientLabel(fragrance.blendFamily)} />
+          </div>
+        )}
+
+        <p className="mb-3 text-sm text-parchment-300">{item.notes}</p>
+        {fragrance?.safetyNotes && (
+          <p className="mb-5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
+            {fragrance.safetyNotes}
+          </p>
+        )}
+        {additive && (
+          <p className="mb-5 text-xs text-parchment-500">Usage rate: {additive.usageRate}</p>
+        )}
+
+        <div className="rounded-xl border border-navy-600/40 bg-navy-950/40 p-4">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div>
+              <h4 className="text-sm font-medium text-parchment-200">Ingredient Cost</h4>
+              <p className="mt-1 text-xs text-parchment-500">
+                Track item cost, shipping, and tax as landed cost for future shopping lists.
+              </p>
+            </div>
+            {!canUseIngredientCosts && (
+              <span className="rounded-full border border-gold-500/20 px-2 py-1 text-[10px] uppercase tracking-wider text-gold-400">
+                Plus
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <CostNumberInput label="Item Cost" value={itemCost} onChange={setItemCost} disabled={!canUseIngredientCosts} placeholder="12.99" />
+            <CostNumberInput label="Shipping" value={shippingCost} onChange={setShippingCost} disabled={!canUseIngredientCosts} placeholder="0.00" />
+            <CostNumberInput label="Tax" value={taxCost} onChange={setTaxCost} disabled={!canUseIngredientCosts} placeholder="0.00" />
+          </div>
+          <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
+            <CostNumberInput label="Package Size" value={unitSize} onChange={setUnitSize} disabled={!canUseIngredientCosts} placeholder="16" />
+            <label className="text-[10px] uppercase tracking-wider text-parchment-500">
+              Unit
+              <select
+                value={unit}
+                onChange={e => setUnit(e.target.value as WeightUnit)}
+                disabled={!canUseIngredientCosts}
+                className="mt-1 rounded-lg border border-navy-600/40 bg-navy-800 px-2 py-1.5 text-sm text-parchment-200 outline-none focus:border-gold-500/60 disabled:cursor-not-allowed disabled:text-parchment-600"
+              >
+                <option value="oz">oz</option>
+                <option value="lb">lb</option>
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+              </select>
+            </label>
+          </div>
+          <label className="mt-2 block text-[10px] uppercase tracking-wider text-parchment-500">
+            Supplier
+            <input
+              type="text"
+              value={supplier}
+              onChange={e => setSupplier(e.target.value)}
+              disabled={!canUseIngredientCosts}
+              placeholder="Amazon, Bramble Berry, local supplier..."
+              className="mt-1 w-full rounded-lg border border-navy-600/40 bg-navy-800 px-2 py-1.5 text-sm text-parchment-200 placeholder-parchment-600 outline-none focus:border-gold-500/60 disabled:cursor-not-allowed disabled:text-parchment-600"
+            />
+          </label>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="text-xs text-parchment-500">
+              Landed cost:{' '}
+              <span className="font-mono text-gold-300">
+                {draftCostEntry && landedCost !== null
+                  ? `$${landedCost.toFixed(2)} / ${draftCostEntry.unitSize} ${draftCostEntry.unit} ($${pricePerOz(draftCostEntry).toFixed(2)}/oz)`
+                  : 'Not set'}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              {costEntry && (
+                <button
+                  type="button"
+                  onClick={() => onRemoveCostEntry?.(costKey)}
+                  disabled={!canUseIngredientCosts}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:text-parchment-600"
+                >
+                  Clear
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => draftCostEntry && onSaveCostEntry?.(draftCostEntry)}
+                disabled={!canUseIngredientCosts || !draftCostEntry}
+                className="rounded-lg border border-gold-500/20 bg-gold-500/20 px-3 py-1.5 text-xs font-medium text-gold-400 transition-colors hover:bg-gold-500/30 disabled:cursor-not-allowed disabled:border-navy-700/40 disabled:bg-navy-800/40 disabled:text-parchment-600"
+              >
+                Save Cost
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CostNumberInput({
+  label,
+  value,
+  onChange,
+  disabled,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled: boolean;
+  placeholder: string;
+}) {
+  return (
+    <label className="text-[10px] uppercase tracking-wider text-parchment-500">
+      {label}
+      <input
+        type="number"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+        min="0"
+        step="0.01"
+        className="mt-1 w-full rounded-lg border border-navy-600/40 bg-navy-800 px-2 py-1.5 text-sm text-parchment-200 outline-none focus:border-gold-500/60 disabled:cursor-not-allowed disabled:text-parchment-600"
+      />
+    </label>
+  );
+}
+
+function ingredientCostKey(kind: 'oil' | 'fragrance' | 'additive', id: string) {
+  return kind === 'oil' ? id : `${kind}:${id}`;
+}
+
+function ingredientTypeFromCostKey(costKey: string) {
+  if (costKey.startsWith('fragrance:')) return 'fragrance';
+  if (costKey.startsWith('additive:')) return 'additive';
+  return 'oil';
+}
+
+function matchesIngredientSearch(values: string[], search: string) {
+  if (!search.trim()) return true;
+  return values.some(value => value.toLowerCase().includes(search));
+}
+
+function isLiquidAdditive(additive: Additive) {
+  const text = `${additive.id} ${additive.name} ${additive.usageRate} ${additive.notes}`.toLowerCase();
+  return /\b(milk|beer|tea|water|juice|aloe|liquid|replace)\b/.test(text);
+}
+
+function formatIngredientLabel(value: string) {
+  return value.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
 
 function formatIngredientCost(entry?: OilCostEntry) {
