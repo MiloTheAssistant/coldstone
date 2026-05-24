@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -244,6 +245,21 @@ test('buildPublicationRevision creates immutable SRC revision records', () => {
   assert.equal(revision.releaseNotesPublic, 'Initial production stamp.');
   assert.equal(revision.recipeSnapshot.versionId, 'version_1');
   assert.equal(revision.ingredientListSnapshot.length, 1);
+});
+
+test('studio schema defines SRC publication tables and unique codes', () => {
+  const schema = readFileSync(new URL('../app/soap-calculator/studio/schema.sql', import.meta.url), 'utf8');
+  assert.match(schema, /create table if not exists recipe_publications/);
+  assert.match(schema, /src_code text not null unique/);
+  assert.match(schema, /create table if not exists recipe_publication_revisions/);
+  assert.match(schema, /unique \(publication_id, revision_number\)/);
+  assert.match(schema, /unique \(id, publication_id\)/);
+  assert.match(schema, /\(current_revision_id, id\) references recipe_publication_revisions\(id, publication_id\)/);
+  assert.match(schema, /deferrable initially deferred/);
+  assert.match(schema, /create table if not exists ingredient_list_codes/);
+  assert.match(schema, /ilc_code text not null unique/);
+  assert.match(schema, /ingredient_list_codes_revision_publication_fk[\s\S]*\(revision_id, publication_id\) references recipe_publication_revisions\(id, publication_id\)/);
+  assert.match(schema, /partner_export_events_revision_publication_fk[\s\S]*\(revision_id, publication_id\) references recipe_publication_revisions\(id, publication_id\)/);
 });
 
 test('buildPublicationRevision deep-copies nested ingredient metadata', () => {
