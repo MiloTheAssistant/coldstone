@@ -2,6 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { SignUp } from '@clerk/nextjs';
 
+const SOAP_ABACUS_ACCOUNT_URL = '/soap-calculator/account';
+
 export const metadata: Metadata = {
   title: 'Create Account | Soap Abacus Studio',
   description: 'Create a free Soap Abacus account to unlock recipe editing, saving, and membership options.',
@@ -29,7 +31,10 @@ export default function SignUpPage() {
   return (
     <main className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center px-4 py-16">
       {clerkEnabled ? (
-        <SignUp />
+        <SignUp
+          fallbackRedirectUrl={SOAP_ABACUS_ACCOUNT_URL}
+          signInUrl="/sign-in"
+        />
       ) : (
         <div className="max-w-md rounded-xl border border-navy-600/30 bg-navy-900/70 p-8 text-center">
           <h1 className="font-serif text-3xl text-gold-400">Create Your Soap Abacus Account</h1>

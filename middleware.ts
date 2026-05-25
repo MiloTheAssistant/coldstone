@@ -7,7 +7,6 @@ const SOAP_ABACUS_URL = 'https://www.soapabacus.com';
 
 const COLDSTONE_HOSTS = new Set(['coldstonesoap.com', 'www.coldstonesoap.com']);
 const SOAP_ABACUS_HOSTS = new Set(['soapabacus.com', 'www.soapabacus.com']);
-const SOAP_ABACUS_CANONICAL_REDIRECTS = new Set(['/soap-calculator', '/soap-calculator/']);
 const SOAP_ABACUS_ALLOWED_PREFIXES = [
   '/soap-calculator',
   '/api',
@@ -32,18 +31,12 @@ function routeByDomain(request: NextRequest) {
 
   if (COLDSTONE_HOSTS.has(host) && pathname.startsWith('/soap-calculator')) {
     const soapAbacusUrl = new URL(SOAP_ABACUS_URL);
+    soapAbacusUrl.pathname = pathname;
     soapAbacusUrl.search = search;
     return NextResponse.redirect(soapAbacusUrl);
   }
 
   if (!SOAP_ABACUS_HOSTS.has(host)) return undefined;
-
-  if (SOAP_ABACUS_CANONICAL_REDIRECTS.has(pathname)) {
-    const canonicalUrl = new URL(SOAP_ABACUS_URL);
-    canonicalUrl.pathname = '/';
-    canonicalUrl.search = search;
-    return NextResponse.redirect(canonicalUrl);
-  }
 
   if (pathname === '/') {
     const rewriteUrl = request.nextUrl.clone();

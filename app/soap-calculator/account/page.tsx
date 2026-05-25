@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { currentUser } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 import {
   defaultFreeMembership,
   getCurrentSoapAbacusMembership,
@@ -10,8 +11,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function SoapAbacusAccountPage() {
   const user = await currentUser();
+
+  if (!user) {
+    redirect('/sign-in?redirect_url=/soap-calculator/account');
+  }
+
   const setup = await getCurrentSoapAbacusMembership();
-  const membership = setup.ok ? setup.membership : defaultFreeMembership(user?.id || '');
+  const membership = setup.ok ? setup.membership : defaultFreeMembership(user.id);
 
   return (
     <main className="min-h-screen bg-midnight text-parchment-200">
@@ -30,7 +36,7 @@ export default async function SoapAbacusAccountPage() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Membership</p>
             <h1 className="mt-2 font-serif text-4xl text-gold-300">Soap Abacus Account</h1>
             <p className="mt-3 text-sm text-parchment-400">
-              {user?.primaryEmailAddress?.emailAddress || 'Signed-in account'}
+              {user.primaryEmailAddress?.emailAddress || 'Soap Abacus account'}
             </p>
             <dl className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <AccountDatum label="Tier" value={membership.effectiveTier.toUpperCase()} />
