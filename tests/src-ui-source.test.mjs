@@ -124,12 +124,12 @@ test('Soap Abacus account page redirects signed-out users to Clerk sign in', () 
   assert.doesNotMatch(accountPageSource, /Signed-in account/);
 });
 
-test('Soap Abacus middleware serves /soap-calculator directly on the Soap Abacus host', () => {
+test('Soap Abacus middleware keeps the root domain canonical for calculator traffic', () => {
   const middlewareSource = readFileSync(middlewarePath, 'utf8');
 
-  assert.doesNotMatch(middlewareSource, /SOAP_ABACUS_CANONICAL_REDIRECTS/);
-  assert.doesNotMatch(middlewareSource, /canonicalUrl\.pathname = '\/'/);
-  assert.match(middlewareSource, /soapAbacusUrl\.pathname = pathname/);
+  assert.match(middlewareSource, /SOAP_ABACUS_CANONICAL_REDIRECTS/);
+  assert.match(middlewareSource, /soapAbacusUrl\.pathname = '\/'/);
+  assert.match(middlewareSource, /canonicalUrl\.pathname = '\/'/);
   assert.match(middlewareSource, /if \(pathname === '\/'\) \{/);
   assert.match(middlewareSource, /rewriteUrl\.pathname = '\/soap-calculator'/);
   assert.match(middlewareSource, /if \(isSoapAbacusRoute\(pathname\)\) return undefined/);

@@ -12,11 +12,12 @@ test('Coldstone and Soap Abacus domains route to separate experiences', () => {
   assert.match(middlewareSource, /SOAP_ABACUS_HOSTS/);
   assert.match(middlewareSource, /pathname\.startsWith\('\/soap-calculator'\)/);
   assert.match(middlewareSource, /https:\/\/www\.soapabacus\.com/);
-  assert.match(middlewareSource, /soapAbacusUrl\.pathname = pathname/);
+  assert.match(middlewareSource, /soapAbacusUrl\.pathname = '\/'/);
   assert.match(middlewareSource, /NextResponse\.redirect\(soapAbacusUrl\)/);
   assert.match(middlewareSource, /NextResponse\.rewrite\(rewriteUrl\)/);
+  assert.match(middlewareSource, /SOAP_ABACUS_CANONICAL_REDIRECTS/);
+  assert.match(middlewareSource, /canonicalUrl\.pathname = '\/'/);
   assert.match(middlewareSource, /if \(isSoapAbacusRoute\(pathname\)\) return undefined/);
-  assert.doesNotMatch(middlewareSource, /SOAP_ABACUS_CANONICAL_REDIRECTS/);
   assert.match(middlewareSource, /https:\/\/www\.coldstonesoap\.com/);
 });
 
