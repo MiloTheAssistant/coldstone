@@ -125,6 +125,19 @@ export function isRecipeVaultConfigured() {
   return Boolean(process.env.DATABASE_URL);
 }
 
+export function isMissingRecipePublicationSchemaError(error: unknown) {
+  const candidate = error as { code?: unknown; message?: unknown };
+  if (candidate.code !== '42P01' || typeof candidate.message !== 'string') return false;
+  const message = candidate.message;
+
+  return [
+    'recipe_publications',
+    'recipe_publication_revisions',
+    'ingredient_list_codes',
+    'partner_export_events',
+  ].some((tableName) => message.includes(tableName));
+}
+
 function getSql() {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not configured.');

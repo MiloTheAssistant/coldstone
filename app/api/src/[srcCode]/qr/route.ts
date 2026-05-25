@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
-import { getRecipePublicationBySrcCode, isRecipeVaultConfigured } from '@/app/lib/recipe-vault';
+import {
+  getRecipePublicationBySrcCode,
+  isMissingRecipePublicationSchemaError,
+  isRecipeVaultConfigured,
+} from '@/app/lib/recipe-vault';
 import { buildSrcReleaseUrl } from '@/app/lib/src-publication-service';
 import { isValidSrcCode, normalizeSrcCode } from '@/app/soap-calculator/studio/recipe-studio-model';
 
@@ -20,7 +24,16 @@ export async function GET(
     return NextResponse.json({ error: 'SRC not found.' }, { status: 404 });
   }
 
-  const release = await getRecipePublicationBySrcCode(normalized);
+  let release;
+  try {
+    release = await getRecipePublicationBySrcCode(normalized);
+  } catch (error) {
+    if (isMissingRecipePublicationSchemaError(error)) {
+      return NextResponse.json({ error: 'SRC publication database schema is not ready.' }, { status: 503 });
+    }
+    throw error;
+  }
+
   if (!release || release.publication.status === 'revoked') {
     return NextResponse.json({ error: 'SRC not found.' }, { status: 404 });
   }

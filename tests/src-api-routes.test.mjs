@@ -6,6 +6,7 @@ const stampRoutePath = new URL('../app/api/recipes/[id]/src/route.ts', import.me
 const publicRoutePath = new URL('../app/api/src/[srcCode]/route.ts', import.meta.url);
 const qrRoutePath = new URL('../app/api/src/[srcCode]/qr/route.ts', import.meta.url);
 const publicationServicePath = new URL('../app/lib/src-publication-service.ts', import.meta.url);
+const recipeVaultPath = new URL('../app/lib/recipe-vault.ts', import.meta.url);
 
 function readRouteSource(routePath) {
   assert.equal(existsSync(routePath), true, `${routePath.pathname} should exist`);
@@ -70,10 +71,26 @@ test('public SRC lookup route loads and decorates active releases', () => {
   assert.match(source, /decoratePublicRelease/);
   assert.match(source, /const normalized = normalizeSrcCode\(srcCode\)/);
   assert.match(source, /if \(!isValidSrcCode\(normalized\)\) \{/);
-  assert.match(source, /const release = await getRecipePublicationBySrcCode\(normalized\)/);
+  assert.match(source, /release = await getRecipePublicationBySrcCode\(normalized\)/);
   assert.match(source, /release\.publication\.status === 'revoked'/);
   assert.match(source, /return NextResponse\.json\(\{ release: decoratePublicRelease\(release, request\.nextUrl\.origin\) \}\)/);
   assert.doesNotMatch(source, /decorateRelease\(release, request\.nextUrl\.origin\)/);
+});
+
+test('public SRC routes return controlled responses when publication tables are missing', () => {
+  const publicSource = readRouteSource(publicRoutePath);
+  const qrSource = readRouteSource(qrRoutePath);
+  const vaultSource = readRouteSource(recipeVaultPath);
+
+  assert.match(vaultSource, /export function isMissingRecipePublicationSchemaError/);
+  assert.match(vaultSource, /candidate\.code !== '42P01'/);
+  assert.match(vaultSource, /recipe_publications/);
+  assert.match(publicSource, /isMissingRecipePublicationSchemaError/);
+  assert.match(publicSource, /SRC publication database schema is not ready\./);
+  assert.match(publicSource, /status: 503/);
+  assert.match(qrSource, /isMissingRecipePublicationSchemaError/);
+  assert.match(qrSource, /SRC publication database schema is not ready\./);
+  assert.match(qrSource, /status: 503/);
 });
 
 test('public SRC response decoration uses an explicit safe DTO shape', () => {
@@ -119,7 +136,7 @@ test('SRC QR route renders SVG QR codes', () => {
   assert.match(source, /buildSrcReleaseUrl/);
   assert.match(source, /const normalized = normalizeSrcCode\(srcCode\)/);
   assert.match(source, /if \(!isValidSrcCode\(normalized\)\) \{/);
-  assert.match(source, /const release = await getRecipePublicationBySrcCode\(normalized\)/);
+  assert.match(source, /release = await getRecipePublicationBySrcCode\(normalized\)/);
   assert.match(source, /release\.publication\.status === 'revoked'/);
   assert.match(source, /QRCode\.toString/);
   assert.match(source, /buildSrcReleaseUrl\(request\.nextUrl\.origin, normalized\)/);

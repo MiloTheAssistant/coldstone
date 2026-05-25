@@ -2,7 +2,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { decoratePublicRelease } from '@/app/lib/src-publication-service';
-import { getRecipePublicationBySrcCode, isRecipeVaultConfigured } from '@/app/lib/recipe-vault';
+import {
+  getRecipePublicationBySrcCode,
+  isMissingRecipePublicationSchemaError,
+  isRecipeVaultConfigured,
+} from '@/app/lib/recipe-vault';
 import { isValidSrcCode, normalizeSrcCode } from '@/app/soap-calculator/studio/recipe-studio-model';
 
 export const dynamic = 'force-dynamic';
@@ -29,7 +33,14 @@ export default async function SrcReleasePage({ params }: { params: Promise<{ src
   const normalized = normalizeSrcCode(srcCode);
   if (!isValidSrcCode(normalized)) notFound();
 
-  const release = await getRecipePublicationBySrcCode(normalized);
+  let release;
+  try {
+    release = await getRecipePublicationBySrcCode(normalized);
+  } catch (error) {
+    if (isMissingRecipePublicationSchemaError(error)) return <SrcUnavailablePage />;
+    throw error;
+  }
+
   if (!release || release.publication.status === 'revoked') notFound();
 
   const publicRelease = decoratePublicRelease(release, '');
@@ -90,6 +101,25 @@ export default async function SrcReleasePage({ params }: { params: Promise<{ src
             <EntrySection title="Ingredient List" entries={ingredientEntries} emptyText="No public ingredients were released." />
             <FormulaSection recipe={recipe} />
           </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function SrcUnavailablePage() {
+  return (
+    <main className="min-h-screen bg-midnight text-parchment-200">
+      <section className="mx-auto max-w-3xl px-5 py-12">
+        <Link href="/soap-calculator" className="text-sm text-gold-400 hover:text-gold-300">
+          &larr; Soap Calculator
+        </Link>
+        <div className="mt-8 rounded-xl border border-gold-500/20 bg-navy-900/70 p-6">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">SRC Lookup</p>
+          <h1 className="mt-2 font-serif text-3xl text-gold-300">SRC lookup is temporarily unavailable.</h1>
+          <p className="mt-4 text-sm leading-7 text-parchment-400">
+            The Soap Recipe Code database is still being prepared. Try again after the publication tables are ready.
+          </p>
         </div>
       </section>
     </main>
