@@ -21,6 +21,9 @@ export interface SavedRecipe {
   mode?: 'easy' | 'intermediate' | 'expert';
   cloudRecipeId?: string | null;
   visibility?: 'private' | 'public';
+  srcCode?: string | null;
+  ilcCode?: string | null;
+  srcRevision?: number | null;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -134,6 +137,9 @@ export function importRecipesJSON(json: string): { imported: number; errors: num
         mode: item.mode || 'intermediate',
         cloudRecipeId: item.cloudRecipeId || null,
         visibility: item.visibility || 'private',
+        srcCode: item.srcCode || null,
+        ilcCode: item.ilcCode || null,
+        srcRevision: item.srcRevision ?? null,
       });
       imported++;
     }

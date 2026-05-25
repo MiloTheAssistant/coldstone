@@ -937,7 +937,9 @@ export interface RecipeTemplate {
   name: string;
   description: string;
   tags: string[];
-  oils: { oilId: string; percent: number }[];
+  srcCode: string;
+  ilcCode: string;
+  oils: { oilId: string; percent: number; affiliateUrl?: string }[];
   superfat: number;
 }
 
@@ -947,6 +949,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Classic Bastille',
     description: 'A gentle, mostly-olive soap with just enough coconut for lather. Perfect for sensitive skin. Needs 6-8 week cure.',
     tags: ['gentle', 'sensitive-skin', 'classic', 'beginner'],
+    srcCode: 'SA01-CLAS-BSTL-0001-Aa01',
+    ilcCode: 'ILC-CLS-BST-001-Aa1',
     oils: [
       { oilId: 'olive', percent: 70 },
       { oilId: 'coconut-76', percent: 20 },
@@ -960,6 +964,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Old-World Tallow Bar',
     description: 'A firm, long-lasting bar using traditional beef tallow. Outstanding lather and skin feel.',
     tags: ['traditional', 'hard-bar', 'long-lasting', 'tallow'],
+    srcCode: 'SA02-TLOW-BEEF-0002-Bb02',
+    ilcCode: 'ILC-TLW-BEF-002-Bb2',
     oils: [
       { oilId: 'tallow-beef', percent: 45 },
       { oilId: 'olive', percent: 25 },
@@ -974,6 +980,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Everyday Lard Workhorse',
     description: 'Affordable, wonderful everyday bar. Lard makes creamy, white bars with excellent lather.',
     tags: ['budget', 'everyday', 'creamy', 'beginner'],
+    srcCode: 'SA03-LARD-WORK-0003-Cc03',
+    ilcCode: 'ILC-LRD-WRK-003-Cc3',
     oils: [
       { oilId: 'lard', percent: 40 },
       { oilId: 'coconut-76', percent: 25 },
@@ -988,6 +996,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Pure Castile (100% Olive)',
     description: 'The original soap. Ultra-gentle, no lather initially but improves dramatically with 12+ month cure.',
     tags: ['gentle', 'traditional', 'single-oil', 'baby-safe'],
+    srcCode: 'SA04-CAST-OLIV-0004-Dd04',
+    ilcCode: 'ILC-CST-OLV-004-Dd4',
     oils: [
       { oilId: 'olive', percent: 100 },
     ],
@@ -998,6 +1008,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Coconut Salt Bar',
     description: 'Hard, luxurious salt bar with high coconut for lather. Extremely long-lasting.',
     tags: ['hard-bar', 'salt-bar', 'exfoliating', 'long-lasting'],
+    srcCode: 'SA05-SALT-COCO-0005-Ee05',
+    ilcCode: 'ILC-SLT-COC-005-Ee5',
     oils: [
       { oilId: 'coconut-76', percent: 80 },
       { oilId: 'shea-butter', percent: 10 },
@@ -1011,6 +1023,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Luxury Spa Bar',
     description: 'Premium oils for an indulgent, deeply conditioning bar with silky lather.',
     tags: ['luxury', 'spa', 'conditioning', 'gift'],
+    srcCode: 'SA06-LUXS-SPAA-0006-Ff06',
+    ilcCode: 'ILC-LUX-SPA-006-Ff6',
     oils: [
       { oilId: 'olive', percent: 35 },
       { oilId: 'coconut-76', percent: 20 },
@@ -1027,6 +1041,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Vegan Palm-Free',
     description: 'No animal fats, no palm. Hard bar from cocoa butter and coconut with great conditioning.',
     tags: ['vegan', 'palm-free', 'sustainable', 'ethical'],
+    srcCode: 'SA07-VEGN-PALM-0007-Gg07',
+    ilcCode: 'ILC-VGN-PLM-007-Gg7',
     oils: [
       { oilId: 'olive', percent: 40 },
       { oilId: 'coconut-76', percent: 20 },
@@ -1042,6 +1058,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Triple Butter Dream',
     description: 'Three luxurious butters create an ultra-creamy, moisturizing bar.',
     tags: ['luxury', 'moisturizing', 'creamy', 'buttery'],
+    srcCode: 'SA08-TRPL-BUTR-0008-Hh08',
+    ilcCode: 'ILC-TRP-BTR-008-Hh8',
     oils: [
       { oilId: 'olive', percent: 30 },
       { oilId: 'coconut-76', percent: 20 },
@@ -1058,6 +1076,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Charcoal Detox Bar',
     description: 'A cleansing bar designed for oily/acne-prone skin with higher cleansing properties.',
     tags: ['detox', 'cleansing', 'acne', 'oily-skin', 'trendy'],
+    srcCode: 'SA09-CHAR-DETX-0009-Ii09',
+    ilcCode: 'ILC-CHR-DTX-009-Ii9',
     oils: [
       { oilId: 'coconut-76', percent: 30 },
       { oilId: 'olive', percent: 25 },
@@ -1073,6 +1093,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Honey Oatmeal Gentle',
     description: 'Soothing, gentle bar perfect for dry or irritated skin. Pair with colloidal oatmeal and honey.',
     tags: ['gentle', 'soothing', 'dry-skin', 'oatmeal', 'popular'],
+    srcCode: 'SA10-HONY-OATS-0010-Jj10',
+    ilcCode: 'ILC-HNY-OAT-010-Jj0',
     oils: [
       { oilId: 'olive', percent: 40 },
       { oilId: 'lard', percent: 25 },
@@ -1088,6 +1110,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Pine Tar Therapeutic',
     description: 'Traditional therapeutic bar for psoriasis and eczema. Strong, distinctive scent.',
     tags: ['therapeutic', 'psoriasis', 'eczema', 'traditional'],
+    srcCode: 'SA11-PINE-TARR-0011-Kk11',
+    ilcCode: 'ILC-PIN-TAR-011-Kk1',
     oils: [
       { oilId: 'olive', percent: 40 },
       { oilId: 'coconut-76', percent: 20 },
@@ -1102,6 +1126,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Goat Milk Luxury',
     description: 'Creamy goat milk bar with nourishing butters. Excellent for dry, mature skin.',
     tags: ['goat-milk', 'luxury', 'moisturizing', 'popular', 'trendy'],
+    srcCode: 'SA12-GOAT-MILK-0012-Ll12',
+    ilcCode: 'ILC-GOT-MLK-012-Ll2',
     oils: [
       { oilId: 'olive', percent: 30 },
       { oilId: 'coconut-76', percent: 20 },
@@ -1117,6 +1143,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Amazonian Rainforest',
     description: 'Exotic South American oils and butters. Unique, luxurious, conversation-starter bar.',
     tags: ['exotic', 'luxury', 'trendy', 'unique'],
+    srcCode: 'SA13-AMZN-RAIN-0013-Mm13',
+    ilcCode: 'ILC-AMZ-RAN-013-Mm3',
     oils: [
       { oilId: 'olive', percent: 30 },
       { oilId: 'babassu', percent: 20 },
@@ -1134,6 +1162,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Japanese Beauty Bar',
     description: 'Inspired by J-beauty with camellia oil and rice bran. Light, elegant, and conditioning.',
     tags: ['j-beauty', 'trendy', 'elegant', 'conditioning'],
+    srcCode: 'SA14-JPBE-AUTY-0014-Nn14',
+    ilcCode: 'ILC-JPB-AUT-014-Nn4',
     oils: [
       { oilId: 'camellia', percent: 30 },
       { oilId: 'rice-bran', percent: 20 },
@@ -1149,6 +1179,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'African-Inspired Bar',
     description: 'Inspired by African soap traditions using shea, marula, and black cumin seed.',
     tags: ['african', 'traditional', 'trendy', 'healing'],
+    srcCode: 'SA15-AFRN-BLCK-0015-Oo15',
+    ilcCode: 'ILC-AFR-BLK-015-Oo5',
     oils: [
       { oilId: 'olive', percent: 30 },
       { oilId: 'shea-butter', percent: 20 },
@@ -1165,6 +1197,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Craft Beer Bar',
     description: 'Replace water with flat beer for extra sugars (lather boost). Rich, bubbly bar.',
     tags: ['trendy', 'unique', 'craft', 'gift', 'fun'],
+    srcCode: 'SA16-BEER-CRFT-0016-Pp16',
+    ilcCode: 'ILC-BER-CRF-016-Pp6',
     oils: [
       { oilId: 'tallow-beef', percent: 35 },
       { oilId: 'coconut-76', percent: 25 },
@@ -1179,6 +1213,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Gardener\'s Scrub Bar',
     description: 'Heavy-duty cleansing bar for dirty hands. Add pumice, coffee grounds, or poppy seeds.',
     tags: ['exfoliating', 'heavy-duty', 'practical', 'gift'],
+    srcCode: 'SA17-GARD-SCRB-0017-Qq17',
+    ilcCode: 'ILC-GRD-SCR-017-Qq7',
     oils: [
       { oilId: 'coconut-76', percent: 30 },
       { oilId: 'palm', percent: 25 },
@@ -1194,6 +1230,8 @@ export const RECIPE_TEMPLATES: RecipeTemplate[] = [
     name: 'Baby-Safe Gentle Bar',
     description: 'Ultra-mild, unscented bar safe for babies. Low cleansing, high conditioning.',
     tags: ['baby', 'gentle', 'sensitive-skin', 'unscented'],
+    srcCode: 'SA18-BABY-GENT-0018-Rr18',
+    ilcCode: 'ILC-BBY-GNT-018-Rr8',
     oils: [
       { oilId: 'olive', percent: 50 },
       { oilId: 'shea-butter', percent: 15 },

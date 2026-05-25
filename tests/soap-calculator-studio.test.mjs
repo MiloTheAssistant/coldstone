@@ -1,13 +1,26 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+  FEATURE_KEYS,
+  hasFeature,
+} from '../app/soap-calculator/studio/membership-model.js';
+
+import {
+  buildIngredientListSnapshot,
+  buildPublicationRevision,
   buildRecipeSnapshot,
   buildRecipeVaultPayloadFromSavedRecipe,
   calculateAdvancedLye,
+  createIlcCode,
   createRecipeVersion,
   createShareLink,
+  createSrcCode,
   getModeProcess,
+  isValidIlcCode,
+  isValidSrcCode,
+  normalizeSrcCode,
   validateRecipeAccess,
 } from '../app/soap-calculator/studio/recipe-studio-model.js';
 
@@ -71,6 +84,16 @@ test('getModeProcess exposes different guidance density per calculator mode', ()
   );
   assert.ok(getModeProcess('intermediate').some((step) => step.id === 'pricing'));
   assert.ok(getModeProcess('expert').some((step) => step.id === 'expert-controls'));
+});
+
+test('membership features gate SRC stamping by tier', () => {
+  assert.equal(hasFeature({ tier: 'free', effectiveTier: 'free' }, FEATURE_KEYS.SRC_STAMPING), false);
+  assert.equal(hasFeature({ tier: 'plus', effectiveTier: 'plus' }, FEATURE_KEYS.SRC_STAMPING), true);
+  assert.equal(hasFeature({ tier: 'pro', effectiveTier: 'pro' }, FEATURE_KEYS.SRC_STAMPING), true);
+
+  assert.equal(hasFeature({ tier: 'free', effectiveTier: 'free' }, FEATURE_KEYS.SRC_REVISION_UPDATE), false);
+  assert.equal(hasFeature({ tier: 'plus', effectiveTier: 'plus' }, FEATURE_KEYS.SRC_REVISION_UPDATE), false);
+  assert.equal(hasFeature({ tier: 'pro', effectiveTier: 'pro' }, FEATURE_KEYS.SRC_REVISION_UPDATE), true);
 });
 
 test('buildRecipeSnapshot keeps full recipe data private by default', () => {
@@ -149,6 +172,158 @@ test('createShareLink defaults public recipe URLs to Soap Abacus', () => {
   const share = createShareLink(recipe, { token: 'share_default' });
 
   assert.equal(share.url, 'https://www.soapabacus.com/recipes/share_default');
+});
+
+test('createSrcCode and createIlcCode produce public code formats', () => {
+  const srcCode = createSrcCode([0, 1, 61, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]);
+  const ilcCode = createIlcCode([0, 1, 61, 10, 11, 12, 13, 14, 15, 16, 17, 18]);
+
+  assert.equal(srcCode, 'AB9K-LMNO-PQRS-TUVW-XYZa');
+  assert.equal(ilcCode, 'ILC-AB9-KLM-NOP-QRS');
+  assert.equal(isValidSrcCode(srcCode), true);
+  assert.equal(isValidIlcCode(ilcCode), true);
+  assert.equal(normalizeSrcCode('ab9k lmno pqrs tuvw xyza'), 'ab9k-lmno-pqrs-tuvw-xyza');
+});
+
+test('built-in Recipe Blender templates declare SRC, ILC, and future affiliate shopping data', () => {
+  const source = readFileSync(new URL('../app/soap-calculator/data/oils.ts', import.meta.url), 'utf8');
+  const recipeTemplateSource = source.slice(
+    source.indexOf('export const RECIPE_TEMPLATES'),
+    source.indexOf('/**\n * Additive categories'),
+  );
+
+  const templateCount = (recipeTemplateSource.match(/^  \{\r?\n    id: '/gm) || []).length;
+  const srcCodes = recipeTemplateSource.match(/srcCode: '[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}'/g) || [];
+  const ilcCodes = recipeTemplateSource.match(/ilcCode: 'ILC-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}'/g) || [];
+
+  assert.equal(templateCount, 18);
+  assert.equal(srcCodes.length, 18);
+  assert.equal(ilcCodes.length, 18);
+  assert.equal(new Set(srcCodes).size, 18);
+  assert.equal(new Set(ilcCodes).size, 18);
+  assert.match(source, /affiliateUrl\?: string/);
+  assert.match(recipeTemplateSource, /id: 'tallow-tradition'[\s\S]*srcCode: '[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}'[\s\S]*ilcCode: 'ILC-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}'/);
+});
+
+test('normalizeSrcCode preserves case and leaves malformed extra-long input invalid', () => {
+  assert.equal(normalizeSrcCode('aB9k lmNo pQrS tUvW xYZa'), 'aB9k-lmNo-pQrS-tUvW-xYZa');
+
+  const extraLong = normalizeSrcCode('aB9k lmNo pQrS tUvW xYZa EXTRA');
+  assert.equal(isValidSrcCode(extraLong), false);
+});
+
+test('buildIngredientListSnapshot freezes purchase-oriented ingredients', () => {
+  const recipe = buildRecipeSnapshot({
+    id: 'recipe_1',
+    ownerId: 'user_1',
+    name: 'Production Bar',
+    oils: [
+      { oilId: 'olive', name: 'Olive Oil', percent: 35, weight: 11.2, unit: 'oz' },
+      { oilId: 'coconut-76', name: 'Coconut Oil 76', percent: 25, weight: 8, unit: 'oz' },
+    ],
+    liquids: [{ liquidId: 'water', name: 'Water', weight: 9, unit: 'oz' }],
+    fragrances: [{ fragranceId: 'lavender', name: 'Lavender EO', weight: 1, unit: 'oz' }],
+  });
+
+  const snapshot = buildIngredientListSnapshot(recipe);
+  assert.equal(snapshot.length, 4);
+  assert.deepEqual(snapshot[0], {
+    ingredientType: 'oil',
+    ingredientId: 'olive',
+    displayName: 'Olive Oil',
+    percent: 35,
+    weight: 11.2,
+    unit: 'oz',
+    metadata: { oilId: 'olive', name: 'Olive Oil', percent: 35, weight: 11.2, unit: 'oz' },
+  });
+});
+
+test('buildPublicationRevision creates immutable SRC revision records', () => {
+  const recipe = buildRecipeSnapshot({
+    id: 'recipe_1',
+    versionId: 'version_1',
+    ownerId: 'user_1',
+    name: 'Production Bar',
+    oils: [{ oilId: 'olive', name: 'Olive Oil', percent: 35, weight: 11.2, unit: 'oz' }],
+  });
+
+  const revision = buildPublicationRevision({
+    publicationId: 'pub_1',
+    revisionId: 'pubrev_1',
+    srcCode: 'AB9K-LMNO-PQRS-TUVW-XYZa',
+    ilcCode: 'ILC-AB9-KLM-NOP-QRS',
+    recipe,
+    ownerId: 'user_1',
+    revisionNumber: 1,
+    revisionNotes: 'Initial production stamp.',
+    now: '2026-05-23T12:00:00.000Z',
+  });
+
+  assert.equal(revision.srcCode, 'AB9K-LMNO-PQRS-TUVW-XYZa');
+  assert.equal(revision.ilcCode, 'ILC-AB9-KLM-NOP-QRS');
+  assert.equal(revision.revisionNumber, 1);
+  assert.equal(revision.revisionNotes, 'Initial production stamp.');
+  assert.equal(revision.releaseNotesPublic, '');
+  assert.equal(revision.recipeSnapshot.versionId, 'version_1');
+  assert.equal(revision.ingredientListSnapshot.length, 1);
+});
+
+test('studio schema defines SRC publication tables and unique codes', () => {
+  const schema = readFileSync(new URL('../app/soap-calculator/studio/schema.sql', import.meta.url), 'utf8');
+  const publicationSchema = schema.slice(
+    schema.indexOf('create table if not exists recipe_publications'),
+    schema.indexOf('create table if not exists ingredient_list_codes'),
+  );
+  assert.match(schema, /create table if not exists recipe_publications/);
+  assert.match(schema, /src_code text not null unique/);
+  assert.match(schema, /create table if not exists recipe_publication_revisions/);
+  assert.match(schema, /unique \(publication_id, revision_number\)/);
+  assert.match(schema, /unique \(id, publication_id\)/);
+  assert.match(schema, /\(current_revision_id, id\) references recipe_publication_revisions\(id, publication_id\)/);
+  assert.match(schema, /deferrable initially deferred/);
+  assert.match(schema, /recipe_id text not null references recipes\(id\) on delete restrict/);
+  assert.doesNotMatch(publicationSchema, /recipe_id text not null references recipes\(id\) on delete cascade/);
+  assert.match(schema, /recipe_publications_recipe_id_fkey[\s\S]*on delete restrict/);
+  assert.match(schema, /recipe_publication_revisions_recipe_id_fkey[\s\S]*on delete restrict/);
+  assert.match(schema, /create table if not exists ingredient_list_codes/);
+  assert.match(schema, /ilc_code text not null unique/);
+  assert.match(schema, /ingredient_list_codes_revision_publication_fk[\s\S]*\(revision_id, publication_id\) references recipe_publication_revisions\(id, publication_id\)/);
+  assert.match(schema, /partner_export_events_revision_publication_fk[\s\S]*\(revision_id, publication_id\) references recipe_publication_revisions\(id, publication_id\)/);
+});
+
+test('buildPublicationRevision deep-copies nested ingredient metadata', () => {
+  const recipe = buildRecipeSnapshot({
+    id: 'recipe_1',
+    versionId: 'version_1',
+    ownerId: 'user_1',
+    name: 'Nested Vendor Bar',
+    oils: [{
+      oilId: 'olive',
+      name: 'Olive Oil',
+      percent: 35,
+      weight: 11.2,
+      unit: 'oz',
+      vendor: { name: 'Original Supplier', affiliate: { code: 'SUP-1' } },
+    }],
+  });
+
+  const revision = buildPublicationRevision({
+    publicationId: 'pub_1',
+    revisionId: 'pubrev_1',
+    srcCode: 'AB9K-LMNO-PQRS-TUVW-XYZa',
+    ilcCode: 'ILC-AB9-KLM-NOP-QRS',
+    recipe,
+    ownerId: 'user_1',
+    revisionNumber: 1,
+  });
+
+  recipe.oils[0].vendor.name = 'Changed Supplier';
+  recipe.oils[0].vendor.affiliate.code = 'CHANGED';
+
+  assert.deepEqual(revision.ingredientListSnapshot[0].metadata.vendor, {
+    name: 'Original Supplier',
+    affiliate: { code: 'SUP-1' },
+  });
 });
 
 test('validateRecipeAccess keeps recipes private unless owner or valid share token is present', () => {

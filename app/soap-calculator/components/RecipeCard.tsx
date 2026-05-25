@@ -1,6 +1,7 @@
 'use client';
 
-import { RecipeTemplate } from '../data/oils';
+import { useState } from 'react';
+import { OILS_DATABASE, RecipeTemplate } from '../data/oils';
 import { SoapProperties } from '../data/calculator';
 
 interface RecipeCardProps {
@@ -10,12 +11,63 @@ interface RecipeCardProps {
 }
 
 export default function RecipeCard({ template, properties, onLoad }: RecipeCardProps) {
+  const [showShoppingList, setShowShoppingList] = useState(false);
+  const shoppingList = template.oils.map(entry => {
+    const oil = OILS_DATABASE.find(o => o.id === entry.oilId);
+    return {
+      ...entry,
+      name: oil?.name ?? entry.oilId.replace(/-/g, ' '),
+    };
+  });
+
   return (
     <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5 hover:border-gold-500/40 transition-all group">
       <h4 className="text-gold-300 font-serif text-lg group-hover:text-gold-400 transition-colors">
         {template.name}
       </h4>
       <p className="text-parchment-400 text-sm mt-1 mb-3 leading-relaxed">{template.description}</p>
+
+      <div className="mb-4 grid gap-2 rounded-lg border border-gold-500/20 bg-navy-950/40 p-3 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="uppercase tracking-wider text-parchment-500">Template SRC</span>
+          <span className="font-mono text-gold-300">{template.srcCode}</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="uppercase tracking-wider text-parchment-500">ILC</span>
+          <button
+            type="button"
+            onClick={() => setShowShoppingList(open => !open)}
+            className="font-mono text-gold-300 underline decoration-gold-500/40 underline-offset-4 transition-colors hover:text-gold-200"
+            aria-expanded={showShoppingList}
+          >
+            {template.ilcCode}
+          </button>
+        </div>
+        {showShoppingList && (
+          <div className="mt-2 border-t border-navy-700/60 pt-2">
+            <div className="mb-2 text-[10px] uppercase tracking-wider text-parchment-500">ILC Shopping List</div>
+            <ul className="space-y-1.5">
+              {shoppingList.map(item => (
+                <li key={item.oilId} className="flex items-center justify-between gap-3 text-parchment-300">
+                  {item.affiliateUrl ? (
+                    <a
+                      href={item.affiliateUrl}
+                      className="text-parchment-300 underline decoration-navy-500 underline-offset-4 hover:text-gold-200"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <span>{item.name}</span>
+                  )}
+                  <span className="shrink-0 font-mono text-gold-400">{item.percent}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">

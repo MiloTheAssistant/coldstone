@@ -10,6 +10,7 @@ import {
   getLyeCostPerOz,
   setLyeCostPerOz,
   calculateRecipeCost,
+  pricePerOz,
   type OilCostEntry,
   type CostBreakdown,
 } from '../lib/costData';
@@ -38,6 +39,8 @@ export default function CostPanel({
   const [barsPerBatch, setBarsPerBatch] = useState<number>(10);
   const [editingOilId, setEditingOilId] = useState<string | null>(null);
   const [editPrice, setEditPrice] = useState('');
+  const [editShipping, setEditShipping] = useState('');
+  const [editTax, setEditTax] = useState('');
   const [editSize, setEditSize] = useState('');
   const [editUnit, setEditUnit] = useState<WeightUnit>('oz');
   const [editSupplier, setEditSupplier] = useState('');
@@ -57,6 +60,7 @@ export default function CostPanel({
         const serverCosts: OilCostEntry[] = data.costs.map((cost: {
           ingredientId: string;
           pricePerUnit: number;
+          metadata?: Record<string, unknown>;
           unitSize: number;
           unit: WeightUnit;
           supplier?: string | null;
@@ -64,6 +68,8 @@ export default function CostPanel({
         }) => ({
           oilId: cost.ingredientId,
           pricePerUnit: cost.pricePerUnit,
+          shippingCost: Number(cost.metadata?.shippingCost || 0) || undefined,
+          taxCost: Number(cost.metadata?.taxCost || 0) || undefined,
           unitSize: cost.unitSize,
           unit: cost.unit,
           supplier: cost.supplier || undefined,
@@ -79,12 +85,16 @@ export default function CostPanel({
 
   const handleSavePrice = useCallback((oilId: string) => {
     const price = parseFloat(editPrice);
+    const shipping = parseFloat(editShipping);
+    const tax = parseFloat(editTax);
     const size = parseFloat(editSize);
     if (isNaN(price) || isNaN(size) || price <= 0 || size <= 0) return;
 
     saveCostEntry({
       oilId,
       pricePerUnit: price,
+      shippingCost: Number.isFinite(shipping) && shipping > 0 ? shipping : undefined,
+      taxCost: Number.isFinite(tax) && tax > 0 ? tax : undefined,
       unitSize: size,
       unit: editUnit,
       supplier: editSupplier || undefined,
@@ -101,6 +111,8 @@ export default function CostPanel({
           ingredientId: oilId,
           ingredientType: 'oil',
           pricePerUnit: price,
+          shippingCost: Number.isFinite(shipping) && shipping > 0 ? shipping : undefined,
+          taxCost: Number.isFinite(tax) && tax > 0 ? tax : undefined,
           unitSize: size,
           unit: editUnit,
           supplier: editSupplier || undefined,
@@ -108,7 +120,7 @@ export default function CostPanel({
       });
     }
     setEditingOilId(null);
-  }, [canUseIngredientCosts, editPrice, editSize, editUnit, editSupplier, onCostEntriesChange]);
+  }, [canUseIngredientCosts, editPrice, editShipping, editTax, editSize, editUnit, editSupplier, onCostEntriesChange]);
 
   const handleRemovePrice = useCallback((oilId: string) => {
     removeCostEntry(oilId);
@@ -130,6 +142,8 @@ export default function CostPanel({
     const existing = costEntries.find(e => e.oilId === oilId);
     setEditingOilId(oilId);
     setEditPrice(existing?.pricePerUnit?.toString() || '');
+    setEditShipping(existing?.shippingCost?.toString() || '');
+    setEditTax(existing?.taxCost?.toString() || '');
     setEditSize(existing?.unitSize?.toString() || '16');
     setEditUnit(existing?.unit || 'oz');
     setEditSupplier(existing?.supplier || '');
@@ -223,7 +237,7 @@ export default function CostPanel({
                   {costEntry && !isEditing ? (
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-green-400">
-                        ${costEntry.pricePerUnit} / {costEntry.unitSize} {costEntry.unit}
+                        ${pricePerOz(costEntry).toFixed(2)}/oz
                       </span>
                       <button
                         onClick={() => startEditing(entry.oilId)}
@@ -256,7 +270,7 @@ export default function CostPanel({
                   <div className="mt-2 space-y-2">
                     <div className="flex gap-2">
                       <div className="flex-1">
-                        <label className="text-[10px] text-parchment-600 block mb-0.5">Price ($)</label>
+                        <label className="text-[10px] text-parchment-600 block mb-0.5">Item Cost ($)</label>
                         <input
                           type="number"
                           value={editPrice}
@@ -268,6 +282,32 @@ export default function CostPanel({
                           autoFocus
                         />
                       </div>
+                      <div className="flex-1">
+                        <label className="text-[10px] text-parchment-600 block mb-0.5">Shipping</label>
+                        <input
+                          type="number"
+                          value={editShipping}
+                          onChange={e => setEditShipping(e.target.value)}
+                          placeholder="0.00"
+                          step="0.01"
+                          min="0"
+                          className="w-full bg-navy-800 border border-navy-600/40 rounded px-2 py-1 text-sm text-parchment-200 focus:outline-none focus:border-gold-500/60"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-[10px] text-parchment-600 block mb-0.5">Tax</label>
+                        <input
+                          type="number"
+                          value={editTax}
+                          onChange={e => setEditTax(e.target.value)}
+                          placeholder="0.00"
+                          step="0.01"
+                          min="0"
+                          className="w-full bg-navy-800 border border-navy-600/40 rounded px-2 py-1 text-sm text-parchment-200 focus:outline-none focus:border-gold-500/60"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
                       <div className="flex-1">
                         <label className="text-[10px] text-parchment-600 block mb-0.5">Size</label>
                         <input
