@@ -12,7 +12,7 @@
 
 ## Learning Resources
 - [Blog](https://www.coldstonesoap.com/blog): Soapmaking notes, ingredient guides, grooming tips, and behind-the-batch writing.
-- [Soapmaking Lesson Library](https://www.coldstonesoap.com/soap-making): Public guided lesson modules rewritten from Coldstone soapmaking PDFs with chapter notes, SoapAbacus checkpoints, safety guidance, and printable checklists.
+- [Soapmaking Lesson Library](https://www.coldstonesoap.com/soap-making): Public guided lesson modules for the soapmaking community with chapter notes, SoapAbacus checkpoints, safety guidance, recommended bench practices, and printable checklists.
 - [Soap Making 101](https://www.coldstonesoap.com/soap-making/soap-making-101-beginners-guide): Beginner path for method choice, safety, ingredients, tools, first project planning, and batch records.
 - [Cold Process Soap Making Guide](https://www.coldstonesoap.com/soap-making/cold-process-soap-making-guide): Guided cold process workflow with lye safety, formula checks, trace, pour, cure, and batch improvement.
 - [Hot Process Soap Making Guide](https://www.coldstonesoap.com/soap-making/hot-process-soap-making-guide): Hot process guide covering heat, lye safety, cook stages, additives, mold, cure, and troubleshooting.

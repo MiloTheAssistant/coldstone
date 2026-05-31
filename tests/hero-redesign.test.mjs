@@ -9,7 +9,7 @@ test('homepage uses art-directed desktop and mobile hero assets', () => {
   assert.match(pageSource, /coldstone-field-kit-ritual-mobile\.png/);
   assert.doesNotMatch(pageSource, /Pure\.<br \/>Natural\.<br \/>Uncompromising\./);
   assert.match(pageSource, /Built for the Ritual/);
-  assert.match(pageSource, /Ready for Hard Use/);
+  assert.match(pageSource, /Ready for the Real Work/);
   assert.match(pageSource, /Field Kit Ritual/);
 });
 

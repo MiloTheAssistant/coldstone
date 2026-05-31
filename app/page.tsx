@@ -139,7 +139,7 @@ export default function Home() {
               </p>
               <h1 className="font-serif text-[2.05rem] font-bold leading-[1.04] tracking-wide text-parchment-100 sm:text-6xl md:text-6xl lg:text-7xl">
                 Built for the Ritual.<br />
-                <span className="text-stone-300">Ready for Hard Use.</span>
+                <span className="text-stone-300">Ready for the Real Work.</span>
               </h1>
               <div className="my-7 h-px w-16 bg-stone-400/80" />
               <p className="max-w-[320px] text-sm leading-7 text-parchment-300 sm:max-w-xl sm:text-base">

@@ -39,7 +39,7 @@ export default function SoapMakingPage() {
       <PageIntro
         eyebrow="Soapmaking Lessons"
         title="A field manual for better soapmaking decisions."
-        description="Fourteen guided modules built from the source PDFs, rewritten into Coldstone-standard lessons with practical chapter flow, bench notes, calculator checkpoints, and printable checklists."
+        description="Fourteen guided modules for the soapmaking community, each chapter centered on a specific fundamental, recommended bench practice, calculator checkpoint, and printable checklist for making safer, better-documented soap batches."
       />
       <main className="bg-navy-900 px-5 pb-16 sm:px-6 md:pb-24">
         <div className="mx-auto max-w-7xl pt-12">
