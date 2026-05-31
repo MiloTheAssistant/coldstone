@@ -16,7 +16,7 @@ export const mainNavLinks: SiteLink[] = [
   { label: 'Shop', href: '/shop' },
   { label: 'Soap Calculator', ...SOAP_ABACUS_LINK },
   { label: 'Blog', href: '/blog' },
-  { label: 'Process', href: '/#process' },
+  { label: 'Lesson Library', href: '/soap-making' },
   { label: 'About', href: '/#about' },
   { label: 'FAQ', href: '/faq' },
 ];

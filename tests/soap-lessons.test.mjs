@@ -8,6 +8,7 @@ import {
   getLessonModules,
   lessonModules,
 } from '../app/data/soap-lessons.ts';
+import { mainNavLinks } from '../app/data/site.ts';
 
 const expectedModules = [
   ['soap-making-101-beginners-guide', 8],
@@ -140,4 +141,18 @@ test('soap lesson public routes and crawler files are wired', async () => {
   assert.match(sitemapSource, /\/soap-making/);
   assert.match(llmsSource, /Soapmaking Lesson Library/);
   assert.match(llmsSource, /https:\/\/www\.coldstonesoap\.com\/soap-making/);
+});
+
+test('main navigation points learners to the soap lesson library', () => {
+  assert.deepEqual(
+    mainNavLinks.map((link) => [link.label, link.href]),
+    [
+      ['Shop', '/shop'],
+      ['Soap Calculator', 'https://www.soapabacus.com'],
+      ['Blog', '/blog'],
+      ['Lesson Library', '/soap-making'],
+      ['About', '/#about'],
+      ['FAQ', '/faq'],
+    ],
+  );
 });
