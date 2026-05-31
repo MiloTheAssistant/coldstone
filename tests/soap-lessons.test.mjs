@@ -8,6 +8,11 @@ import {
   getLessonModules,
   lessonModules,
 } from '../app/data/soap-lessons.ts';
+import {
+  LESSON_LIBRARY_PREVIEW_MODULE_SLUG,
+  hasProLessonLibraryAccess,
+  isPublicLessonModule,
+} from '../app/lib/lesson-library-rules.ts';
 import { mainNavLinks } from '../app/data/site.ts';
 
 const expectedModules = [
@@ -132,15 +137,41 @@ test('soap lesson public routes and crawler files are wired', async () => {
   const llmsSource = await readFile(new URL('../public/llms.txt', import.meta.url), 'utf8');
 
   assert.match(indexSource, /getLessonModules/);
-  assert.match(moduleSource, /generateStaticParams/);
+  assert.match(moduleSource, /export const dynamic = 'force-dynamic'/);
+  assert.doesNotMatch(moduleSource, /generateStaticParams/);
   assert.match(moduleSource, /getLessonModuleBySlug/);
-  assert.match(chapterSource, /generateStaticParams/);
+  assert.match(moduleSource, /getLessonLibraryAccess/);
+  assert.match(moduleSource, /isPublicLessonModule/);
+  assert.match(moduleSource, /LessonPaywall/);
+  assert.match(moduleSource, /Unlock Chapters/);
+  assert.match(chapterSource, /export const dynamic = 'force-dynamic'/);
+  assert.doesNotMatch(chapterSource, /generateStaticParams/);
+  assert.match(chapterSource, /getLessonLibraryAccess/);
+  assert.match(chapterSource, /if \(!access\.allowed\) {\s*return <LessonPaywall/s);
   assert.match(chapterSource, /LessonNoteTag/);
   assert.match(chapterSource, /LessonChecklist/);
+  assert.match(chapterSource, /index: false/);
   assert.match(sitemapSource, /getLessonModules/);
+  assert.match(sitemapSource, /LESSON_LIBRARY_PREVIEW_MODULE_SLUG/);
   assert.match(sitemapSource, /\/soap-making/);
+  assert.doesNotMatch(sitemapSource, /module\.chapters\.map/);
   assert.match(llmsSource, /Soapmaking Lesson Library/);
   assert.match(llmsSource, /https:\/\/www\.coldstonesoap\.com\/soap-making/);
+  assert.match(llmsSource, /active Pro subscription/);
+  assert.doesNotMatch(llmsSource, /cold-process-soap-making-guide/);
+});
+
+test('soap lesson paywall allows only the public preview module and active Pro lesson access', () => {
+  assert.equal(LESSON_LIBRARY_PREVIEW_MODULE_SLUG, 'soap-making-101-beginners-guide');
+  assert.equal(isPublicLessonModule('soap-making-101-beginners-guide'), true);
+  assert.equal(isPublicLessonModule('cold-process-soap-making-guide'), false);
+
+  assert.equal(hasProLessonLibraryAccess({ tier: 'pro', effectiveTier: 'pro', status: 'active' }), true);
+  assert.equal(hasProLessonLibraryAccess({ tier: 'plus', effectiveTier: 'plus', status: 'active' }), false);
+  assert.equal(hasProLessonLibraryAccess({ tier: 'free', effectiveTier: 'free', status: 'free' }), false);
+  assert.equal(hasProLessonLibraryAccess({ tier: 'pro', effectiveTier: 'pro', status: 'trialing' }), false);
+  assert.equal(hasProLessonLibraryAccess({ tier: 'pro', effectiveTier: 'pro', status: 'past_due' }), false);
+  assert.equal(hasProLessonLibraryAccess({ tier: 'pro', effectiveTier: 'free', status: 'canceled' }), false);
 });
 
 test('main navigation points learners to the soap lesson library', () => {

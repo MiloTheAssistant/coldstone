@@ -43,6 +43,7 @@ const FEATURE_KEYS = {
   AI_RECIPE_BLENDER: 'recipe-blender:ai',
   TEMPLATE_RECIPE_BLENDER: 'recipe-blender:templates',
   ADVANCED_PRICING: 'costing:advanced-pricing',
+  LESSON_LIBRARY: 'lessons:full-library',
 };
 
 const TIER_FEATURES = {
@@ -90,6 +91,7 @@ const TIER_FEATURES = {
     FEATURE_KEYS.AI_RECIPE_BLENDER,
     FEATURE_KEYS.TEMPLATE_RECIPE_BLENDER,
     FEATURE_KEYS.ADVANCED_PRICING,
+    FEATURE_KEYS.LESSON_LIBRARY,
   ],
 };
 
@@ -123,6 +125,7 @@ const TIER_FEATURE_LABELS = {
     'Advanced pricing and margin tools',
     'Advanced lye controls',
     'Full cost propagation across the Abacus',
+    'Full Soapmaking Lesson Library',
   ],
 };
 

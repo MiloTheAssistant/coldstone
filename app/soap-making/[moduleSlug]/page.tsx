@@ -5,19 +5,20 @@ import { notFound } from 'next/navigation';
 import Header from '../../components/Header';
 import JsonLd from '../../components/JsonLd';
 import SiteFooter from '../../components/SiteFooter';
-import { getLessonModuleBySlug, getLessonModules } from '../../data/soap-lessons';
+import { getLessonModuleBySlug } from '../../data/soap-lessons';
+import { getLessonLibraryAccess } from '../../lib/lesson-library-access';
+import { isPublicLessonModule } from '../../lib/lesson-library-rules';
 import { SITE_NAME, SITE_URL, absoluteUrl } from '../../lib/seo';
 import LessonAuthorityLinks from '../components/LessonAuthorityLinks';
 import LessonChecklist from '../components/LessonChecklist';
 import LessonChapterNav from '../components/LessonChapterNav';
+import LessonPaywall from '../components/LessonPaywall';
 
 interface ModulePageProps {
   params: Promise<{ moduleSlug: string }>;
 }
 
-export function generateStaticParams() {
-  return getLessonModules().map((lessonModule) => ({ moduleSlug: lessonModule.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: ModulePageProps): Promise<Metadata> {
   const { moduleSlug } = await params;
@@ -25,6 +26,20 @@ export async function generateMetadata({ params }: ModulePageProps): Promise<Met
 
   if (!lessonModule) {
     return { title: `Soapmaking Module Not Found | ${SITE_NAME}` };
+  }
+
+  if (!isPublicLessonModule(lessonModule.slug)) {
+    return {
+      title: `Pro Soapmaking Module | ${SITE_NAME}`,
+      description: 'Active Pro subscribers can open the full Coldstone Soapmaking Lesson Library.',
+      alternates: {
+        canonical: `/soap-making/${lessonModule.slug}`,
+      },
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
   }
 
   return {
@@ -49,6 +64,15 @@ export default async function SoapLessonModulePage({ params }: ModulePageProps) 
 
   if (!lessonModule) notFound();
 
+  const requestedPath = `/soap-making/${lessonModule.slug}`;
+  const access = await getLessonLibraryAccess();
+  const previewModule = isPublicLessonModule(lessonModule.slug);
+  const canOpenFullLessons = access.allowed;
+
+  if (!previewModule && !canOpenFullLessons) {
+    return <LessonPaywall reason={access.reason} requestedPath={requestedPath} />;
+  }
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -61,12 +85,14 @@ export default async function SoapLessonModulePage({ params }: ModulePageProps) 
       url: SITE_URL,
     },
     image: absoluteUrl(lessonModule.chapters[0].image.src),
-    hasCourseInstance: lessonModule.chapters.map((chapter, index) => ({
-      '@type': 'CreativeWork',
-      position: index + 1,
-      name: chapter.title,
-      url: `${SITE_URL}/soap-making/${lessonModule.slug}/${chapter.slug}`,
-    })),
+    hasCourseInstance: canOpenFullLessons
+      ? lessonModule.chapters.map((chapter, index) => ({
+          '@type': 'CreativeWork',
+          position: index + 1,
+          name: chapter.title,
+          url: `${SITE_URL}/soap-making/${lessonModule.slug}/${chapter.slug}`,
+        }))
+      : undefined,
   };
 
   return (
@@ -95,7 +121,7 @@ export default async function SoapLessonModulePage({ params }: ModulePageProps) 
                 href={`/soap-making/${lessonModule.slug}/${lessonModule.chapters[0].slug}`}
                 className="border border-crimson-600 bg-crimson-600/20 px-6 py-3 text-center text-[11px] uppercase tracking-[0.22em] text-parchment-100 hover:bg-crimson-600"
               >
-                Start Chapter 1
+                {canOpenFullLessons ? 'Start Chapter 1' : 'Unlock Chapters'}
               </Link>
               <a
                 href="#checklist"

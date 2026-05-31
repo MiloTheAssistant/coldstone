@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { getPublishedBlogPosts } from './data/blog';
 import { getLessonModules } from './data/soap-lessons';
 import { products } from './data/products';
+import { LESSON_LIBRARY_PREVIEW_MODULE_SLUG } from './lib/lesson-library-rules';
 import { absoluteUrl } from './lib/seo';
 
 const staticRoutes = [
@@ -19,6 +20,7 @@ const staticRoutes = [
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const lessonModules = getLessonModules();
+  const publicLessonModules = lessonModules.filter((module) => module.slug === LESSON_LIBRARY_PREVIEW_MODULE_SLUG);
 
   return [
     ...staticRoutes.map((route) => ({
@@ -39,19 +41,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.65,
     })),
-    ...lessonModules.flatMap((module) => [
-      {
-        url: absoluteUrl(`/soap-making/${module.slug}`),
-        lastModified: now,
-        changeFrequency: 'monthly' as const,
-        priority: 0.72,
-      },
-      ...module.chapters.map((chapter) => ({
-        url: absoluteUrl(`/soap-making/${module.slug}/${chapter.slug}`),
-        lastModified: now,
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
-      })),
-    ]),
+    ...publicLessonModules.map((module) => ({
+      url: absoluteUrl(`/soap-making/${module.slug}`),
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.72,
+    })),
   ];
 }

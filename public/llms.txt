@@ -12,21 +12,8 @@
 
 ## Learning Resources
 - [Blog](https://www.coldstonesoap.com/blog): Soapmaking notes, ingredient guides, grooming tips, and behind-the-batch writing.
-- [Soapmaking Lesson Library](https://www.coldstonesoap.com/soap-making): Public guided lesson modules for the soapmaking community with chapter notes, SoapAbacus checkpoints, safety guidance, recommended bench practices, and printable checklists.
-- [Soap Making 101](https://www.coldstonesoap.com/soap-making/soap-making-101-beginners-guide): Beginner path for method choice, safety, ingredients, tools, first project planning, and batch records.
-- [Cold Process Soap Making Guide](https://www.coldstonesoap.com/soap-making/cold-process-soap-making-guide): Guided cold process workflow with lye safety, formula checks, trace, pour, cure, and batch improvement.
-- [Hot Process Soap Making Guide](https://www.coldstonesoap.com/soap-making/hot-process-soap-making-guide): Hot process guide covering heat, lye safety, cook stages, additives, mold, cure, and troubleshooting.
-- [Melt and Pour Soap Making Notes](https://www.coldstonesoap.com/soap-making/melt-and-pour-soap-making-notes): Melt and pour workflow for base selection, heat control, additives, layers, wrapping, and next-step formula learning.
-- [Lye and Oil Ratio Chart](https://www.coldstonesoap.com/soap-making/lye-and-oil-ratio-quick-reference-chart): Reference module explaining why ratio charts are not recipes and how to verify formulas in SoapAbacus.
-- [Essential Oils for Soap Making](https://www.coldstonesoap.com/soap-making/essential-oils-for-soap-making-quick-reference-chart): Essential oil workflow for IFRA limits, supplier documents, blending, testing, and gram conversion.
-- [Fragrance Oils Guide](https://www.coldstonesoap.com/soap-making/fragrance-oils-guide): Fragrance oil workflow for supplier documents, usage rates, acceleration, design choice, and cure records.
-- [Colorants and Natural Additives](https://www.coldstonesoap.com/soap-making/colorants-and-natural-additives-notes): Colorant and additive workflow for sourcing, dispersion, trace effects, gel, cure, and batch documentation.
-- [Exfoliants in Soap](https://www.coldstonesoap.com/soap-making/exfoliants-in-soap-printable-chart): Exfoliant reference for use case, particle size, rate, suspension, pour timing, and printable chart records.
-- [Soap Recipe Template Guide](https://www.coldstonesoap.com/soap-making/soap-recipe-template-guide): Batch template module for formula identity, oils, lye, additives, scent documents, color, trace, cure, and QC.
-- [Specialty Soap Recipes Guide](https://www.coldstonesoap.com/soap-making/specialty-soap-recipes-guide): Specialty soap module for milk, sugars, minerals, botanicals, alternate liquids, scent systems, and collection evaluation.
-- [Swirling and Layering Techniques](https://www.coldstonesoap.com/soap-making/swirling-and-layering-techniques-guide): Design technique module for slow-moving formulas, color maps, trace targets, layering, swirling, gel, cut, and QC.
-- [Soap Troubleshooting Guide](https://www.coldstonesoap.com/soap-making/soap-troubleshooting-guide): Troubleshooting module for triage, batter behavior, heat, surface defects, texture failures, fragrance issues, rescue methods, and formula prevention.
-- [Soap Packaging and Branding Notes](https://www.coldstonesoap.com/soap-making/soap-packaging-and-branding-notes): Packaging module for protection, brand system, materials, claim boundaries, label design, product architecture, and shipping tests.
+- [Soapmaking Lesson Library](https://www.coldstonesoap.com/soap-making): Public lesson library overview for the soapmaking community. Full chapter lessons and advanced modules require an active Pro subscription.
+- [Soap Making 101](https://www.coldstonesoap.com/soap-making/soap-making-101-beginners-guide): Public preview module for method choice, safety, ingredients, tools, first project planning, and batch records. Chapter lessons require active Pro access.
 - [What Is Cold Process Soap?](https://www.coldstonesoap.com/blog/what-is-cold-process-soap): Guide to cold process soap and saponification.
 - [Why Handmade Soap Needs to Cure](https://www.coldstonesoap.com/blog/why-handmade-soap-needs-to-cure): Explanation of soap cure time and bar longevity.
 - [Activated Charcoal Soap](https://www.coldstonesoap.com/blog/activated-charcoal-soap-what-it-is): Practical guide to activated charcoal in handmade soap.

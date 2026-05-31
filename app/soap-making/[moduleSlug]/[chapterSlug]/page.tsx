@@ -5,25 +5,20 @@ import { notFound } from 'next/navigation';
 import Header from '../../../components/Header';
 import JsonLd from '../../../components/JsonLd';
 import SiteFooter from '../../../components/SiteFooter';
-import { getLessonChapterBySlug, getLessonModuleBySlug, getLessonModules } from '../../../data/soap-lessons';
+import { getLessonChapterBySlug, getLessonModuleBySlug } from '../../../data/soap-lessons';
+import { getLessonLibraryAccess } from '../../../lib/lesson-library-access';
 import { SITE_NAME, SITE_URL, absoluteUrl } from '../../../lib/seo';
 import LessonAuthorityLinks from '../../components/LessonAuthorityLinks';
 import LessonChapterNav from '../../components/LessonChapterNav';
 import LessonChecklist from '../../components/LessonChecklist';
 import LessonNoteTag from '../../components/LessonNoteTag';
+import LessonPaywall from '../../components/LessonPaywall';
 
 interface ChapterPageProps {
   params: Promise<{ moduleSlug: string; chapterSlug: string }>;
 }
 
-export function generateStaticParams() {
-  return getLessonModules().flatMap((lessonModule) =>
-    lessonModule.chapters.map((chapter) => ({
-      moduleSlug: lessonModule.slug,
-      chapterSlug: chapter.slug,
-    })),
-  );
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: ChapterPageProps): Promise<Metadata> {
   const { moduleSlug, chapterSlug } = await params;
@@ -35,17 +30,14 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
   }
 
   return {
-    title: `${chapter.title} | ${lessonModule.title} | ${SITE_NAME}`,
-    description: chapter.objective,
+    title: `Pro Soapmaking Chapter | ${SITE_NAME}`,
+    description: 'Active Pro subscribers can open guided Coldstone soapmaking chapters, bench notes, calculator checkpoints, and checklists.',
     alternates: {
       canonical: `/soap-making/${lessonModule.slug}/${chapter.slug}`,
     },
-    openGraph: {
-      title: chapter.title,
-      description: chapter.objective,
-      type: 'article',
-      url: `${SITE_URL}/soap-making/${lessonModule.slug}/${chapter.slug}`,
-      images: [{ url: chapter.image.src, width: 1536, height: 864, alt: chapter.image.alt }],
+    robots: {
+      index: false,
+      follow: false,
     },
   };
 }
@@ -56,6 +48,13 @@ export default async function SoapLessonChapterPage({ params }: ChapterPageProps
   const chapter = getLessonChapterBySlug(moduleSlug, chapterSlug);
 
   if (!lessonModule || !chapter) notFound();
+
+  const requestedPath = `/soap-making/${lessonModule.slug}/${chapter.slug}`;
+  const access = await getLessonLibraryAccess();
+
+  if (!access.allowed) {
+    return <LessonPaywall reason={access.reason} requestedPath={requestedPath} />;
+  }
 
   const chapterIndex = lessonModule.chapters.findIndex((candidate) => candidate.slug === chapter.slug);
   const previous = lessonModule.chapters[chapterIndex - 1];

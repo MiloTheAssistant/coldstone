@@ -23,12 +23,15 @@ test('Soap Abacus tiers expose the planned feature sets', () => {
   assert.equal(hasFeature({ tier: 'free' }, FEATURE_KEYS.INGREDIENT_COSTS), false);
   assert.equal(hasFeature({ tier: 'plus' }, FEATURE_KEYS.INGREDIENT_COSTS), true);
   assert.equal(hasFeature({ tier: 'plus' }, FEATURE_KEYS.AI_RECIPE_BLENDER), false);
+  assert.equal(hasFeature({ tier: 'plus' }, FEATURE_KEYS.LESSON_LIBRARY), false);
   assert.equal(hasFeature({ tier: 'pro' }, FEATURE_KEYS.AI_RECIPE_BLENDER), true);
   assert.equal(hasFeature({ tier: 'pro' }, FEATURE_KEYS.PDF_EXPORT), true);
+  assert.equal(hasFeature({ tier: 'pro' }, FEATURE_KEYS.LESSON_LIBRARY), true);
 
   assert.ok(getFeatureListForTier('free').some((feature) => /Recipe Designer/.test(feature)));
   assert.ok(getFeatureListForTier('plus').some((feature) => /ingredient cost/i.test(feature)));
   assert.ok(getFeatureListForTier('pro').some((feature) => /AI Recipe Blender/.test(feature)));
+  assert.ok(getFeatureListForTier('pro').some((feature) => /Lesson Library/.test(feature)));
 });
 
 test('trial memberships resolve to Pro while active and Free after expiry', () => {
