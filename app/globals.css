@@ -74,6 +74,11 @@ body {
   animation-play-state: paused;
 }
 
+.lesson-note-tag:hover .lesson-note-tooltip,
+.lesson-note-tag:focus-within .lesson-note-tooltip {
+  opacity: 1 !important;
+}
+
 /* ── Scroll Reveal ── */
 .sr-up {
   opacity: 0;
@@ -127,15 +132,20 @@ body {
   /* Hide everything except the printable recipe */
   body > * { visibility: hidden; }
   .printable-recipe,
-  .printable-recipe * {
+  .printable-recipe *,
+  .lesson-printable-checklist,
+  .lesson-printable-checklist * {
     visibility: visible !important;
     display: revert !important;
   }
-  .printable-recipe {
+  .printable-recipe,
+  .lesson-printable-checklist {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
+    background: white !important;
+    color: black !important;
   }
   /* Hide interactive / screen-only elements */
   .print\\:hidden { display: none !important; }

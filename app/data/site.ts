@@ -16,7 +16,7 @@ export const mainNavLinks: SiteLink[] = [
   { label: 'Shop', href: '/shop' },
   { label: 'Soap Calculator', ...SOAP_ABACUS_LINK },
   { label: 'Blog', href: '/blog' },
-  { label: 'Process', href: '/#process' },
+  { label: 'Lesson Library', href: '/soap-making' },
   { label: 'About', href: '/#about' },
   { label: 'FAQ', href: '/faq' },
 ];
@@ -35,6 +35,7 @@ export const footerGroups: { title: string; links: SiteLink[] }[] = [
     title: 'Explore',
     links: [
       { label: 'Soap Calculator', ...SOAP_ABACUS_LINK },
+      { label: 'Soap Lessons', href: '/soap-making' },
       { label: 'Blog', href: '/blog' },
       { label: 'Our Process', href: '/#process' },
       { label: 'About', href: '/#about' },
