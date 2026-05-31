@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedBlogPosts } from './data/blog';
+import { getLessonModules } from './data/soap-lessons';
 import { products } from './data/products';
 import { absoluteUrl } from './lib/seo';
 
@@ -7,6 +8,7 @@ const staticRoutes = [
   '/',
   '/shop',
   '/blog',
+  '/soap-making',
   '/faq',
   '/shipping',
   '/returns',
@@ -16,6 +18,7 @@ const staticRoutes = [
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
+  const lessonModules = getLessonModules();
 
   return [
     ...staticRoutes.map((route) => ({
@@ -36,5 +39,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.65,
     })),
+    ...lessonModules.flatMap((module) => [
+      {
+        url: absoluteUrl(`/soap-making/${module.slug}`),
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.72,
+      },
+      ...module.chapters.map((chapter) => ({
+        url: absoluteUrl(`/soap-making/${module.slug}/${chapter.slug}`),
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      })),
+    ]),
   ];
 }

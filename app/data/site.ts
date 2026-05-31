@@ -35,6 +35,7 @@ export const footerGroups: { title: string; links: SiteLink[] }[] = [
     title: 'Explore',
     links: [
       { label: 'Soap Calculator', ...SOAP_ABACUS_LINK },
+      { label: 'Soap Lessons', href: '/soap-making' },
       { label: 'Blog', href: '/blog' },
       { label: 'Our Process', href: '/#process' },
       { label: 'About', href: '/#about' },
