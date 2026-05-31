@@ -129,6 +129,9 @@ test('Soap Abacus UI and environment declare Studio tier concepts', () => {
   assert.match(calculatorSource, /Recipe Blender/);
   assert.match(calculatorSource, /Ingredients DB/);
   assert.match(calculatorSource, /Recipe Cache/);
+  assert.match(calculatorSource, /Lesson Library/);
+  assert.match(calculatorSource, /LESSON_LIBRARY_URL = 'https:\/\/www\.coldstonesoap\.com\/soap-making'/);
+  assert.match(calculatorSource, /href=\{LESSON_LIBRARY_URL\}/);
   assert.match(calculatorSource, /Soap Designer/);
   assert.match(calculatorSource, /Recipe Console/);
   assert.match(calculatorSource, /Recipe Workbench/);
@@ -147,6 +150,9 @@ test('signed-out visitors see a read-only Studio preview instead of a hard paywa
   assert.match(calculatorSource, /Create a Free Account to Unlock Soap Abacus/);
   assert.match(calculatorSource, /Log In \/ Sign Up/);
   assert.match(calculatorSource, /ReadOnlyPreviewBanner/);
+  assert.match(calculatorSource, /LessonLibraryPromoBanner/);
+  assert.match(calculatorSource, /Build better soap from the bench up/);
+  assert.match(calculatorSource, /Preview the first module and unlock every guided chapter with Pro/);
   assert.match(calculatorSource, /<ReadOnlyPreviewShell/);
   assert.match(calculatorSource, /<PreviewAuthActions \/>/);
   assert.equal((calculatorSource.match(/<PreviewAuthActions \/>/g) || []).length, 1);

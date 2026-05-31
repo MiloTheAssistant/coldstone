@@ -73,6 +73,15 @@ const PREVIEW_MEMBERSHIP: MembershipState = {
   features: [],
 };
 
+const LESSON_LIBRARY_URL = 'https://www.coldstonesoap.com/soap-making';
+
+const STUDIO_TABS: { id: Tab; label: string }[] = [
+  { id: 'calculator', label: 'Recipe Designer' },
+  { id: 'generator', label: 'Recipe Blender' },
+  { id: 'oils-db', label: 'Ingredients DB' },
+  { id: 'my-recipes', label: 'Recipe Cache' },
+];
+
 // ─── Page Component ──────────────────────────────────────────────────────────
 
 function SoapCalculatorExperience({
@@ -553,12 +562,7 @@ function SoapCalculatorExperience({
       {/* Tab Navigation */}
       <nav className="overflow-x-auto border-b border-navy-600/20 bg-navy-900/40">
         <div className="mx-auto flex w-max min-w-full max-w-7xl gap-1 px-4 lg:w-full lg:min-w-0">
-          {([
-            { id: 'calculator', label: 'Recipe Designer' },
-            { id: 'generator', label: 'Recipe Blender' },
-            { id: 'oils-db', label: 'Ingredients DB' },
-            { id: 'my-recipes', label: 'Recipe Cache' },
-          ] as { id: Tab; label: string }[]).map(tab => (
+          {STUDIO_TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -571,6 +575,12 @@ function SoapCalculatorExperience({
               {tab.label}
             </button>
           ))}
+          <a
+            href={LESSON_LIBRARY_URL}
+            className="shrink-0 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-parchment-500 transition-colors hover:text-gold-300 sm:px-5"
+          >
+            Lesson Library
+          </a>
         </div>
       </nav>
 
@@ -1652,16 +1662,44 @@ function ReadOnlyPreviewBanner() {
   return (
     <section className="border-b border-gold-500/20 bg-navy-950/95">
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Studio Preview</p>
-          <h2 className="mt-1 font-serif text-2xl text-gold-300">Create a Free Account to Unlock Soap Abacus</h2>
-          <p className="mt-1 max-w-3xl text-sm text-parchment-400">
-            Explore the Recipe Designer layout, lye and water outputs, property scoring, Ingredients DB, and pricing tiers.
-            Create a free account to start editing recipes and saving to Recipe Cache.
-          </p>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,27rem)] lg:items-stretch">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Studio Preview</p>
+            <h2 className="mt-1 font-serif text-2xl text-gold-300">Create a Free Account to Unlock Soap Abacus</h2>
+            <p className="mt-1 max-w-3xl text-sm text-parchment-400">
+              Explore the Recipe Designer layout, lye and water outputs, property scoring, Ingredients DB, and pricing tiers.
+              Create a free account to start editing recipes and saving to Recipe Cache.
+            </p>
+          </div>
+          <LessonLibraryPromoBanner />
         </div>
       </div>
     </section>
+  );
+}
+
+function LessonLibraryPromoBanner() {
+  return (
+    <a
+      href={LESSON_LIBRARY_URL}
+      aria-label="Explore the Coldstone Soapmaking Lesson Library"
+      className="group relative block min-h-[128px] overflow-hidden border border-gold-500/25 bg-midnight p-4 shadow-lg shadow-black/25 transition-colors hover:border-gold-400/70 sm:p-5"
+      style={{
+        backgroundImage:
+          "linear-gradient(90deg, rgba(2, 6, 14, 0.94), rgba(2, 6, 14, 0.74)), url('/brand/lessons/soap-making-101-beginners-guide/choose-your-soapmaking-path.png')",
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+      }}
+    >
+      <span className="text-[10px] uppercase tracking-[0.24em] text-gold-400">Lesson Library</span>
+      <h3 className="mt-2 max-w-[18rem] font-serif text-xl leading-snug text-parchment-100">Build better soap from the bench up.</h3>
+      <p className="mt-2 max-w-[22rem] text-xs leading-5 text-parchment-300">
+        Preview the first module and unlock every guided chapter with Pro.
+      </p>
+      <span className="mt-4 inline-flex text-[10px] font-semibold uppercase tracking-[0.22em] text-gold-300 group-hover:text-gold-200">
+        Explore Lessons
+      </span>
+    </a>
   );
 }
 
