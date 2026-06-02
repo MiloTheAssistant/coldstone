@@ -235,7 +235,7 @@ export default function SavedRecipesList({
       <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 className="text-gold-400 font-serif text-lg">Recipe Cache</h3>
+            <h3 className="text-gold-400 font-serif text-lg">Maker Recipes</h3>
             <p className="text-parchment-500 text-sm mt-1">
               {recipes.length === 0 ? 'No saved recipes yet.' : `${recipes.length} recipe(s) saved`}
             </p>
@@ -407,7 +407,7 @@ export default function SavedRecipesList({
           <div className="text-3xl mb-3 opacity-30">&#128203;</div>
           <p className="text-parchment-400 text-sm mb-2">No saved recipes yet</p>
           <p className="text-parchment-500 text-xs">
-            Build a recipe in the Recipe Designer tab, then click &ldquo;Save&rdquo; to keep it here.
+            Build a recipe in the Recipe Workspace tab, then click &ldquo;Save&rdquo; to keep it here.
           </p>
         </div>
       )}

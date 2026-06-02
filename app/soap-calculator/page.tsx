@@ -76,10 +76,10 @@ const PREVIEW_MEMBERSHIP: MembershipState = {
 const LESSON_LIBRARY_URL = 'https://www.coldstonesoap.com/soap-making';
 
 const STUDIO_TABS: { id: Tab; label: string }[] = [
-  { id: 'calculator', label: 'Recipe Designer' },
+  { id: 'calculator', label: 'Recipe Workspace' },
   { id: 'generator', label: 'Recipe Blender' },
-  { id: 'oils-db', label: 'Ingredients DB' },
-  { id: 'my-recipes', label: 'Recipe Cache' },
+  { id: 'oils-db', label: 'Ingredients Bench' },
+  { id: 'my-recipes', label: 'Maker Recipes' },
 ];
 
 // ─── Page Component ──────────────────────────────────────────────────────────
@@ -114,7 +114,7 @@ function SoapCalculatorExperience({
   const [waterValue, setWaterValue] = useState(2);
   const [kohPurityPercent, setKohPurityPercent] = useState(100);
   const [unit, setUnit] = useState<WeightUnit>('oz');
-  const [recipeName, setRecipeName] = useState('Recipe Console');
+  const [recipeName, setRecipeName] = useState('Maker Batch');
   const [calculatorMode, setCalculatorMode] = useState<CalculatorMode>('easy');
 
   // ── Generator state ──
@@ -530,7 +530,7 @@ function SoapCalculatorExperience({
   // ── Render ──
 
   return (
-    <div className="min-h-screen bg-midnight text-parchment-200">
+    <div className="soap-abacus-light min-h-screen bg-midnight text-parchment-200">
       {/* Header */}
       <header className="border-b border-navy-600/30 bg-navy-950/80 backdrop-blur-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -539,7 +539,7 @@ function SoapCalculatorExperience({
               &larr; Home
             </a>
             <h1 className="text-gold-400 font-serif text-xl md:text-2xl tracking-wide">
-              Soap Abacus Studio
+              Soap Abacus
             </h1>
           </div>
           <div className="flex items-center gap-4">
@@ -598,7 +598,7 @@ function SoapCalculatorExperience({
               {/* Recipe Name & Settings */}
               <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
                 <div className="mb-3">
-                  <h2 className="text-gold-400 font-serif text-lg">Soap Designer</h2>
+                  <h2 className="text-gold-400 font-serif text-lg">Recipe Workspace</h2>
                 </div>
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <input
@@ -606,7 +606,7 @@ function SoapCalculatorExperience({
                     value={recipeName}
                     onChange={e => setRecipeName(e.target.value)}
                     className="w-full min-w-0 flex-1 bg-transparent font-serif text-xl text-gold-300 placeholder-parchment-600 outline-none"
-                    placeholder="Recipe Console..."
+                    placeholder="Maker Batch..."
                   />
                   <div className="flex flex-wrap gap-2 sm:flex-shrink-0">
                     <button
@@ -714,7 +714,7 @@ function SoapCalculatorExperience({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {/* Total Oil Weight */}
                   <div>
                     <label className="text-xs text-parchment-500 uppercase tracking-wider block mb-1">
@@ -866,7 +866,7 @@ function SoapCalculatorExperience({
               <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <div>
-                    <h3 className="text-gold-400 font-serif text-lg">Recipe Workbench</h3>
+                    <h3 className="text-gold-400 font-serif text-lg">Batch Builder</h3>
                     <p className="text-parchment-500 text-xs mt-1">
                       {calculatorMode === 'easy'
                         ? 'A guided path from idea to ready-to-save soap recipe.'
@@ -959,7 +959,7 @@ function SoapCalculatorExperience({
               {/* Lye Results */}
               {recipeResult && totalPercent === 100 && (
                 <div className="bg-navy-900/60 border border-gold-500/20 rounded-xl p-5">
-                  <h3 className="text-gold-400 font-serif text-lg mb-4">Recipe Results</h3>
+                  <h3 className="text-gold-400 font-serif text-lg mb-4">Formula Check</h3>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <ResultBox label={`${lyeType} Needed`} value={`${recipeResult.lye.lyeWeight} ${unit}`} accent />
@@ -1016,7 +1016,7 @@ function SoapCalculatorExperience({
             <div className="space-y-6">
               {/* Properties Panel */}
               <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
-                <h3 className="text-gold-400 font-serif text-lg mb-4">Soap Properties</h3>
+                <h3 className="text-gold-400 font-serif text-lg mb-4">Formula Profile</h3>
                 {oilEntries.length === 0 ? (
                   <p className="text-parchment-500 text-sm text-center py-4">Add oils to see properties.</p>
                 ) : (
@@ -1226,7 +1226,7 @@ function SoapCalculatorExperience({
             {/* Search & Filter */}
             <div className="bg-navy-900/60 border border-navy-600/30 rounded-xl p-5">
               <h3 className="text-gold-400 font-serif text-lg mb-3">
-                Ingredients DB: Oils, Fragrance, Colorants, Additives & Liquids ({OILS_DATABASE.length + FRAGRANCES_DATABASE.length + ADDITIVES.length} ingredients)
+                Ingredients Bench: Oils, Fragrance, Colorants, Additives & Liquids ({OILS_DATABASE.length + FRAGRANCES_DATABASE.length + ADDITIVES.length} ingredients)
               </h3>
 
               <div className="mb-4 flex flex-wrap gap-2">
@@ -1498,7 +1498,7 @@ function SoapCalculatorExperience({
 
       {/* Footer */}
       <footer className="border-t border-navy-600/20 mt-12 py-6 text-center text-parchment-500 text-xs">
-        <p>Coldstone Soap Co. &mdash; Soap Abacus Studio</p>
+        <p>Coldstone Soap Co. &mdash; Soap Abacus Recipe Workspace</p>
         <p className="mt-1">
           SAP values are approximations. Always verify with your oil supplier.
           Superfat your recipes for safety.
@@ -1569,9 +1569,9 @@ export default function SoapCalculatorPage() {
 
   if (!clerkEnabled) {
     return (
-      <div className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center px-4">
+      <div className="soap-abacus-light min-h-screen bg-midnight text-parchment-200 flex items-center justify-center px-4">
         <div className="max-w-lg rounded-xl border border-navy-600/30 bg-navy-900/70 p-8 text-center">
-          <h1 className="font-serif text-3xl text-gold-400">Soap Abacus Studio</h1>
+          <h1 className="font-serif text-3xl text-gold-400">Soap Abacus</h1>
           <p className="mt-3 text-sm text-parchment-400">
             Clerk is required before the membership paywall can run in this environment.
           </p>
@@ -1630,8 +1630,8 @@ function SoapStudioGate() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center">
-        <p className="text-sm text-parchment-500">Loading Soap Abacus Studio...</p>
+      <div className="soap-abacus-light min-h-screen bg-midnight text-parchment-200 flex items-center justify-center">
+        <p className="text-sm text-parchment-500">Loading Soap Abacus...</p>
       </div>
     );
   }
@@ -1652,8 +1652,8 @@ function SoapStudioGate() {
 
 function SoapStudioLoading() {
   return (
-    <div className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center">
-      <p className="text-sm text-parchment-500">Loading Soap Abacus Studio...</p>
+    <div className="soap-abacus-light min-h-screen bg-midnight text-parchment-200 flex items-center justify-center">
+      <p className="text-sm text-parchment-500">Loading Soap Abacus...</p>
     </div>
   );
 }
@@ -1664,11 +1664,11 @@ function ReadOnlyPreviewBanner() {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,27rem)] lg:items-stretch">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Studio Preview</p>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-gold-500/70">Workspace Preview</p>
             <h2 className="mt-1 font-serif text-2xl text-gold-300">Create a Free Account to Unlock Soap Abacus</h2>
             <p className="mt-1 max-w-3xl text-sm text-parchment-400">
-              Explore the Recipe Designer layout, lye and water outputs, property scoring, Ingredients DB, and pricing tiers.
-              Create a free account to start editing recipes and saving to Recipe Cache.
+              Explore the Recipe Workspace layout, lye and water outputs, property scoring, Ingredients Bench, and pricing tiers.
+              Create a free account to start editing recipes and saving to Maker Recipes.
             </p>
           </div>
           <LessonLibraryPromoBanner />

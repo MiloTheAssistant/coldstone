@@ -29,6 +29,6 @@ test('Coldstone calculator links advertise the Soap Abacus root in a new tab', (
 
 test('Soap Abacus Studio has Soap Abacus metadata and product-site home link', () => {
   assert.match(calculatorLayoutSource, /metadataBase:\s*new URL\('https:\/\/www\.soapabacus\.com'\)/);
-  assert.match(calculatorLayoutSource, /Soap Abacus Studio \| Recipe Designer/);
+  assert.match(calculatorLayoutSource, /Soap Abacus \| Recipe Workspace for Makers/);
   assert.match(calculatorSource, /href="https:\/\/www\.coldstonesoap\.com"/);
 });

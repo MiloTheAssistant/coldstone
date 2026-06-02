@@ -123,18 +123,18 @@ test('annual checkout records annual billing interval metadata', () => {
   assert.equal(options.subscription_data.metadata.soap_abacus_billing_interval, 'annual');
 });
 
-test('Soap Abacus UI and environment declare Studio tier concepts', () => {
-  assert.match(calculatorSource, /Soap Abacus Studio/);
-  assert.match(calculatorSource, /Recipe Designer/);
+test('Soap Abacus UI and environment declare workspace tier concepts', () => {
+  assert.match(calculatorSource, /Soap Abacus/);
+  assert.match(calculatorSource, /Recipe Workspace/);
   assert.match(calculatorSource, /Recipe Blender/);
-  assert.match(calculatorSource, /Ingredients DB/);
-  assert.match(calculatorSource, /Recipe Cache/);
+  assert.match(calculatorSource, /Ingredients Bench/);
+  assert.match(calculatorSource, /Maker Recipes/);
   assert.match(calculatorSource, /Lesson Library/);
   assert.match(calculatorSource, /LESSON_LIBRARY_URL = 'https:\/\/www\.coldstonesoap\.com\/soap-making'/);
   assert.match(calculatorSource, /href=\{LESSON_LIBRARY_URL\}/);
-  assert.match(calculatorSource, /Soap Designer/);
-  assert.match(calculatorSource, /Recipe Console/);
-  assert.match(calculatorSource, /Recipe Workbench/);
+  assert.match(calculatorSource, /Recipe Workspace/);
+  assert.match(calculatorSource, /Maker Batch/);
+  assert.match(calculatorSource, /Batch Builder/);
   assert.match(calculatorSource, /Cost Tier/);
 
   assert.match(envExample, /STRIPE_PRICE_SOAP_ABACUS_PLUS_MONTHLY=/);
@@ -144,9 +144,9 @@ test('Soap Abacus UI and environment declare Studio tier concepts', () => {
   assert.match(webhookSource, /soap-abacus/);
 });
 
-test('signed-out visitors see a read-only Studio preview instead of a hard paywall', () => {
+test('signed-out visitors see a read-only workspace preview instead of a hard paywall', () => {
   assert.match(calculatorSource, /isReadOnlyPreview/);
-  assert.match(calculatorSource, /Studio Preview/);
+  assert.match(calculatorSource, /Workspace Preview/);
   assert.match(calculatorSource, /Create a Free Account to Unlock Soap Abacus/);
   assert.match(calculatorSource, /Log In \/ Sign Up/);
   assert.match(calculatorSource, /ReadOnlyPreviewBanner/);

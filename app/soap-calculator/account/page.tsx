@@ -20,11 +20,11 @@ export default async function SoapAbacusAccountPage() {
   const membership = setup.ok ? setup.membership : defaultFreeMembership(user.id);
 
   return (
-    <main className="min-h-screen bg-midnight text-parchment-200">
+    <main className="soap-abacus-light min-h-screen bg-midnight text-parchment-200">
       <section className="max-w-6xl mx-auto px-5 py-10">
         <div className="flex items-center justify-between gap-4">
           <Link href="/soap-calculator" className="text-sm text-gold-400 hover:text-gold-300">
-            &larr; Soap Abacus Studio
+            &larr; Soap Abacus
           </Link>
           <span className="rounded-full border border-gold-500/20 px-3 py-1 text-[10px] uppercase tracking-wider text-gold-400">
             {membership.effectiveTier} · {membership.status}
@@ -47,12 +47,12 @@ export default async function SoapAbacusAccountPage() {
           </section>
 
           <section className="rounded-xl border border-navy-600/30 bg-navy-900/70 p-6">
-            <h2 className="font-serif text-2xl text-gold-300">Studio Checklist</h2>
+            <h2 className="font-serif text-2xl text-gold-300">Maker Checklist</h2>
             <ul className="mt-4 space-y-2 text-sm text-parchment-400">
-              <li>Confirm your Recipe Designer defaults.</li>
-              <li>Add supplier costs in Ingredients DB.</li>
-              <li>Save important formulas to Recipe Cache.</li>
-              <li>Use Recipe Workbench notes for batch and cure tracking.</li>
+              <li>Confirm your Recipe Workspace defaults.</li>
+              <li>Add supplier costs in Ingredients Bench.</li>
+              <li>Save important formulas to Maker Recipes.</li>
+              <li>Use Batch Builder notes for batch and cure tracking.</li>
               <li>Export PDFs after upgrading to Pro.</li>
             </ul>
           </section>
