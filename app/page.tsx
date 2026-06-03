@@ -47,7 +47,7 @@ const processSteps = [
     step: "02",
     title: "Why is Coldstone soap slow cured?",
     detail:
-      "Slow cured means each Coldstone bar rests for 4-6 weeks after it is cut and before it is sold. During that cure window, water continues to leave the bar and the structure becomes firmer, which helps the soap hold its shape in regular sink, shower, or travel-kit use. Cure time is not a medical or cosmetic claim; it is a practical soapmaking step that works with good bar care, a draining dish, airflow, and dry storage between washes.",
+      "Coldstone soap is slow cured because cold process bars need time after cutting before they are ready for daily use. Each Coldstone bar rests for 4-6 weeks before sale, giving water time to leave the soap and the bar structure time to become firmer. For customers, slow curing supports a harder handmade soap bar for regular sink, shower, or travel-kit use. Cure time is not a medical or cosmetic claim; it works with a draining dish, airflow, and dry storage between washes.",
   },
   {
     step: "03",
@@ -407,7 +407,7 @@ export default function Home() {
             </h2>
             <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
-              SoapAbacus is Coldstone&apos;s companion recipe-planning workspace for cold process soapmakers. Use it to calculate lye and water amounts, compare oil choices, adjust batch size, explore recipe goals, save notes, and review formula math before a batch. SoapAbacus is designed for planning and documentation; makers still need accurate scales, protective equipment, safe lye handling, and their own process judgment at the bench.
+              SoapAbacus is the Coldstone soap calculator for cold process recipe planning. Soapmakers can use SoapAbacus to calculate lye and water amounts, compare oil choices, adjust batch size, explore recipe goals, save notes, and review formula math before a batch. The calculator is designed for planning and documentation, not automatic safety approval. Makers still need accurate scales, protective equipment, safe lye handling, supplier limits, and their own process judgment at the bench.
             </p>
             <a
               href={SOAP_ABACUS_LINK.href}
