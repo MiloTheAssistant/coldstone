@@ -7,15 +7,15 @@
     <style>
 :root {
         color-scheme: dark;
-        --bg: #0f1218;
-        --panel: #171b24;
-        --panel-2: #202838;
-        --text: #f5f7fb;
-        --muted: #c2cad8;
-        --subtle: #8b95a7;
-        --line: rgba(255, 255, 255, 0.12);
-        --accent: #4f8cff;
-        --accent-2: #7dd3fc;
+        --bg: #101113;
+        --panel: #181a1d;
+        --panel-2: #202328;
+        --text: #f4f1ed;
+        --muted: #bbb5ad;
+        --subtle: #87827b;
+        --line: rgba(255, 255, 255, 0.11);
+        --accent: #ff7a1a;
+        --accent-2: #ffc26d;
         --good: #55d68f;
         --warn: #ffd166;
         --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
@@ -29,8 +29,8 @@
       body {
         margin: 0;
         background:
-          linear-gradient(120deg, rgba(79, 140, 255, 0.12), transparent 34%),
-          linear-gradient(180deg, #151a24 0%, var(--bg) 34%, #0b0d12 100%);
+          linear-gradient(120deg, rgba(255, 122, 26, 0.08), transparent 34%),
+          linear-gradient(180deg, #151619 0%, var(--bg) 34%, #0d0e10 100%);
         color: var(--text);
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
@@ -91,7 +91,7 @@
       }
 
       h1 {
-        max-width: 820px;
+        max-width: 780px;
         margin-top: 14px;
         font-size: clamp(38px, 6vw, 72px);
         letter-spacing: -0.03em;
@@ -152,7 +152,7 @@
         justify-content: space-between;
         padding: 28px;
         background:
-          radial-gradient(circle at 50% 18%, rgba(79, 140, 255, 0.34), transparent 42%),
+          radial-gradient(circle at 50% 18%, rgba(255, 122, 26, 0.32), transparent 42%),
           linear-gradient(180deg, var(--panel-2), var(--panel));
       }
 
@@ -195,11 +195,6 @@
       .pill.good {
         border-color: rgba(85, 214, 143, 0.45);
         color: var(--good);
-      }
-
-      .pill.warn {
-        border-color: rgba(255, 209, 102, 0.45);
-        color: var(--warn);
       }
 
       .section {
@@ -373,13 +368,12 @@
           padding: 22px;
         }
       }
-
-      .crawler-status { text-transform: capitalize; }
-      .metric .value,
-      .meta span {
-        overflow-wrap: anywhere;
-        word-break: normal;
-      }
+h1, h2, h3 { letter-spacing: 0; }
+.pill.medium, .pill.warning { background: rgba(255, 209, 102, 0.16); color: var(--warn); }
+.pill.high, .pill.critical { background: rgba(255, 122, 26, 0.18); color: var(--accent-2); }
+.pill.low { background: rgba(255, 255, 255, 0.08); color: var(--muted); }
+.crawler-status { text-transform: capitalize; }
+.footer { color: var(--muted); margin-top: 24px; }
     </style>
   </head>
   <body>
@@ -388,35 +382,15 @@
         <div class="hero-main">
           <div class="eyebrow">GEO / SEO Audit Report</div>
           <h1>Coldstone Soap Co. | Pure. American. Uncompromising.</h1>
-          <p class="hero-copy">
-            Browser-ready summary of the live GEO/SEO audit and local citability/schema improvements:
-            AI crawler access, llms.txt, canonical policy, structured data, product evidence,
-            breadcrumbs, ItemList schema, and answer-ready passages for AI search visibility.
-          </p>
+          <p class="hero-copy">Browser-ready GEO/SEO report for <a href="https://www.coldstonesoap.com">https://www.coldstonesoap.com</a>. This report uses the St. Louis Creations GEO audit HTML report as its visual template and fills it with the latest captured audit evidence.</p>
           <div class="meta-grid">
-            <div class="meta">
-              <strong>Audit Date</strong>
-              <span>June 03, 2026 12:17 PM Central Daylight Time</span>
-            </div>
-            <div class="meta">
-              <strong>Target</strong>
-              <span>www.coldstonesoap.com</span>
-            </div>
-            <div class="meta">
-              <strong>Repo</strong>
-              <span>D:\Dev\ColdStoneSoap-Website</span>
-            </div>
-          </div>
-          <div class="pill-row">
-            <span class="pill good">100/100 live quick audit</span>
-            <span class="pill good">llms.txt live</span>
-            <span class="pill good">18 sitemap URLs</span>
-            <span class="pill good">Crawler access open</span>
-            <span class="pill warn">Local changes pending publish</span>
+            <div class="metric"><span class="label">Audit Date</span><span class="value">June 03, 2026 01:14 PM Central Daylight Time</span></div>
+            <div class="metric"><span class="label">Target Host</span><span class="value">www.coldstonesoap.com</span></div>
+            <div class="metric"><span class="label">Findings</span><span class="value"></span></div>
           </div>
         </div>
-        <aside class="score-card" aria-label="GEO readiness scores">
-          <div class="eyebrow">Live Quick Audit</div>
+        <aside class="score-card" aria-label="GEO quick audit score">
+          <div class="eyebrow">Quick Audit</div>
           <div class="score-number">100<small>/100</small></div>
           <p><strong>Excellent.</strong> Score from the no-dependency GEO quick audit helper.</p>
         </aside>
@@ -424,11 +398,11 @@
 
       <section class="section grid-3">
         <div class="metric"><span class="label">HTTP Status</span><span class="value">200</span><p>text/html; charset=utf-8</p></div>
-<div class="metric"><span class="label">Canonical</span><span class="value">Live</span><p><a href="https://www.coldstonesoap.com">https://www.coldstonesoap.com</a></p></div>
-<div class="metric"><span class="label">Words Captured</span><span class="value">753</span></div>
+<div class="metric"><span class="label">Canonical</span><span class="value">https://www.coldstonesoap.com</span></div>
+<div class="metric"><span class="label">Words Captured</span><span class="value">1228</span></div>
 <div class="metric"><span class="label">Schema Types</span><span class="value">Organization, Place, PostalAddress, WebSite</span></div>
 <div class="metric"><span class="label">Internal Links</span><span class="value">16</span></div>
-<div class="metric"><span class="label">Images Missing Alt</span><span class="value">0</span></div>
+<div class="metric"><span class="label">Images Missing Alt</span><span class="value"></span></div>
       </section>
 
       <section class="section grid-3">
@@ -440,32 +414,30 @@
       <section class="section panel">
         <h2>Executive Summary</h2>
         <p>Handcrafted cold process soap. Veteran owned. Small batch. Minimal ingredients. Made in the USA.</p>
-        <p>The live quick GEO/SEO audit remains excellent at 100/100 with no technical findings, valid crawler files, 18 sitemap URL hints, and 18 llms.txt links. The implementation pass in this working tree focuses on the remaining high-value opportunity: stronger answer-ready content and structured discovery schema for AI search visibility.</p>
-        <p>Production has not been redeployed as part of this report refresh, so the live heading and citability evidence below still reflects the current deployed site. Post-change citability should be measured after publish.</p>
+        <p>The production GEO/SEO enhancement is live. The quick audit remains 100/100 with no technical findings, crawler files return 200, llms.txt validates with 18 public links, and the homepage now exposes answer-ready sections for Coldstone Soap Co., cold process soap, Black Granite and Stone Forge, and SoapAbacus.</p>
+        <p>Homepage citability improved from the pre-implementation baseline of 27.8 to 43.5 after deployment. The scorer now finds 11 analyzable blocks, including 4 C-grade answer blocks and 0 missing image alt issues.</p>
       </section>
 
       <section class="section panel">
-        <h2>Local Implementation Evidence</h2>
-        <div class="grid-2">
-          <div class="callout"><h3>Answer-ready homepage copy</h3><p><span class="pill good">Implemented locally</span></p><p>Added self-contained sections for Coldstone Soap Co., cold process soap, Black Granite and Stone Forge, and SoapAbacus. Expanded the weak cold process, cure-time, Soap Calculator, and brand-purpose areas with factual, non-medical prose.</p></div>
-          <div class="callout"><h3>Product page citability</h3><p><span class="pill good">Implemented locally</span></p><p>Added visible product summaries for Black Granite and Stone Forge covering ingredients, scent direction, bar weight, process, cure/care guidance, intended use, and related links to blog posts, soapmaking lessons, and SoapAbacus.</p></div>
-          <div class="callout"><h3>Breadcrumb discovery</h3><p><span class="pill good">Implemented locally</span></p><p>Added visible breadcrumbs plus BreadcrumbList JSON-LD on product pages, blog posts, soapmaking module pages, and soapmaking chapter pages.</p></div>
-          <div class="callout"><h3>Collection discovery</h3><p><span class="pill good">Implemented locally</span></p><p>Added ItemList JSON-LD to /shop, /blog, and /soap-making using the existing product, blog, and lesson data sources.</p></div>
+        <h2>Post-Deploy GEO Results</h2>
+        <div class="grid-3">
+          <div class="metric"><span class="label">Quick Audit</span><span class="value">100/100</span><p>No findings.</p></div>
+          <div class="metric"><span class="label">Citability</span><span class="value">43.5</span><p>Improved from 27.8.</p></div>
+          <div class="metric"><span class="label">C-Grade Blocks</span><span class="value">4</span><p>Coldstone, cold process, product pair, and SoapAbacus answer blocks.</p></div>
         </div>
       </section>
 
       <section class="section panel">
-        <h2>Validation Results</h2>
+        <h2>Production Verification</h2>
         <table>
           <thead>
             <tr><th>Check</th><th>Status</th><th>Evidence</th></tr>
           </thead>
           <tbody>
-            <tr><td>npm.cmd test</td><td><span class="pill good">Passed</span></td><td>106 Node tests passed.</td></tr>
-            <tr><td>npm.cmd run lint</td><td><span class="pill good">Passed</span></td><td>ESLint completed successfully.</td></tr>
-            <tr><td>npm.cmd run build</td><td><span class="pill good">Passed</span></td><td>Next.js production build generated 37 static pages and dynamic routes successfully.</td></tr>
-            <tr><td>git diff --check</td><td><span class="pill good">Passed</span></td><td>No whitespace errors were reported; Git only noted normal LF-to-CRLF working-copy warnings.</td></tr>
-            <tr><td>Rendered HTML artifact checks</td><td><span class="pill good">Passed</span></td><td>Built HTML contains homepage answer blocks, ItemList schema on /shop, /blog, and /soap-making, and BreadcrumbList schema on representative product and blog pages.</td></tr>
+            <tr><td>Vercel production deploy</td><td><span class="pill good">Ready</span></td><td>dpl_ArnSDafZgxRVGR16z4sTEcMaNY3a deployed and aliased to coldstonesoap.com and www.coldstonesoap.com.</td></tr>
+            <tr><td>Core live routes</td><td><span class="pill good">Passed</span></td><td>/, /shop, /products/black-granite, /blog, /blog/what-is-cold-process-soap, /soap-making, /robots.txt, /sitemap.xml, and /llms.txt returned 200.</td></tr>
+            <tr><td>Rendered GEO markers</td><td><span class="pill good">Passed</span></td><td>Production HTML contains the new homepage answer blocks, ItemList schema on /shop, /blog, and /soap-making, and BreadcrumbList schema on representative product and blog pages.</td></tr>
+            <tr><td>llms.txt validation</td><td><span class="pill good">Passed</span></td><td>Format valid, 5 sections, 18 public links, no issues.</td></tr>
           </tbody>
         </table>
       </section>
@@ -508,17 +480,17 @@
           </thead>
           <tbody>
             <tr><td>H1</td><td>Built for the Ritual. Ready for the Real Work.</td></tr>
+<tr><td>H2</td><td>Coldstone, cold process soap, and SoapAbacus in clear terms.</td></tr>
+<tr><td>H2</td><td>What is Coldstone Soap Co.?</td></tr>
+<tr><td>H2</td><td>What is cold process soap?</td></tr>
+<tr><td>H2</td><td>What are Black Granite and Stone Forge?</td></tr>
+<tr><td>H2</td><td>What is SoapAbacus?</td></tr>
 <tr><td>H2</td><td>Start with the bars.</td></tr>
 <tr><td>H3</td><td>Black Granite</td></tr>
 <tr><td>H3</td><td>Stone Forge</td></tr>
 <tr><td>H2</td><td>The same standard from bench to sink.</td></tr>
 <tr><td>H3</td><td>Cold process, handled like craft.</td></tr>
 <tr><td>H3</td><td>Mineral-dark materials. No noise.</td></tr>
-<tr><td>H3</td><td>Small-batch order, packed with intent.</td></tr>
-<tr><td>H3</td><td>Bright enough for product clarity.</td></tr>
-<tr><td>H2</td><td>Our Process</td></tr>
-<tr><td>H3</td><td>Cold Process</td></tr>
-<tr><td>H3</td><td>Slow Cured</td></tr>
           </tbody>
         </table>
       </section>
@@ -526,14 +498,14 @@
       <section class="section panel">
         <h2>Recommended Next Checks</h2>
         <ol>
-          <li>Deploy the local changes to production or a Vercel preview URL.</li>
-          <li>Re-run geo_quick_audit.py and llmstxt_generator.py validate against the deployed URL.</li>
-          <li>Re-run citability_scorer.py against the deployed homepage and confirm the average improves from the live baseline of 27.8 toward the 50+ target.</li>
-          <li>Inspect rendered production HTML for canonical tags, Product schema, BreadcrumbList schema, ItemList schema, crawlable answer text, and no accidental noindex.</li>
+          <li>Lift homepage citability from 43.5 to 50+ by expanding the remaining weak sections: Black Granite card text, testimonials, Built with Purpose, and the process blocks.</li>
+          <li>Consider a visible FAQ-style answer section on product pages if product-route citability becomes the next scoring target.</li>
+          <li>Keep external authority work approval-gated: Search Console submissions, Google Business Profile, sameAs additions, directory listings, and outreach were not changed in this pass.</li>
+          <li>Re-run the quick audit and citability scorer after the next content pass or major product copy change.</li>
         </ol>
       </section>
 
-      <p class="footer">Formatted from the AcademAI GEO audit report template. Source audit data refreshed June 3, 2026.</p>
+      <p class="footer">Generated by geo_quick_audit.py from template: D:\Dev\StLouisCreations-Website\docs\GEO-AUDIT-REPORT.html</p>
     </main>
   </body>
 </html>
