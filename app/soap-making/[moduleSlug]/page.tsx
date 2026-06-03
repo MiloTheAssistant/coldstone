@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import Header from '../../components/Header';
 import JsonLd from '../../components/JsonLd';
 import SiteFooter from '../../components/SiteFooter';
 import { getLessonModuleBySlug } from '../../data/soap-lessons';
 import { getLessonLibraryAccess } from '../../lib/lesson-library-access';
 import { isPublicLessonModule } from '../../lib/lesson-library-rules';
-import { SITE_NAME, SITE_URL, absoluteUrl } from '../../lib/seo';
+import { SITE_NAME, SITE_URL, absoluteUrl, breadcrumbSchema } from '../../lib/seo';
 import LessonAuthorityLinks from '../components/LessonAuthorityLinks';
 import LessonChecklist from '../components/LessonChecklist';
 import LessonChapterNav from '../components/LessonChapterNav';
@@ -68,6 +69,11 @@ export default async function SoapLessonModulePage({ params }: ModulePageProps) 
   const access = await getLessonLibraryAccess();
   const previewModule = isPublicLessonModule(lessonModule.slug);
   const canOpenFullLessons = access.allowed;
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Soapmaking Lessons', path: '/soap-making' },
+    { name: lessonModule.title, path: `/soap-making/${lessonModule.slug}` },
+  ];
 
   if (!previewModule && !canOpenFullLessons) {
     return <LessonPaywall reason={access.reason} requestedPath={requestedPath} />;
@@ -97,7 +103,7 @@ export default async function SoapLessonModulePage({ params }: ModulePageProps) 
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-midnight">
-      <JsonLd data={schema} />
+      <JsonLd data={[schema, breadcrumbSchema(breadcrumbs)]} />
       <Header />
       <main>
         <section className="relative overflow-hidden px-5 pb-12 pt-32 sm:px-6 md:pt-40">
@@ -106,6 +112,7 @@ export default async function SoapLessonModulePage({ params }: ModulePageProps) 
             <div className="absolute inset-0 bg-gradient-to-b from-midnight/85 via-midnight/75 to-midnight" />
           </div>
           <div className="relative z-10 mx-auto max-w-6xl min-w-0">
+            <Breadcrumbs items={breadcrumbs} />
             <Link href="/soap-making" className="text-[10px] uppercase tracking-[0.28em] text-gold-400 hover:text-gold-300">
               Back to Lesson Library
             </Link>

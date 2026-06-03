@@ -41,19 +41,42 @@ const processSteps = [
     step: "01",
     title: "Cold Process",
     detail:
-      "Traditional cold process preserves natural glycerin — the skin-loving compound stripped out of commercial soap. No heat. No shortcuts.",
+      "Coldstone Soap Co. makes true cold process soap by combining oils with a measured lye solution, pouring the batch into molds, cutting bars, and letting time finish the work. The process creates soap and naturally occurring glycerin without cooking the batch after mixing. For shoppers, the important part is control: the maker can choose the oil blend, scent direction, bar feel, color, and cure window instead of relying on mass-market shortcuts.",
   },
   {
     step: "02",
     title: "Slow Cured",
     detail:
-      "Every bar cures 4–6 weeks. Patience produces a harder, longer-lasting bar with a dense, creamy lather that outperforms anything mass-market.",
+      "Every Coldstone bar is cured for 4-6 weeks before it is sold. During cure, water continues to leave the bar and the structure becomes firmer, which helps the soap hold up better in regular shower or sink use. Cure time does not replace good bar care, but it is part of the finished product: a draining dish, airflow between uses, and a properly cured bar work together to make handmade soap more practical day after day.",
   },
   {
     step: "03",
     title: "American Made",
     detail:
       "Veteran-owned and operated. Small batch production. Domestic oils. Every bar is made by hand in the USA.",
+  },
+];
+
+const answerBlocks = [
+  {
+    title: "What is Coldstone Soap Co.?",
+    body:
+      "Coldstone Soap Co. is a veteran-owned small-batch soap brand focused on cold process bars for daily washing, field-kit routines, and practical grooming. The catalog is intentionally narrow: Black Granite and Stone Forge are the core bars, supported by clear product pages, soap care guidance, and education for customers who want to understand what they are buying. The brand also publishes soapmaking articles and connects makers to SoapAbacus, a separate calculator tool for planning cold process recipes.",
+  },
+  {
+    title: "What is cold process soap?",
+    body:
+      "Cold process soap is made by mixing oils with a lye solution so the ingredients go through saponification. The batch is poured into a mold, cut into bars, and cured before sale instead of being cooked after mixing. For Coldstone, cold process matters because it lets each bar be designed around a specific oil blend, scent profile, color direction, cure window, and daily-use feel. The result is still simple soap, but the finished bar reflects deliberate recipe choices.",
+  },
+  {
+    title: "What are Black Granite and Stone Forge?",
+    body:
+      "Black Granite and Stone Forge are the two core Coldstone bars. Black Granite is the charcoal-forward bar, built with activated charcoal and tea tree essential oil for a dark mineral look and crisp herbal scent direction. Stone Forge is the warmer bar, built around cedar and sage essential oils in a richer butter-forward base. Both are cold process bars, both are sold by approximate bar weight, and both are positioned for ordinary daily washing rather than cosmetic or medical claims.",
+  },
+  {
+    title: "What is SoapAbacus?",
+    body:
+      "SoapAbacus is Coldstone's companion soap calculator for people planning their own cold process recipes. It helps makers estimate lye and water amounts, compare oils, adjust batch size, document recipe choices, and save work in a structured workspace. SoapAbacus is not a replacement for safe soapmaking practice, protective equipment, or careful measuring. It is a planning tool that makes recipe math easier to review before a maker commits ingredients to a batch.",
   },
 ];
 
@@ -215,6 +238,29 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="bg-midnight px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <ScrollReveal className="mb-10 max-w-3xl">
+            <p className="mb-3 text-[10px] uppercase tracking-[0.45em] text-gold-500">Plain Answers</p>
+            <h2 className="font-serif text-3xl leading-tight text-parchment-100 md:text-4xl">
+              Coldstone, cold process soap, and SoapAbacus in clear terms.
+            </h2>
+            <div className="my-6 h-px w-14 bg-gold-500/60" />
+          </ScrollReveal>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {answerBlocks.map((block, index) => (
+              <ScrollReveal key={block.title} delay={index * 80}>
+                <article className="h-full border border-gold-500/15 bg-navy-900/55 p-5 sm:p-6">
+                  <h2 className="mb-4 font-serif text-2xl text-parchment-100">{block.title}</h2>
+                  <p className="text-sm leading-8 text-parchment-300">{block.body}</p>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Products ── */}
       <section id="shop" className="py-14 md:py-24 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
         <div className="max-w-6xl mx-auto">
@@ -354,7 +400,7 @@ export default function Home() {
             </h2>
             <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
-              Design your own cold process recipes. Calculate lye and water amounts, explore our oils database, generate recipes by goal, and save your creations.
+              SoapAbacus is a recipe-planning workspace for cold process soapmakers. Use it to calculate lye and water amounts, compare oil choices, explore recipe goals, and save batch notes before you make soap. The tool is designed for planning and documentation; makers still need careful measuring, safety gear, and their own process judgment at the bench.
             </p>
             <a
               href={SOAP_ABACUS_LINK.href}

@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import Breadcrumbs from '../../components/Breadcrumbs';
 import Header from '../../components/Header';
 import JsonLd from '../../components/JsonLd';
 import SiteFooter from '../../components/SiteFooter';
 import { getBlogPostBySlug, getPublishedBlogPosts } from '../../data/blog';
-import { SITE_NAME, SITE_URL, absoluteUrl } from '../../lib/seo';
+import { SITE_NAME, SITE_URL, absoluteUrl, breadcrumbSchema } from '../../lib/seo';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -71,6 +72,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = getPublishedBlogPosts()
     .filter((candidate) => candidate.slug !== post.slug)
     .slice(0, 3);
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Blog', path: '/blog' },
+    { name: post.title, path: `/blog/${post.slug}` },
+  ];
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -99,13 +105,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <div className="min-h-screen bg-midnight">
-      <JsonLd data={articleSchema} />
+      <JsonLd data={[articleSchema, breadcrumbSchema(breadcrumbs)]} />
       <Header />
       <main>
         <article>
           <section className="px-5 sm:px-6 pt-32 pb-10 md:pt-40 md:pb-14 bg-midnight grain-overlay">
             <div className="max-w-6xl mx-auto grid lg:grid-cols-[0.85fr_1.15fr] gap-8 lg:gap-14 items-end">
               <div>
+                <Breadcrumbs items={breadcrumbs} />
                 <Link
                   href="/blog"
                   className="text-[10px] tracking-[0.28em] text-gold-500 hover:text-gold-300 uppercase"
