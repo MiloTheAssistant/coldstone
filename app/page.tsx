@@ -53,7 +53,7 @@ const processSteps = [
     step: "03",
     title: "American Made",
     detail:
-      "Veteran-owned and operated. Small batch production. Domestic oils. Every bar is made by hand in the USA.",
+      "Coldstone Soap Co. is veteran-owned, small-batch, and based in the United States. The American-made claim refers to the bar production itself: batches are mixed, poured, cut, cured, wrapped, and prepared for sale by hand before they appear in the shop. The brand keeps the catalog intentionally focused so customers can compare a narrow set of core bars instead of sorting through a large fragrance lineup.",
   },
 ];
 
@@ -365,6 +365,13 @@ export default function Home() {
               What Our Customers Are Saying
             </h2>
             <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
+            <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-parchment-400">
+              Coldstone customer reviews are presented as buyer feedback about bar feel, scent direction,
+              longevity, and support for a veteran-owned small business. They are not medical claims or
+              guarantees. The comments below point to common purchase reasons: Black Granite for a crisp
+              charcoal-and-tea-tree profile, Stone Forge for a warmer cedar-and-sage profile, and the overall
+              preference for a simple handmade soap catalog.
+            </p>
           </ScrollReveal>
 
           {/* Horizontal scroll on mobile, grid on desktop */}
@@ -435,14 +442,18 @@ export default function Home() {
               Built with Purpose
             </h2>
             <p className="text-parchment-400 leading-relaxed mb-5 text-sm">
-              Coldstone Soap Co. was founded on the belief that everyday essentials should be built
-              with intention. As a veteran-owned small business, we bring the care and precision
-              developed through service to the craft of soapmaking.
+              Coldstone Soap Co. is a veteran-owned soap company built around a small number of
+              intentional cold process bars instead of a crowded product catalog. The brand focus is
+              practical: clear ingredients, visible bar details, straightforward care guidance, and
+              product pages that explain what each bar is before a customer buys it.
             </p>
             <p className="text-parchment-400 leading-relaxed mb-8 sm:mb-10 text-sm">
-              Each batch is produced using the traditional cold process method and slow-cured to
-              ensure durability, skin compatibility, and real performance. No fillers. No shortcuts.
-              No compromise.
+              Each batch is made with the traditional cold process method, cut into bars, and cured
+              before sale. Black Granite and Stone Forge anchor the catalog because they give customers
+              two distinct choices: a charcoal-and-tea-tree bar with a crisp mineral profile, and a
+              cedar-and-sage bar with a warmer wood profile. The site also supports soap education
+              through blog guides, FAQ content, and the SoapAbacus calculator for makers planning their
+              own recipes.
             </p>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-[10px] tracking-[0.25em] sm:tracking-[0.35em] text-gold-500/70 border-t border-gold-500/20 pt-6 sm:pt-8">
               <span>VETERAN OWNED</span>
