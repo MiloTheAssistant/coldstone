@@ -39,19 +39,19 @@ const testimonials = [
 const processSteps = [
   {
     step: "01",
-    title: "Cold Process",
+    title: "What is Coldstone's cold process method?",
     detail:
       "Coldstone Soap Co. makes true cold process soap by combining oils with a measured lye solution, pouring the batch into molds, cutting bars, and letting time finish the work. The process creates soap and naturally occurring glycerin without cooking the batch after mixing. For shoppers, the important part is control: the maker can choose the oil blend, scent direction, bar feel, color, and cure window instead of relying on mass-market shortcuts.",
   },
   {
     step: "02",
-    title: "Slow Cured",
+    title: "Why is Coldstone soap slow cured?",
     detail:
       "Every Coldstone bar is cured for 4-6 weeks before it is sold. During cure, water continues to leave the bar and the structure becomes firmer, which helps the soap hold up better in regular shower or sink use. Cure time does not replace good bar care, but it is part of the finished product: a draining dish, airflow between uses, and a properly cured bar work together to make handmade soap more practical day after day.",
   },
   {
     step: "03",
-    title: "American Made",
+    title: "What does American made mean for Coldstone?",
     detail:
       "Coldstone Soap Co. is veteran-owned, small-batch, and based in the United States. The American-made claim refers to the bar production itself: batches are mixed, poured, cut, cured, wrapped, and prepared for sale by hand before they appear in the shop. The brand keeps the catalog intentionally focused so customers can compare a narrow set of core bars instead of sorting through a large fragrance lineup.",
   },
@@ -362,7 +362,7 @@ export default function Home() {
           <ScrollReveal className="text-center mb-10 md:mb-16">
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">REVIEWS</p>
             <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">
-              What Our Customers Are Saying
+              What do Coldstone reviews describe?
             </h2>
             <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
             <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-parchment-400">
@@ -403,7 +403,7 @@ export default function Home() {
           <ScrollReveal>
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-4">FREE TOOL</p>
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-4">
-              Soap Calculator
+              What is the SoapAbacus soap calculator?
             </h2>
             <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
@@ -439,7 +439,7 @@ export default function Home() {
           <ScrollReveal delay={120}>
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-5">OUR STORY</p>
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-6 sm:mb-8 leading-snug">
-              Built with Purpose
+              What does Built with Purpose mean?
             </h2>
             <p className="text-parchment-400 leading-relaxed mb-5 text-sm">
               Built with Purpose is Coldstone Soap Co.&apos;s way of describing a focused, veteran-owned
