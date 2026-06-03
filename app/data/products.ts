@@ -50,7 +50,7 @@ export const products: Product[] = [
     name: 'Stone Forge',
     tagline: 'Strength in Simplicity.',
     shortDescription:
-      'Stone Forge is Coldstone Soap Co.\'s warm wood-and-herb cold process soap bar for daily washing. It uses olive oil, coconut oil, shea butter, cocoa butter, cedar oil, and sage oil in an approximate 4.5 oz bar. The bar has an earthy cedar-and-sage scent direction, a richer butter-forward base, and a sturdy daily-use feel. It is intended for sink, shower, or travel-kit use with dry storage between washes.',
+      'Stone Forge is Coldstone Soap Co.\'s warm wood-and-herb cold process soap bar for daily washing. It uses olive oil, coconut oil, shea butter, cocoa butter, cedar oil, and sage oil in an approximate 4.5 oz bar. The bar has an earthy cedar-and-sage scent direction, a richer butter-forward base, and a sturdy daily-use feel. Choose Stone Forge when you want a handmade soap with a warmer scent profile than Black Granite. It is intended for sink, shower, or travel-kit use with dry storage between washes.',
     description:
       'A blend of cedar and sage essential oils grounded in a triple-butter base. Dense lather, long-lasting bar, earthy finish, and a sturdy feel built for daily use.',
     ingredients: ['Olive oil', 'Coconut oil', 'Shea butter', 'Cocoa butter', 'Cedar oil', 'Sage oil'],

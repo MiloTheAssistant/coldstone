@@ -47,7 +47,7 @@ const processSteps = [
     step: "02",
     title: "Why is Coldstone soap slow cured?",
     detail:
-      "Every Coldstone bar is cured for 4-6 weeks before it is sold. During cure, water continues to leave the bar and the structure becomes firmer, which helps the soap hold up better in regular shower or sink use. Cure time does not replace good bar care, but it is part of the finished product: a draining dish, airflow between uses, and a properly cured bar work together to make handmade soap more practical day after day.",
+      "Coldstone soap is slow cured because cold process bars need time after cutting before they are ready for daily use. Each Coldstone bar rests for 4-6 weeks before sale, giving water time to leave the soap and the bar structure time to become firmer. For customers, slow curing supports a harder handmade soap bar for regular sink, shower, or travel-kit use. Cure time is not a medical or cosmetic claim; it works with a draining dish, airflow, and dry storage between washes.",
   },
   {
     step: "03",
@@ -166,7 +166,7 @@ export default function Home() {
               </h1>
               <div className="my-7 h-px w-16 bg-stone-400/80" />
               <p className="max-w-[320px] text-sm leading-7 text-parchment-300 sm:max-w-xl sm:text-base">
-                Cold process bars with a slow cure, mineral-dark character, and disciplined utility for the sink, the shower kit, and the everyday field kit.
+                Coldstone Soap Co. makes cold process soap for daily washing, shower kits, field-kit routines, and practical grooming. The core bars are slow cured, mineral-dark, and intentionally simple: Black Granite leans charcoal and tea tree, while Stone Forge leans cedar and sage. SoapAbacus supports makers separately with recipe-planning tools.
               </p>
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <a
@@ -407,7 +407,7 @@ export default function Home() {
             </h2>
             <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
-              SoapAbacus is a recipe-planning workspace for cold process soapmakers. Use it to calculate lye and water amounts, compare oil choices, explore recipe goals, and save batch notes before you make soap. The tool is designed for planning and documentation; makers still need careful measuring, safety gear, and their own process judgment at the bench.
+              SoapAbacus is the Coldstone soap calculator for cold process recipe planning. Soapmakers can use SoapAbacus to calculate lye and water amounts, compare oil choices, adjust batch size, explore recipe goals, save notes, and review formula math before a batch. The calculator is designed for planning and documentation, not automatic safety approval. Makers still need accurate scales, protective equipment, safe lye handling, supplier limits, and their own process judgment at the bench.
             </p>
             <a
               href={SOAP_ABACUS_LINK.href}
