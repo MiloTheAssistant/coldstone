@@ -29,7 +29,9 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         <p className="text-[9px] tracking-[0.35em] sm:tracking-[0.45em] text-gold-500/70 mb-2">
           {product.notes.toUpperCase()}
         </p>
-        <h3 className="font-serif text-xl sm:text-2xl text-parchment-100 mb-1">What is {product.name}?</h3>
+        <h3 className="font-serif text-xl sm:text-2xl text-parchment-100 mb-1">
+          {`What is ${product.name}?`}
+        </h3>
         <p className="text-xs tracking-[0.15em] sm:tracking-[0.2em] text-parchment-400 mb-4 italic">
           {product.tagline}
         </p>
