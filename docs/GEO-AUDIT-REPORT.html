@@ -197,6 +197,11 @@
         color: var(--good);
       }
 
+      .pill.warn {
+        border-color: rgba(255, 209, 102, 0.45);
+        color: var(--warn);
+      }
+
       .section {
         margin-top: 24px;
       }
@@ -384,7 +389,7 @@ h1, h2, h3 { letter-spacing: 0; }
           <h1>Coldstone Soap Co. | Pure. American. Uncompromising.</h1>
           <p class="hero-copy">Browser-ready GEO/SEO report for <a href="https://www.coldstonesoap.com">https://www.coldstonesoap.com</a>. This report uses the St. Louis Creations GEO audit HTML report as its visual template and fills it with the latest captured audit evidence.</p>
           <div class="meta-grid">
-            <div class="metric"><span class="label">Audit Date</span><span class="value">June 03, 2026 01:31 PM Central Daylight Time</span></div>
+            <div class="metric"><span class="label">Audit Date</span><span class="value">June 03, 2026 04:04 PM Central Daylight Time</span></div>
             <div class="metric"><span class="label">Target Host</span><span class="value">www.coldstonesoap.com</span></div>
             <div class="metric"><span class="label">Findings</span><span class="value"></span></div>
           </div>
@@ -399,7 +404,7 @@ h1, h2, h3 { letter-spacing: 0; }
       <section class="section grid-3">
         <div class="metric"><span class="label">HTTP Status</span><span class="value">200</span><p>text/html; charset=utf-8</p></div>
 <div class="metric"><span class="label">Canonical</span><span class="value">https://www.coldstonesoap.com</span></div>
-<div class="metric"><span class="label">Words Captured</span><span class="value">1542</span></div>
+<div class="metric"><span class="label">Words Captured</span><span class="value">1607</span></div>
 <div class="metric"><span class="label">Schema Types</span><span class="value">Organization, Place, PostalAddress, WebSite</span></div>
 <div class="metric"><span class="label">Internal Links</span><span class="value">16</span></div>
 <div class="metric"><span class="label">Images Missing Alt</span><span class="value"></span></div>
@@ -414,16 +419,16 @@ h1, h2, h3 { letter-spacing: 0; }
       <section class="section panel">
         <h2>Executive Summary</h2>
         <p>Handcrafted cold process soap. Veteran owned. Small batch. Minimal ingredients. Made in the USA.</p>
-        <p>The production GEO/SEO enhancement is live. The quick audit remains 100/100 with no technical findings, robots.txt and sitemap.xml return 200, llms.txt validates with 18 public links, and production HTML now includes answer-ready homepage sections, product answer headings, BreadcrumbList schema, and ItemList schema on public collection routes.</p>
-        <p>Homepage citability improved from the pre-implementation baseline of 27.8 to 52.2 after deployment. The scorer now finds 13 analyzable blocks, 9 C-grade blocks, 4 D-grade blocks, and 0 F-grade blocks.</p>
+        <p>The second ColdStone GEO/SEO content pass is live in production. The quick audit remains 100/100 with no technical findings, robots.txt and sitemap.xml return 200, llms.txt validates with 18 public links, and the homepage now has no D-grade or F-grade citability blocks in the live scorer.</p>
+        <p>Homepage citability improved from the original 27.8 baseline to 54.7 after the latest production deploy. The scorer analyzed 13 homepage blocks and found 13 C-grade blocks, 0 D-grade blocks, and 0 F-grade blocks.</p>
       </section>
 
       <section class="section panel">
         <h2>Final Production GEO Results</h2>
         <div class="grid-3">
-          <div class="metric"><span class="label">Quick Audit</span><span class="value">100/100</span><p>No quick-audit findings.</p></div>
-          <div class="metric"><span class="label">Citability</span><span class="value">52.2</span><p>Improved from 27.8 and cleared the 50+ target.</p></div>
-          <div class="metric"><span class="label">C-Grade Blocks</span><span class="value">9</span><p>No F-grade blocks remain.</p></div>
+          <div class="metric"><span class="label">Quick Audit</span><span class="value">100/100</span><p>No quick-audit findings on https://www.coldstonesoap.com.</p></div>
+          <div class="metric"><span class="label">Citability</span><span class="value">54.7</span><p>Improved from 52.2 after the first pass and 27.8 at baseline.</p></div>
+          <div class="metric"><span class="label">C-Grade Blocks</span><span class="value">13/13</span><p>No D-grade or F-grade blocks remain in the homepage scorer.</p></div>
         </div>
       </section>
 
@@ -434,9 +439,9 @@ h1, h2, h3 { letter-spacing: 0; }
             <tr><th>Check</th><th>Status</th><th>Evidence</th></tr>
           </thead>
           <tbody>
-            <tr><td>Vercel production deploy</td><td><span class="pill good">Ready</span></td><td>dpl_3f5mvBZVaoUob93SNan8rKcyexSg deployed and aliased to coldstonesoap.com and www.coldstonesoap.com.</td></tr>
-            <tr><td>Quick GEO audit</td><td><span class="pill good">Passed</span></td><td>Production score is 100/100 with no findings, 1542 captured words, and no missing image alt text.</td></tr>
-            <tr><td>Citability scorer</td><td><span class="pill good">Passed</span></td><td>Average citability score is 52.2 with 9 C-grade blocks and 0 F-grade blocks.</td></tr>
+            <tr><td>Vercel production deploy</td><td><span class="pill good">Ready</span></td><td>dpl_61BiL1z2Mnmk5DozBjJHvvXjRfP6 deployed and aliased to coldstonesoap.com.</td></tr>
+            <tr><td>Quick GEO audit</td><td><span class="pill good">Passed</span></td><td>Production score is 100/100 with no findings, 1607 captured words, and no missing image alt text.</td></tr>
+            <tr><td>Citability scorer</td><td><span class="pill good">Passed</span></td><td>Average citability score is 54.7 with 13 C-grade blocks, 0 D-grade blocks, and 0 F-grade blocks.</td></tr>
             <tr><td>llms.txt validation</td><td><span class="pill good">Passed</span></td><td>Format valid, 5 sections, 18 public links, no issues.</td></tr>
           </tbody>
         </table>
@@ -498,9 +503,10 @@ h1, h2, h3 { letter-spacing: 0; }
       <section class="section panel">
         <h2>Recommended Next Checks</h2>
         <ol>
-          <li>For the next lift, target the remaining D-grade blocks: the hero, Stone Forge product card, slow-cure process block, and SoapAbacus CTA.</li>
-          <li>Keep external authority work approval-gated: Search Console submissions, Google Business Profile, sameAs additions, directory listings, and outreach were not changed in this pass.</li>
-          <li>Re-run quick audit, llms.txt validation, and citability scoring after the next product copy or homepage structure change.</li>
+          <li>Move the next lift away from homepage mechanics and into authority signals: verified brand profiles, sameAs targets, Search Console/Bing Webmaster validation, and consistent external citations.</li>
+          <li>Add more original proof where factual: maker process photos, batch notes, ingredient sourcing details, FAQ expansion, and product care evidence.</li>
+          <li>Keep medical, cosmetic, and unsupported performance claims out of product and review-adjacent copy.</li>
+          <li>Re-run quick audit, llms.txt validation, and citability scoring after the next content or schema change.</li>
         </ol>
       </section>
 
