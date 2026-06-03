@@ -442,10 +442,11 @@ export default function Home() {
               Built with Purpose
             </h2>
             <p className="text-parchment-400 leading-relaxed mb-5 text-sm">
-              Coldstone Soap Co. is a veteran-owned soap company built around a small number of
-              intentional cold process bars instead of a crowded product catalog. The brand focus is
-              practical: clear ingredients, visible bar details, straightforward care guidance, and
-              product pages that explain what each bar is before a customer buys it.
+              Built with Purpose is Coldstone Soap Co.&apos;s way of describing a focused, veteran-owned
+              soap catalog built around practical cold process bars. Instead of offering a crowded
+              fragrance lineup, Coldstone keeps the public shop centered on clear ingredients,
+              visible bar details, straightforward care guidance, and product pages that explain what
+              each bar is before a customer buys it.
             </p>
             <p className="text-parchment-400 leading-relaxed mb-8 sm:mb-10 text-sm">
               Each batch is made with the traditional cold process method, cut into bars, and cured

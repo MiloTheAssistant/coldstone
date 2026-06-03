@@ -28,7 +28,7 @@ export const products: Product[] = [
     name: 'Black Granite',
     tagline: 'Deep. Refreshing. Pure.',
     shortDescription:
-      'Black Granite is Coldstone Soap Co.\'s charcoal-forward cold process soap bar. It uses olive oil, coconut oil, shea butter, activated charcoal, and tea tree essential oil in an approximate 4.5 oz bar. The scent direction is clean, herbal, and mineral-dark, and the bar is made for ordinary daily washing without cosmetic or medical claims.',
+      'Black Granite is Coldstone Soap Co.\'s charcoal-forward cold process soap bar for daily washing. It uses olive oil, coconut oil, shea butter, activated charcoal, and tea tree essential oil in an approximate 4.5 oz bar. The bar has a dark mineral look, a crisp tea-tree scent direction, and a straightforward ingredient profile. It is positioned as handmade soap for sink, shower, or travel-kit use, not as a cosmetic or medical treatment.',
     description:
       'Activated charcoal and tea tree essential oil combine to deliver a deep, clarifying cleanse. Crafted using traditional cold process methods and cured for weeks with a simple, intentional ingredient list.',
     ingredients: ['Olive oil', 'Coconut oil', 'Shea butter', 'Activated charcoal', 'Tea tree oil'],
@@ -50,7 +50,7 @@ export const products: Product[] = [
     name: 'Stone Forge',
     tagline: 'Strength in Simplicity.',
     shortDescription:
-      'Stone Forge is Coldstone Soap Co.\'s warm wood-and-herb cold process soap bar. It uses olive oil, coconut oil, shea butter, cocoa butter, cedar oil, and sage oil in an approximate 4.5 oz bar. The scent direction is earthy, grounded, and resinous, and the bar is intended for daily sink or shower use with simple care between washes.',
+      'Stone Forge is Coldstone Soap Co.\'s warm wood-and-herb cold process soap bar for daily washing. It uses olive oil, coconut oil, shea butter, cocoa butter, cedar oil, and sage oil in an approximate 4.5 oz bar. The bar has an earthy cedar-and-sage scent direction, a richer butter-forward base, and a sturdy daily-use feel. It is intended for sink, shower, or travel-kit use with dry storage between washes.',
     description:
       'A blend of cedar and sage essential oils grounded in a triple-butter base. Dense lather, long-lasting bar, earthy finish, and a sturdy feel built for daily use.',
     ingredients: ['Olive oil', 'Coconut oil', 'Shea butter', 'Cocoa butter', 'Cedar oil', 'Sage oil'],
