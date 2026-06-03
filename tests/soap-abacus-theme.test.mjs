@@ -27,6 +27,12 @@ test('Soap Abacus metadata uses the dedicated clean-workshop OG image', () => {
   assert.match(calculatorLayoutSource, /A bright, maker-friendly soap recipe workspace/);
 });
 
+test('Soap Abacus lesson library promo stays readable in the light theme', () => {
+  assert.match(calculatorSource, /LessonLibraryPromoBanner/);
+  assert.match(calculatorSource, /rgba\(255, 255, 255, 0\.96\)/);
+  assert.doesNotMatch(calculatorSource, /rgba\(2, 6, 14, 0\.94\)/);
+});
+
 test('Soap Abacus OG image is a nonempty 1200 by 630 PNG', () => {
   assert.ok(ogImage.length > 0);
   assert.equal(ogImage.subarray(1, 4).toString('ascii'), 'PNG');

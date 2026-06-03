@@ -1683,10 +1683,10 @@ function LessonLibraryPromoBanner() {
     <a
       href={LESSON_LIBRARY_URL}
       aria-label="Explore the Coldstone Soapmaking Lesson Library"
-      className="group relative block min-h-[128px] overflow-hidden border border-gold-500/25 bg-midnight p-4 shadow-lg shadow-black/25 transition-colors hover:border-gold-400/70 sm:p-5"
+      className="group relative block min-h-[128px] overflow-hidden rounded-xl border border-gold-500/25 bg-white p-4 shadow-lg shadow-black/25 transition-colors hover:border-gold-400/70 sm:p-5"
       style={{
         backgroundImage:
-          "linear-gradient(90deg, rgba(2, 6, 14, 0.94), rgba(2, 6, 14, 0.74)), url('/brand/lessons/soap-making-101-beginners-guide/choose-your-soapmaking-path.png')",
+          "linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 248, 0.88) 58%, rgba(237, 247, 244, 0.76)), url('/brand/lessons/soap-making-101-beginners-guide/choose-your-soapmaking-path.png')",
         backgroundPosition: 'center',
         backgroundSize: 'cover',
       }}
