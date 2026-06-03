@@ -6,7 +6,7 @@ import JsonLd from '../components/JsonLd';
 import PageIntro from '../components/PageIntro';
 import SiteFooter from '../components/SiteFooter';
 import { getLessonModules } from '../data/soap-lessons';
-import { SITE_NAME, SITE_URL } from '../lib/seo';
+import { SITE_NAME, SITE_URL, itemListSchema } from '../lib/seo';
 
 export const metadata: Metadata = {
   title: `Soapmaking Lesson Library | ${SITE_NAME}`,
@@ -31,10 +31,17 @@ export default function SoapMakingPage() {
       url: `${SITE_URL}/soap-making/${module.slug}`,
     })),
   };
+  const lessonItemListSchema = itemListSchema(
+    'Coldstone Soapmaking Lesson Library modules',
+    modules.map((module) => ({
+      name: module.title,
+      url: `${SITE_URL}/soap-making/${module.slug}`,
+    })),
+  );
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-midnight">
-      <JsonLd data={collectionSchema} />
+      <JsonLd data={[collectionSchema, lessonItemListSchema]} />
       <Header />
       <PageIntro
         eyebrow="Soapmaking Lessons"

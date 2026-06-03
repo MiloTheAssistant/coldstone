@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '../components/Header';
+import JsonLd from '../components/JsonLd';
 import PageIntro from '../components/PageIntro';
 import SiteFooter from '../components/SiteFooter';
 import { getBlogCategories, getPublishedBlogPosts } from '../data/blog';
+import { SITE_URL, itemListSchema } from '../lib/seo';
 
 export const metadata: Metadata = {
   title: 'Blog | Coldstone Soap Co.',
@@ -28,9 +30,17 @@ export default function BlogPage() {
   const posts = getPublishedBlogPosts();
   const [featuredPost, ...remainingPosts] = posts;
   const categories = getBlogCategories();
+  const blogItemListSchema = itemListSchema(
+    'Coldstone Soap Co. soapmaking and product education articles',
+    posts.map((post) => ({
+      name: post.title,
+      url: `${SITE_URL}/blog/${post.slug}`,
+    })),
+  );
 
   return (
     <div className="min-h-screen bg-midnight">
+      <JsonLd data={blogItemListSchema} />
       <Header />
       <PageIntro
         eyebrow="Blog"

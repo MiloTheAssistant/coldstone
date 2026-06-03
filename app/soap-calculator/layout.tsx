@@ -2,18 +2,32 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.soapabacus.com'),
-  title: 'Soap Abacus Studio | Recipe Designer',
+  title: 'Soap Abacus | Recipe Workspace for Makers',
   description:
-    'A cold process soap calculator for lye, water, oil percentages, fragrance, cost, saved recipes, and AI-assisted recipe ideas.',
+    'A bright, maker-friendly soap recipe workspace for lye, water, oil percentages, fragrance, costs, saved formulas, and batch planning.',
   alternates: {
     canonical: 'https://www.soapabacus.com',
   },
   openGraph: {
-    title: 'Soap Abacus Studio | Recipe Designer',
+    title: 'Soap Abacus | Recipe Workspace for Makers',
     description:
-      'Plan cold process soap recipes with lye, water, oil percentages, fragrance, cost, saved recipes, and AI-assisted recipe ideas.',
+      'Plan cold process soap recipes in a clean workshop calculator built for makers.',
     type: 'website',
     url: 'https://www.soapabacus.com',
+    images: [
+      {
+        url: '/soap-abacus/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Soap Abacus clean workshop recipe workspace',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Soap Abacus | Recipe Workspace for Makers',
+    description: 'A clean workshop soap recipe calculator built for makers.',
+    images: ['/soap-abacus/og-image.png'],
   },
 };
 

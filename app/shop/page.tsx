@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import Header from '../components/Header';
+import JsonLd from '../components/JsonLd';
 import PageIntro from '../components/PageIntro';
 import ProductCard from '../components/ProductCard';
 import SiteFooter from '../components/SiteFooter';
 import { trustHighlights } from '../data/policies';
 import { products } from '../data/products';
+import { SITE_URL, itemListSchema } from '../lib/seo';
 
 export const metadata: Metadata = {
   title: 'Shop Cold Process Soap | Coldstone Soap Co.',
@@ -16,8 +18,17 @@ export const metadata: Metadata = {
 };
 
 export default function ShopPage() {
+  const shopItemListSchema = itemListSchema(
+    'Coldstone Soap Co. cold process soap products',
+    products.map((product) => ({
+      name: product.name,
+      url: `${SITE_URL}/products/${product.slug}`,
+    })),
+  );
+
   return (
     <div className="min-h-screen bg-midnight">
+      <JsonLd data={shopItemListSchema} />
       <Header />
       <PageIntro
         eyebrow="Shop"

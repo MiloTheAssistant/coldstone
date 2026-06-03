@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GEO Audit Report - Coldstone Soap Co. | Pure. American. Uncompromising.</title>
+    <style>
+:root {
+        color-scheme: dark;
+        --bg: #101113;
+        --panel: #181a1d;
+        --panel-2: #202328;
+        --text: #f4f1ed;
+        --muted: #bbb5ad;
+        --subtle: #87827b;
+        --line: rgba(255, 255, 255, 0.11);
+        --accent: #ff7a1a;
+        --accent-2: #ffc26d;
+        --good: #55d68f;
+        --warn: #ffd166;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(120deg, rgba(255, 122, 26, 0.08), transparent 34%),
+          linear-gradient(180deg, #151619 0%, var(--bg) 34%, #0d0e10 100%);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      a {
+        color: var(--accent-2);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .page {
+        width: min(1160px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 42px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 270px;
+        gap: 28px;
+        align-items: stretch;
+        margin-bottom: 24px;
+      }
+
+      .hero-main,
+      .score-card,
+      .panel,
+      .callout {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-main {
+        padding: 34px;
+      }
+
+      .eyebrow {
+        color: var(--accent-2);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.1;
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin-top: 14px;
+        font-size: clamp(38px, 6vw, 72px);
+        letter-spacing: -0.03em;
+      }
+
+      h2 {
+        font-size: 28px;
+        margin-bottom: 18px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      .hero-copy {
+        max-width: 790px;
+        margin-top: 20px;
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 26px;
+      }
+
+      .meta {
+        padding: 14px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+
+      .meta strong {
+        display: block;
+        color: var(--subtle);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .meta span {
+        display: block;
+        margin-top: 5px;
+        font-weight: 700;
+      }
+
+      .score-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 28px;
+        background:
+          radial-gradient(circle at 50% 18%, rgba(255, 122, 26, 0.32), transparent 42%),
+          linear-gradient(180deg, var(--panel-2), var(--panel));
+      }
+
+      .score-number {
+        font-size: 82px;
+        font-weight: 900;
+        letter-spacing: -0.08em;
+      }
+
+      .score-number small {
+        color: var(--subtle);
+        font-size: 26px;
+        letter-spacing: 0;
+      }
+
+      .score-card p {
+        color: var(--muted);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 5px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .pill.good {
+        border-color: rgba(85, 214, 143, 0.45);
+        color: var(--good);
+      }
+
+      .section {
+        margin-top: 24px;
+      }
+
+      .panel {
+        padding: 26px;
+        margin-bottom: 16px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .metric {
+        padding: 18px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+
+      .metric .label {
+        color: var(--subtle);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .metric .value {
+        display: block;
+        margin-top: 6px;
+        font-size: 30px;
+        font-weight: 900;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+
+      th,
+      td {
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--accent-2);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      td strong {
+        color: var(--text);
+      }
+
+      .bar {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .track {
+        height: 8px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.09);
+        border-radius: 999px;
+      }
+
+      .fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        border-radius: inherit;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: rgba(85, 214, 143, 0.12);
+        color: var(--good);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .callout {
+        padding: 22px 24px;
+        border-left: 4px solid var(--accent);
+      }
+
+      .callout p {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        margin: 0;
+        padding-left: 22px;
+        color: var(--muted);
+      }
+
+      li + li {
+        margin-top: 7px;
+      }
+
+      code,
+      pre {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        color: var(--accent-2);
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 12px 0 0;
+        padding: 16px;
+        background: #0b0c0e;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        color: var(--muted);
+      }
+
+      .footer {
+        margin-top: 34px;
+        color: var(--subtle);
+        font-size: 13px;
+      }
+
+      @media (max-width: 880px) {
+        .hero,
+        .grid-2,
+        .grid-3,
+        .meta-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-main,
+        .score-card,
+        .panel {
+          padding: 22px;
+        }
+      }
+h1, h2, h3 { letter-spacing: 0; }
+.pill.medium, .pill.warning { background: rgba(255, 209, 102, 0.16); color: var(--warn); }
+.pill.high, .pill.critical { background: rgba(255, 122, 26, 0.18); color: var(--accent-2); }
+.pill.low { background: rgba(255, 255, 255, 0.08); color: var(--muted); }
+.crawler-status { text-transform: capitalize; }
+.footer { color: var(--muted); margin-top: 24px; }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero-main">
+          <div class="eyebrow">GEO / SEO Audit Report</div>
+          <h1>Coldstone Soap Co. | Pure. American. Uncompromising.</h1>
+          <p class="hero-copy">Browser-ready GEO/SEO report for <a href="https://www.coldstonesoap.com">https://www.coldstonesoap.com</a>. This report uses the St. Louis Creations GEO audit HTML report as its visual template and fills it with the latest captured audit evidence.</p>
+          <div class="meta-grid">
+            <div class="metric"><span class="label">Audit Date</span><span class="value">June 03, 2026 01:31 PM Central Daylight Time</span></div>
+            <div class="metric"><span class="label">Target Host</span><span class="value">www.coldstonesoap.com</span></div>
+            <div class="metric"><span class="label">Findings</span><span class="value"></span></div>
+          </div>
+        </div>
+        <aside class="score-card" aria-label="GEO quick audit score">
+          <div class="eyebrow">Quick Audit</div>
+          <div class="score-number">100<small>/100</small></div>
+          <p><strong>Excellent.</strong> Score from the no-dependency GEO quick audit helper.</p>
+        </aside>
+      </section>
+
+      <section class="section grid-3">
+        <div class="metric"><span class="label">HTTP Status</span><span class="value">200</span><p>text/html; charset=utf-8</p></div>
+<div class="metric"><span class="label">Canonical</span><span class="value">https://www.coldstonesoap.com</span></div>
+<div class="metric"><span class="label">Words Captured</span><span class="value">1542</span></div>
+<div class="metric"><span class="label">Schema Types</span><span class="value">Organization, Place, PostalAddress, WebSite</span></div>
+<div class="metric"><span class="label">Internal Links</span><span class="value">16</span></div>
+<div class="metric"><span class="label">Images Missing Alt</span><span class="value"></span></div>
+      </section>
+
+      <section class="section grid-3">
+        <div class="metric"><span class="label">robots.txt</span><span class="value">200</span><p>https://www.coldstonesoap.com/robots.txt</p></div>
+<div class="metric"><span class="label">sitemap.xml</span><span class="value">200</span><p>18 URL hints</p></div>
+<div class="metric"><span class="label">llms.txt</span><span class="value">200</span><p>18 links</p></div>
+      </section>
+
+      <section class="section panel">
+        <h2>Executive Summary</h2>
+        <p>Handcrafted cold process soap. Veteran owned. Small batch. Minimal ingredients. Made in the USA.</p>
+        <p>The production GEO/SEO enhancement is live. The quick audit remains 100/100 with no technical findings, robots.txt and sitemap.xml return 200, llms.txt validates with 18 public links, and production HTML now includes answer-ready homepage sections, product answer headings, BreadcrumbList schema, and ItemList schema on public collection routes.</p>
+        <p>Homepage citability improved from the pre-implementation baseline of 27.8 to 52.2 after deployment. The scorer now finds 13 analyzable blocks, 9 C-grade blocks, 4 D-grade blocks, and 0 F-grade blocks.</p>
+      </section>
+
+      <section class="section panel">
+        <h2>Final Production GEO Results</h2>
+        <div class="grid-3">
+          <div class="metric"><span class="label">Quick Audit</span><span class="value">100/100</span><p>No quick-audit findings.</p></div>
+          <div class="metric"><span class="label">Citability</span><span class="value">52.2</span><p>Improved from 27.8 and cleared the 50+ target.</p></div>
+          <div class="metric"><span class="label">C-Grade Blocks</span><span class="value">9</span><p>No F-grade blocks remain.</p></div>
+        </div>
+      </section>
+
+      <section class="section panel">
+        <h2>Production Verification</h2>
+        <table>
+          <thead>
+            <tr><th>Check</th><th>Status</th><th>Evidence</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Vercel production deploy</td><td><span class="pill good">Ready</span></td><td>dpl_3f5mvBZVaoUob93SNan8rKcyexSg deployed and aliased to coldstonesoap.com and www.coldstonesoap.com.</td></tr>
+            <tr><td>Quick GEO audit</td><td><span class="pill good">Passed</span></td><td>Production score is 100/100 with no findings, 1542 captured words, and no missing image alt text.</td></tr>
+            <tr><td>Citability scorer</td><td><span class="pill good">Passed</span></td><td>Average citability score is 52.2 with 9 C-grade blocks and 0 F-grade blocks.</td></tr>
+            <tr><td>llms.txt validation</td><td><span class="pill good">Passed</span></td><td>Format valid, 5 sections, 18 public links, no issues.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section panel">
+        <h2>Findings Status</h2>
+        <div class="grid-2">
+          <div class="callout"><h3>No quick-audit findings</h3><p><span class="pill good">Clear</span></p><p>The baseline technical checks did not return open findings. Continue validating citability, content evidence, and live rendering before treating the audit as complete.</p></div>
+        </div>
+      </section>
+
+      <section class="section panel">
+        <h2>AI Crawler Access Matrix</h2>
+        <table>
+          <thead>
+            <tr><th>User Agent</th><th>Access</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Applebot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>Bingbot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>Bytespider</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>CCBot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>ChatGPT-User</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>Claude-User</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>ClaudeBot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>GPTBot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>Google-Extended</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>GoogleOther</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>OAI-SearchBot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+<tr><td>PerplexityBot</td><td><span class="crawler-status">allowed</span></td><td><span class="pill good">Good</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section panel">
+        <h2>Heading Evidence</h2>
+        <table>
+          <thead>
+            <tr><th>Level</th><th>Text</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>H1</td><td>Built for the Ritual. Ready for the Real Work.</td></tr>
+<tr><td>H2</td><td>Coldstone, cold process soap, and SoapAbacus in clear terms.</td></tr>
+<tr><td>H2</td><td>What is Coldstone Soap Co.?</td></tr>
+<tr><td>H2</td><td>What is cold process soap?</td></tr>
+<tr><td>H2</td><td>What are Black Granite and Stone Forge?</td></tr>
+<tr><td>H2</td><td>What is SoapAbacus?</td></tr>
+<tr><td>H2</td><td>Start with the bars.</td></tr>
+<tr><td>H3</td><td>What is Black Granite?</td></tr>
+<tr><td>H3</td><td>What is Stone Forge?</td></tr>
+<tr><td>H2</td><td>The same standard from bench to sink.</td></tr>
+<tr><td>H3</td><td>Cold process, handled like craft.</td></tr>
+<tr><td>H3</td><td>Mineral-dark materials. No noise.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section panel">
+        <h2>Recommended Next Checks</h2>
+        <ol>
+          <li>For the next lift, target the remaining D-grade blocks: the hero, Stone Forge product card, slow-cure process block, and SoapAbacus CTA.</li>
+          <li>Keep external authority work approval-gated: Search Console submissions, Google Business Profile, sameAs additions, directory listings, and outreach were not changed in this pass.</li>
+          <li>Re-run quick audit, llms.txt validation, and citability scoring after the next product copy or homepage structure change.</li>
+        </ol>
+      </section>
+
+      <p class="footer">Generated by geo_quick_audit.py from template: D:\Dev\StLouisCreations-Website\docs\GEO-AUDIT-REPORT.html</p>
+    </main>
+  </body>
+</html>

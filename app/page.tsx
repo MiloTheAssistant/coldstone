@@ -39,21 +39,44 @@ const testimonials = [
 const processSteps = [
   {
     step: "01",
-    title: "Cold Process",
+    title: "What is Coldstone's cold process method?",
     detail:
-      "Traditional cold process preserves natural glycerin — the skin-loving compound stripped out of commercial soap. No heat. No shortcuts.",
+      "Coldstone Soap Co. makes true cold process soap by combining oils with a measured lye solution, pouring the batch into molds, cutting bars, and letting time finish the work. The process creates soap and naturally occurring glycerin without cooking the batch after mixing. For shoppers, the important part is control: the maker can choose the oil blend, scent direction, bar feel, color, and cure window instead of relying on mass-market shortcuts.",
   },
   {
     step: "02",
-    title: "Slow Cured",
+    title: "Why is Coldstone soap slow cured?",
     detail:
-      "Every bar cures 4–6 weeks. Patience produces a harder, longer-lasting bar with a dense, creamy lather that outperforms anything mass-market.",
+      "Every Coldstone bar is cured for 4-6 weeks before it is sold. During cure, water continues to leave the bar and the structure becomes firmer, which helps the soap hold up better in regular shower or sink use. Cure time does not replace good bar care, but it is part of the finished product: a draining dish, airflow between uses, and a properly cured bar work together to make handmade soap more practical day after day.",
   },
   {
     step: "03",
-    title: "American Made",
+    title: "What does American made mean for Coldstone?",
     detail:
-      "Veteran-owned and operated. Small batch production. Domestic oils. Every bar is made by hand in the USA.",
+      "Coldstone Soap Co. is veteran-owned, small-batch, and based in the United States. The American-made claim refers to the bar production itself: batches are mixed, poured, cut, cured, wrapped, and prepared for sale by hand before they appear in the shop. The brand keeps the catalog intentionally focused so customers can compare a narrow set of core bars instead of sorting through a large fragrance lineup.",
+  },
+];
+
+const answerBlocks = [
+  {
+    title: "What is Coldstone Soap Co.?",
+    body:
+      "Coldstone Soap Co. is a veteran-owned small-batch soap brand focused on cold process bars for daily washing, field-kit routines, and practical grooming. The catalog is intentionally narrow: Black Granite and Stone Forge are the core bars, supported by clear product pages, soap care guidance, and education for customers who want to understand what they are buying. The brand also publishes soapmaking articles and connects makers to SoapAbacus, a separate calculator tool for planning cold process recipes.",
+  },
+  {
+    title: "What is cold process soap?",
+    body:
+      "Cold process soap is made by mixing oils with a lye solution so the ingredients go through saponification. The batch is poured into a mold, cut into bars, and cured before sale instead of being cooked after mixing. For Coldstone, cold process matters because it lets each bar be designed around a specific oil blend, scent profile, color direction, cure window, and daily-use feel. The result is still simple soap, but the finished bar reflects deliberate recipe choices.",
+  },
+  {
+    title: "What are Black Granite and Stone Forge?",
+    body:
+      "Black Granite and Stone Forge are the two core Coldstone bars. Black Granite is the charcoal-forward bar, built with activated charcoal and tea tree essential oil for a dark mineral look and crisp herbal scent direction. Stone Forge is the warmer bar, built around cedar and sage essential oils in a richer butter-forward base. Both are cold process bars, both are sold by approximate bar weight, and both are positioned for ordinary daily washing rather than cosmetic or medical claims.",
+  },
+  {
+    title: "What is SoapAbacus?",
+    body:
+      "SoapAbacus is Coldstone's companion soap calculator for people planning their own cold process recipes. It helps makers estimate lye and water amounts, compare oils, adjust batch size, document recipe choices, and save work in a structured workspace. SoapAbacus is not a replacement for safe soapmaking practice, protective equipment, or careful measuring. It is a planning tool that makes recipe math easier to review before a maker commits ingredients to a batch.",
   },
 ];
 
@@ -215,6 +238,29 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="bg-midnight px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <ScrollReveal className="mb-10 max-w-3xl">
+            <p className="mb-3 text-[10px] uppercase tracking-[0.45em] text-gold-500">Plain Answers</p>
+            <h2 className="font-serif text-3xl leading-tight text-parchment-100 md:text-4xl">
+              Coldstone, cold process soap, and SoapAbacus in clear terms.
+            </h2>
+            <div className="my-6 h-px w-14 bg-gold-500/60" />
+          </ScrollReveal>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {answerBlocks.map((block, index) => (
+              <ScrollReveal key={block.title} delay={index * 80}>
+                <article className="h-full border border-gold-500/15 bg-navy-900/55 p-5 sm:p-6">
+                  <h2 className="mb-4 font-serif text-2xl text-parchment-100">{block.title}</h2>
+                  <p className="text-sm leading-8 text-parchment-300">{block.body}</p>
+                </article>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Products ── */}
       <section id="shop" className="py-14 md:py-24 px-5 sm:px-6 bg-navy-800 grain-overlay stars-bg">
         <div className="max-w-6xl mx-auto">
@@ -316,9 +362,16 @@ export default function Home() {
           <ScrollReveal className="text-center mb-10 md:mb-16">
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-3">REVIEWS</p>
             <h2 className="font-serif text-3xl md:text-4xl text-parchment-100">
-              What Our Customers Are Saying
+              What do Coldstone reviews describe?
             </h2>
             <div className="w-12 h-px bg-gold-500/50 mx-auto mt-6" />
+            <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-parchment-400">
+              Coldstone customer reviews are presented as buyer feedback about bar feel, scent direction,
+              longevity, and support for a veteran-owned small business. They are not medical claims or
+              guarantees. The comments below point to common purchase reasons: Black Granite for a crisp
+              charcoal-and-tea-tree profile, Stone Forge for a warmer cedar-and-sage profile, and the overall
+              preference for a simple handmade soap catalog.
+            </p>
           </ScrollReveal>
 
           {/* Horizontal scroll on mobile, grid on desktop */}
@@ -350,11 +403,11 @@ export default function Home() {
           <ScrollReveal>
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-4">FREE TOOL</p>
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-4">
-              Soap Calculator
+              What is the SoapAbacus soap calculator?
             </h2>
             <div className="w-10 h-px bg-gold-500/50 mx-auto mb-5" />
             <p className="text-parchment-400 text-sm mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
-              Design your own cold process recipes. Calculate lye and water amounts, explore our oils database, generate recipes by goal, and save your creations.
+              SoapAbacus is a recipe-planning workspace for cold process soapmakers. Use it to calculate lye and water amounts, compare oil choices, explore recipe goals, and save batch notes before you make soap. The tool is designed for planning and documentation; makers still need careful measuring, safety gear, and their own process judgment at the bench.
             </p>
             <a
               href={SOAP_ABACUS_LINK.href}
@@ -386,17 +439,22 @@ export default function Home() {
           <ScrollReveal delay={120}>
             <p className="text-[10px] tracking-[0.4em] sm:tracking-[0.5em] text-gold-500 mb-5">OUR STORY</p>
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-parchment-100 mb-6 sm:mb-8 leading-snug">
-              Built with Purpose
+              What does Built with Purpose mean?
             </h2>
             <p className="text-parchment-400 leading-relaxed mb-5 text-sm">
-              Coldstone Soap Co. was founded on the belief that everyday essentials should be built
-              with intention. As a veteran-owned small business, we bring the care and precision
-              developed through service to the craft of soapmaking.
+              Built with Purpose is Coldstone Soap Co.&apos;s way of describing a focused, veteran-owned
+              soap catalog built around practical cold process bars. Instead of offering a crowded
+              fragrance lineup, Coldstone keeps the public shop centered on clear ingredients,
+              visible bar details, straightforward care guidance, and product pages that explain what
+              each bar is before a customer buys it.
             </p>
             <p className="text-parchment-400 leading-relaxed mb-8 sm:mb-10 text-sm">
-              Each batch is produced using the traditional cold process method and slow-cured to
-              ensure durability, skin compatibility, and real performance. No fillers. No shortcuts.
-              No compromise.
+              Each batch is made with the traditional cold process method, cut into bars, and cured
+              before sale. Black Granite and Stone Forge anchor the catalog because they give customers
+              two distinct choices: a charcoal-and-tea-tree bar with a crisp mineral profile, and a
+              cedar-and-sage bar with a warmer wood profile. The site also supports soap education
+              through blog guides, FAQ content, and the SoapAbacus calculator for makers planning their
+              own recipes.
             </p>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-[10px] tracking-[0.25em] sm:tracking-[0.35em] text-gold-500/70 border-t border-gold-500/20 pt-6 sm:pt-8">
               <span>VETERAN OWNED</span>

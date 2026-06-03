@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import Breadcrumbs from '../../../components/Breadcrumbs';
 import Header from '../../../components/Header';
 import JsonLd from '../../../components/JsonLd';
 import SiteFooter from '../../../components/SiteFooter';
 import { getLessonChapterBySlug, getLessonModuleBySlug } from '../../../data/soap-lessons';
 import { getLessonLibraryAccess } from '../../../lib/lesson-library-access';
-import { SITE_NAME, SITE_URL, absoluteUrl } from '../../../lib/seo';
+import { SITE_NAME, SITE_URL, absoluteUrl, breadcrumbSchema } from '../../../lib/seo';
 import LessonAuthorityLinks from '../../components/LessonAuthorityLinks';
 import LessonChapterNav from '../../components/LessonChapterNav';
 import LessonChecklist from '../../components/LessonChecklist';
@@ -59,6 +60,12 @@ export default async function SoapLessonChapterPage({ params }: ChapterPageProps
   const chapterIndex = lessonModule.chapters.findIndex((candidate) => candidate.slug === chapter.slug);
   const previous = lessonModule.chapters[chapterIndex - 1];
   const next = lessonModule.chapters[chapterIndex + 1];
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Soapmaking Lessons', path: '/soap-making' },
+    { name: lessonModule.title, path: `/soap-making/${lessonModule.slug}` },
+    { name: chapter.title, path: `/soap-making/${lessonModule.slug}/${chapter.slug}` },
+  ];
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -82,12 +89,13 @@ export default async function SoapLessonChapterPage({ params }: ChapterPageProps
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-midnight">
-      <JsonLd data={schema} />
+      <JsonLd data={[schema, breadcrumbSchema(breadcrumbs)]} />
       <Header />
       <main>
         <section className="px-5 pb-10 pt-32 sm:px-6 md:pt-40">
           <div className="mx-auto grid max-w-6xl min-w-0 gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
             <div className="min-w-0">
+              <Breadcrumbs items={breadcrumbs} />
               <Link href={`/soap-making/${lessonModule.slug}`} className="text-[10px] uppercase tracking-[0.28em] text-gold-400 hover:text-gold-300">
                 Back to {lessonModule.title}
               </Link>

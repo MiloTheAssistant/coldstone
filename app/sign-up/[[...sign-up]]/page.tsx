@@ -5,22 +5,22 @@ import { SignUp } from '@clerk/nextjs';
 const SOAP_ABACUS_ACCOUNT_URL = '/soap-calculator/account';
 
 export const metadata: Metadata = {
-  title: 'Create Account | Soap Abacus Studio',
+  title: 'Create Account | Soap Abacus',
   description: 'Create a free Soap Abacus account to unlock recipe editing, saving, and membership options.',
   robots: {
     index: false,
     follow: false,
   },
   openGraph: {
-    title: 'Create Account | Soap Abacus Studio',
+    title: 'Create Account | Soap Abacus',
     description: 'Create a free Soap Abacus account to unlock recipe editing, saving, and membership options.',
     url: 'https://www.soapabacus.com/sign-up',
-    siteName: 'Soap Abacus Studio',
+    siteName: 'Soap Abacus',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'Create Account | Soap Abacus Studio',
+    title: 'Create Account | Soap Abacus',
     description: 'Create a free Soap Abacus account to unlock recipe editing, saving, and membership options.',
   },
 };
@@ -29,7 +29,7 @@ export default function SignUpPage() {
   const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
   return (
-    <main className="min-h-screen bg-midnight text-parchment-200 flex items-center justify-center px-4 py-16">
+    <main className="soap-abacus-light min-h-screen bg-midnight text-parchment-200 flex items-center justify-center px-4 py-16">
       {clerkEnabled ? (
         <SignUp
           fallbackRedirectUrl={SOAP_ABACUS_ACCOUNT_URL}
@@ -42,7 +42,7 @@ export default function SignUpPage() {
             Clerk is wired into the app, but account keys have not been configured in this environment yet.
           </p>
           <Link href="/soap-calculator" className="mt-6 inline-block text-sm text-gold-400 hover:text-gold-300">
-            Return to Soap Abacus Studio
+            Return to Soap Abacus
           </Link>
         </div>
       )}
